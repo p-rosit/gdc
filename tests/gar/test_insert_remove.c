@@ -5,29 +5,37 @@
 
 
 UNIT_TEST(insert_value) {
-    size_t cap = 20, size = 4;
+    size_t cap = 10, size = 4;
     int_gar_t arr;
 
     CALL_TEST(make_array, &arr, cap, size);
 
     ASSERT_EQUAL(int_gar_insert(&arr, 2, -1), GAR_OK, "Could not insert value.");
 
-    ASSERT_EQUAL(arr.size, size + 1, "Size is %lu instead of %lu.", arr.size, size + 1);
-    ASSERT_EQUAL(arr.values[0], 0, "%d inserted at index 0 instead of 0.", arr.values[0]);
-    ASSERT_EQUAL(arr.values[1], 1, "%d inserted at index 1 instead of 1.", arr.values[1]);
-    ASSERT_EQUAL(arr.values[2], -1, "%d inserted at index 2 instead of -1.", arr.values[2]);
-    ASSERT_EQUAL(arr.values[3], 2, "%d inserted at index 3 instead of 2.", arr.values[3]);
-    ASSERT_EQUAL(arr.values[4], 3, "%d inserted at index 4 instead of 3.", arr.values[4]);
+    int res[5] = {0, 1, -1, 2, 3};
+    CALL_TEST(array_eq, &arr, sizeof res / sizeof(int), res);
 
-    ASSERT_EQUAL(int_gar_insert(&arr, size + 1, -1), GAR_OK, "Could not insert value.");
-    ASSERT_EQUAL(arr.values[size + 1], -1, "Value at last index is %d insteadd of -1.", arr.values[size + 1]);
+    int_gar_free(&arr);
+    TEST_END;
+}
+
+UNIT_TEST(insert_final_value) {
+    size_t cap = 10, size = 4;
+    int_gar_t arr;
+
+    CALL_TEST(make_array, &arr, cap, size);
+
+    ASSERT_EQUAL(int_gar_insert(&arr, size, -1), GAR_OK, "Could not insert value.");
+
+    int res[5] = {0, 1, 2, 3, -1};
+    CALL_TEST(array_eq, &arr, sizeof res / sizeof(int), res);
 
     int_gar_free(&arr);
     TEST_END;
 }
 
 UNIT_TEST(remove_value) {
-    size_t cap = 20, size = 4, iters = 0;
+    size_t cap = 10, size = 4;
     int_gar_t arr;
     int v;
 
@@ -35,21 +43,33 @@ UNIT_TEST(remove_value) {
 
     ASSERT_EQUAL(int_gar_remove(&arr, 1, &v), GAR_OK, "Could not remove value.");
 
-    ASSERT_EQUAL(arr.size, size - 1, "Size is %lu instead of %lu.", arr.size, size - 1);
-    ASSERT_EQUAL(arr.values[0], 0, "%d inserted at index 0 instead of 0.", arr.values[0]);
-    ASSERT_EQUAL(arr.values[1], 2, "%d inserted at index 1 instead of 2.", arr.values[1]);
-    ASSERT_EQUAL(arr.values[2], 3, "%d inserted at index 2 instead of 3.", arr.values[2]);
+    int res[3] = {0, 2, 3};
+    CALL_TEST(array_eq, &arr, sizeof res / sizeof(int), res);
     ASSERT_EQUAL(v, 1, "Remove value is %d instead of 1.", v);
 
-    ASSERT_EQUAL(int_gar_remove(&arr, size - 1, NULL), GAR_OK, "Could not remove value.");
-    ASSERT_EQUAL(arr.size, size - 2, "Size is %lu instead of %lu.", arr.size, size - 2);
+    int_gar_free(&arr);
+    TEST_END;
+}
+
+UNIT_TEST(remove_final_value) {
+    size_t cap = 10, size = 4;
+    int_gar_t arr;
+    int v;
+
+    CALL_TEST(make_array, &arr, cap, size);
+
+    ASSERT_EQUAL(int_gar_remove(&arr, 3, &v), GAR_OK, "Could not remove value.");
+
+    int res[3] = {0, 1, 2};
+    CALL_TEST(array_eq, &arr, sizeof res / sizeof(int), res);
+    ASSERT_EQUAL(v, 3, "Remove value is %d instead of 3.", v);
 
     int_gar_free(&arr);
     TEST_END;
 }
 
 UNIT_TEST(invalid_insert) {
-    size_t cap = 20, size = 4;
+    size_t cap = 10, size = 4;
     int_gar_t arr;
 
     CALL_TEST(make_array, &arr, cap, size);
@@ -61,7 +81,7 @@ UNIT_TEST(invalid_insert) {
 }
 
 UNIT_TEST(invalid_remove) {
-    size_t cap = 20, size = 4;
+    size_t cap = 10, size = 4;
     int_gar_t arr;
 
     CALL_TEST(make_array, &arr, cap, size);
@@ -72,11 +92,82 @@ UNIT_TEST(invalid_remove) {
     TEST_END;
 }
 
+UNIT_TEST(inserts) {
+    size_t cap = 10, size = 6, val_size;
+    int_gar_t arr;
+
+    CALL_TEST(make_array, &arr, cap, size);
+
+    int values[5] = {-1, -2, -3, -4, -5};
+    val_size = sizeof values / sizeof(int);
+    ASSERT_EQUAL(int_gar_inserts(&arr, 2, val_size, values), GAR_OK, "Could not insert values.");
+
+    int res[11] = {0, 1, -1, -2, -3, -4, -5, 2, 3, 4, 5};
+    CALL_TEST(array_eq, &arr, sizeof res / sizeof(int), res);
+
+    int_gar_free(&arr);
+    TEST_END;
+}
+
+UNIT_TEST(removes) {
+    size_t cap = 10, size = 6, index = 2, val_size;
+    int_gar_t arr;
+
+    CALL_TEST(make_array, &arr, cap, size);
+
+    int values[3] = {0, 0, 0};
+    val_size = sizeof values / sizeof(int);
+    ASSERT_EQUAL(int_gar_removes(&arr, index, val_size, values), GAR_OK, "Could not remove values.");
+
+    int res[3] = {0, 1, 5};
+    CALL_TEST(array_eq, &arr, sizeof res / sizeof(int), res);
+    for (int i = 0; i < val_size; i++) {
+        ASSERT_EQUAL(values[i], i + index, "index %d has %d, expected: %d.", i, values[i], i + index);
+    }
+
+    int_gar_free(&arr);
+    TEST_END;
+}
+
+UNIT_TEST(invalid_inserts) {
+    size_t cap = 10, size = 6, val_size;
+    int_gar_t arr;
+
+    CALL_TEST(make_array, &arr, cap, size);
+
+    int values[5] = {0, 0, 0, 0, 0};
+    val_size = sizeof values / sizeof(int);
+    ASSERT_EQUAL(int_gar_inserts(&arr, size + 1, val_size, values), GAR_IDX_OOB, "Out of bounds insert was allowed.");
+
+    int_gar_free(&arr);
+    TEST_END;
+}
+
+UNIT_TEST(invalid_removes) {
+    size_t cap = 10, size = 6, val_size;
+    int_gar_t arr;
+
+    CALL_TEST(make_array, &arr, cap, size);
+
+    int values[5] = {0, 0, 0, 0, 0};
+    val_size = sizeof values / sizeof(int);
+    ASSERT_EQUAL(int_gar_removes(&arr, size + 1, val_size, values), GAR_IDX_OOB, "Out of bounds remove was allowed.");
+    ASSERT_EQUAL(int_gar_removes(&arr, size - 2, val_size, values), GAR_IDX_OOB, "Partially out of bounds remove was allowed.");
+
+    int_gar_free(&arr);
+    TEST_END;
+}
 
 LIST_TESTS(
     insert_value,
+    insert_final_value,
     remove_value,
+    remove_final_value,
     invalid_insert,
     invalid_remove,
+    inserts,
+    removes,
+    invalid_inserts,
+    invalid_removes,
 )
 

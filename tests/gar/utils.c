@@ -16,3 +16,11 @@ SUB_TEST(make_array, int_gar_t* arr, size_t cap, size_t size) {
     TEST_END;
 }
 
+SUB_TEST(array_eq, int_gar_t* arr, size_t size, int* values) {
+    ASSERT_EQUAL(arr->size, size, "Size is %lu instead of %lu.", arr->size, size);
+    for (size_t i = 0; i < size; i++) {
+        ASSERT_EQUAL(arr->values[i], values[i], "index %lu has %d, expected: %d.", i, arr->values[i], values[i]);
+    }
+    TEST_END;
+}
+
