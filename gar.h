@@ -229,8 +229,10 @@ typedef enum gar_error {
             capacity /= 2;                                                      \
         }                                                                       \
                                                                                 \
-        for (size_t i = 0; i < n; i++) {                                        \
-            values[i] = array->values[array->size - i - 1];                     \
+        if (values != NULL) {                                                   \
+            for (size_t i = 0; i < n; i++) {                                    \
+                values[i] = array->values[array->size - i - 1];                 \
+            }                                                                   \
         }                                                                       \
                                                                                 \
         array->size -= n;                                                       \
@@ -344,7 +346,9 @@ typedef enum gar_error {
             capacity /= 2;                                                      \
         }                                                                       \
                                                                                 \
-        memcpy(value_ptr, array->values + index, size * sizeof(type));          \
+        if (value_ptr != NULL) {                                                \
+            memcpy(value_ptr, array->values + index, size * sizeof(type));      \
+        }                                                                       \
                                                                                 \
         for (size_t i = 0; i < size; i++) {                                     \
             array->values[index + i] = array->values[index + i + size];         \
@@ -370,7 +374,9 @@ typedef enum gar_error {
         for (size_t i = 0; i < array->size; i++) {                              \
             if (filter(array->values[i])) {                                     \
                 exists = 1;                                                     \
-                *value_ptr = array->values[i];                                  \
+                if (value_ptr != NULL) {                                        \
+                    *value_ptr = array->values[i];                              \
+                }                                                               \
                 break;                                                          \
             }                                                                   \
         }                                                                       \
