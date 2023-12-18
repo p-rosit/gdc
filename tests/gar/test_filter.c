@@ -16,6 +16,22 @@ int more_than_5(int val) {
     return val > 5;
 }
 
+UNIT_TEST(count_values) {
+    size_t cap = 20, size = 10, count = 0;
+    int_gar_t arr;
+
+    CALL_TEST(make_array, &arr, cap, size);
+
+    count = int_gar_count(&arr, is_3);
+    ASSERT_EQUAL(count, 1, "Found %lu values instead of 1.", count);
+
+    count = int_gar_count(&arr, more_than_5);
+    ASSERT_EQUAL(count, 4, "Found %lu values instead of 4.", count);
+
+    int_gar_free(&arr);
+    TEST_END;
+}
+
 UNIT_TEST(find_unique) {
     size_t cap = 20, size = 10;
     int_gar_t arr;
@@ -78,7 +94,9 @@ UNIT_TEST(filter_array) {
 
     int values[8] = {1, 9, 2, 8, 3, 7, 4, 6};
     v_size = sizeof values / sizeof(int);
-    ASSERT_EQUAL(int_gar_pushes(&arr, v_size, values), GAR_OK, "Could not push values.");
+    for (size_t i = 0; i < v_size; i++) {
+        ASSERT_EQUAL(int_gar_push(&arr, values[i]), GAR_OK, "Could not push value.");
+    }
     ASSERT_EQUAL(int_gar_filter(&arr, more_than_5, &filter), GAR_OK, "Could not filter array.");
 
     int res[4] = {9, 8, 7, 6};
@@ -92,6 +110,7 @@ UNIT_TEST(filter_array) {
 }
 
 LIST_TESTS(
+    count_values,
     find_unique,
     find_duplicate,
     find_no_out,

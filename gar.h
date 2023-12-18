@@ -54,17 +54,15 @@ typedef enum gar_error {
     gar_error_t GARP_CONCAT(name, _gar_copy)(GARP_ARR(name)*, GARP_ARR(name)*); \
     void        GARP_CONCAT(name, _gar_free)(GARP_ARR(name)*);                  \
     gar_error_t GARP_CONCAT(name, _gar_set_capacity)(GARP_ARR(name)*, size_t);  \
+    gar_error_t GARP_CONCAT(name, _gar_fit_capacity)(GARP_ARR(name)*);          \
                                                                                 \
     gar_error_t GARP_CONCAT(name, _gar_push)(GARP_ARR(name)*, type);            \
     gar_error_t GARP_CONCAT(name, _gar_pop)(GARP_ARR(name)*, type*);            \
-    gar_error_t GARP_CONCAT(name, _gar_pushes)(GARP_ARR(name)*, size_t, type*); \
-    gar_error_t GARP_CONCAT(name, _gar_pops)(GARP_ARR(name)*, size_t, type*);   \
                                                                                 \
     gar_error_t GARP_CONCAT(name, _gar_insert)(GARP_ARR(name)*, size_t, type);  \
     gar_error_t GARP_CONCAT(name, _gar_remove)(GARP_ARR(name)*, size_t, type*); \
-    gar_error_t GARP_CONCAT(name, _gar_inserts)(GARP_ARR(name)*, size_t, size_t, type*);\
-    gar_error_t GARP_CONCAT(name, _gar_removes)(GARP_ARR(name)*, size_t, size_t, type*);\
                                                                                 \
+    size_t      GARP_CONCAT(name, _gar_count)(GARP_ARR(name)*, int (*filter)(type)); \
     gar_error_t GARP_CONCAT(name, _gar_find)(GARP_ARR(name)*, int (*filter)(type), type*); \
     gar_error_t GARP_CONCAT(name, _gar_filter)(GARP_ARR(name)*, int (*filter)(type), GARP_ARR(name)*); \
 
@@ -83,17 +81,15 @@ typedef enum gar_error {
     GARP_COPY(name, type)                                                       \
     GARP_FREE(name, type)                                                       \
     GARP_SET_CAPACITY(name, type)                                               \
+    GARP_FIT_CAPACITY(name, type)                                               \
                                                                                 \
     GARP_PUSH(name, type)                                                       \
     GARP_POP(name, type)                                                        \
-    GARP_PUSHES(name, type)                                                     \
-    GARP_POPS(name, type)                                                       \
                                                                                 \
     GARP_INSERT(name, type)                                                     \
     GARP_REMOVE(name, type)                                                     \
-    GARP_INSERTS(name, type)                                                    \
-    GARP_REMOVES(name, type)                                                    \
                                                                                 \
+    GARP_COUNT(name, type)                                                      \
     GARP_FIND(name, type)                                                       \
     GARP_FILTER(name, type)                                                     \
 
@@ -152,6 +148,11 @@ typedef enum gar_error {
         return GAR_OK;                                                          \
     }
 
+#define GARP_FIT_CAPACITY(name, type) \
+    gar_error_t GARP_CONCAT(name, _gar_fit_capacity)(GARP_ARR(name)* array) {   \
+        return GARP_CONCAT(name, _gar_set_capacity)(array, array->size); \
+    }
+
 #define GARP_PUSH(name, type) \
     gar_error_t GARP_CONCAT(name, _gar_push)(GARP_ARR(name)* array, type value) { \
         if (array->size >= array->capacity) {                                   \
@@ -178,73 +179,6 @@ typedef enum gar_error {
         }                                                                       \
                                                                                 \
         array->size -= 1;                                                       \
-                                                                                \
-        if (array->size < array->capacity / 2) {                                \
-            gar_error_t error = GARP_CONCAT(name, _gar_set_capacity)(           \
-                array, array->capacity / 2                                      \
-            );                                                                  \
-            if (error != GAR_OK) {                                              \
-                return error;                                                   \
-            }                                                                   \
-        }                                                                       \
-                                                                                \
-        return GAR_OK;                                                          \
-    }
-
-#define GARP_PUSHES(name, type) \
-    gar_error_t GARP_CONCAT(name, _gar_pushes)(GARP_ARR(name)* array, size_t n, type* values) { \
-        gar_error_t error;                                                      \
-        size_t capacity = array->capacity + (array->capacity == 0);             \
-        while (capacity < array->size + n) {                                    \
-            capacity *= 2;                                                      \
-        }                                                                       \
-                                                                                \
-        error = GARP_CONCAT(name, _gar_set_capacity)(array, capacity);          \
-        if (error == GAR_BIG_CAPACITY) {                                        \
-            error = GARP_CONCAT(name, _gar_set_capacity)(array, array->size + n); \
-            if (error != GAR_OK) {                                              \
-                return error;                                                   \
-            }                                                                   \
-        } else if (error != GAR_OK) {                                           \
-            return error;                                                       \
-        }                                                                       \
-                                                                                \
-        memcpy(array->values + array->size, values, n * sizeof(type));          \
-        array->size += n;                                                       \
-                                                                                \
-        return GAR_OK;                                                          \
-    }
-
-#define GARP_POPS(name, type) \
-    gar_error_t GARP_CONCAT(name, _gar_pops)(GARP_ARR(name)* array, size_t n, type* values) { \
-        gar_error_t error;                                                      \
-        size_t capacity;                                                        \
-                                                                                \
-        if (array->size < n) {                                                  \
-            return GAR_IDX_OOB;                                                 \
-        }                                                                       \
-                                                                                \
-        capacity = array->capacity + (array->capacity == 0);                    \
-        while (array->size - n < capacity / 2) {                                \
-            capacity /= 2;                                                      \
-        }                                                                       \
-                                                                                \
-        if (values != NULL) {                                                   \
-            for (size_t i = 0; i < n; i++) {                                    \
-                values[i] = array->values[array->size - i - 1];                 \
-            }                                                                   \
-        }                                                                       \
-                                                                                \
-        array->size -= n;                                                       \
-        error = GARP_CONCAT(name, _gar_set_capacity)(array, capacity);          \
-                                                                                \
-        if (error == GAR_BIG_CAPACITY) {                                        \
-            error = GARP_CONCAT(name, _gar_set_capacity)(array, array->size);   \
-            if (error != GAR_OK) {                                              \
-                return error;                                                   \
-            }                                                                   \
-        }                                                                       \
-                                                                                \
         return GAR_OK;                                                          \
     }
 
@@ -283,89 +217,22 @@ typedef enum gar_error {
             *value_ptr = array->values[index];                                  \
         }                                                                       \
                                                                                 \
-        if (array->size >= array->capacity) {                                   \
-            gar_error_t error = GARP_CONCAT(name, _gar_set_capacity)(           \
-                array, 2 * array->capacity + (array->capacity == 0)             \
-            );                                                                  \
-            if (error != GAR_OK) {                                              \
-                return error;                                                   \
-            }                                                                   \
-        }                                                                       \
-                                                                                \
         for (size_t i = index; i < array->size; i++) {                          \
             array->values[i] = array->values[i + 1];                            \
         }                                                                       \
-                                                                                \
         array->size -= 1;                                                       \
                                                                                 \
         return GAR_OK;                                                          \
     }
 
-#define GARP_INSERTS(name, type) \
-    gar_error_t GARP_CONCAT(name, _gar_inserts)(GARP_ARR(name)* array, size_t index, size_t size, type* value_ptr) { \
-        gar_error_t error;                                                      \
-        if (index < 0 || array->size < index) {                                 \
-            return GAR_IDX_OOB;                                                 \
+#define GARP_COUNT(name, type) \
+    size_t GARP_CONCAT(name, _gar_count)(GARP_ARR(name)* array, int (*filter)(type)) { \
+        size_t total_count = 0;                                                 \
+        for (size_t i = 0; i < array->size; i++) {                              \
+            total_count += filter(array->values[i]) != 0;                       \
         }                                                                       \
                                                                                 \
-        size_t capacity = array->capacity;                                      \
-        while (capacity < array->size + size) {                                 \
-            capacity *= 2;                                                      \
-        }                                                                       \
-                                                                                \
-        error = GARP_CONCAT(name, _gar_set_capacity)(array, capacity);          \
-        if (error == GAR_BIG_CAPACITY) {                                        \
-            error = GARP_CONCAT(name, _gar_set_capacity)(array, array->size + size);\
-            if (error != GAR_OK) {                                              \
-                return error;                                                   \
-            }                                                                   \
-        } else if (error != GAR_OK) {                                           \
-            return error;                                                       \
-        }                                                                       \
-                                                                                \
-        for (size_t i = size; 0 < i; i--) {                                     \
-            array->values[index + i + size] = array->values[index + i];         \
-        }                                                                       \
-        array->values[index + size] = array->values[index];                     \
-                                                                                \
-        memcpy(array->values + index, value_ptr, size * sizeof(type));          \
-        array->size += size;                                                    \
-                                                                                \
-        return GAR_OK;                                                          \
-    }
-
-#define GARP_REMOVES(name, type) \
-    gar_error_t GARP_CONCAT(name, _gar_removes)(GARP_ARR(name)* array, size_t index, size_t size, type* value_ptr) { \
-        gar_error_t error;                                                      \
-        if (index < 0 || array->size < index + size) {                          \
-            return GAR_IDX_OOB;                                                 \
-        }                                                                       \
-                                                                                \
-        size_t capacity = array->capacity;                                      \
-        while (array->size - size < capacity / 2) {                             \
-            capacity /= 2;                                                      \
-        }                                                                       \
-                                                                                \
-        if (value_ptr != NULL) {                                                \
-            memcpy(value_ptr, array->values + index, size * sizeof(type));      \
-        }                                                                       \
-                                                                                \
-        for (size_t i = 0; i < size; i++) {                                     \
-            array->values[index + i] = array->values[index + i + size];         \
-        }                                                                       \
-                                                                                \
-        array->size -= size;                                                    \
-        error = GARP_CONCAT(name, _gar_set_capacity)(array, capacity);          \
-        if (error == GAR_BIG_CAPACITY) {                                        \
-            error = GARP_CONCAT(name, _gar_set_capacity)(array, array->size);   \
-            if (error != GAR_OK) {                                              \
-                return error;                                                   \
-            }                                                                   \
-        } else if (error != GAR_OK) {                                           \
-            return error;                                                       \
-        }                                                                       \
-                                                                                \
-        return GAR_OK;                                                          \
+        return total_count;                                                     \
     }
 
 #define GARP_FIND(name, type) \

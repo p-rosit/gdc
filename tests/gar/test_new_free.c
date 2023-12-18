@@ -17,6 +17,19 @@ UNIT_TEST(new_array) {
     TEST_END;
 }
 
+UNIT_TEST(fit_array) {
+    size_t cap = 2, size = 10;
+    int_gar_t arr;
+
+    CALL_TEST(make_array, &arr, cap, size);
+    ASSERT_EQUAL(int_gar_fit_capacity(&arr), GAR_OK, "Could not fit array size.");
+
+    ASSERT_EQUAL(arr.capacity, arr.size, "Capacity is %lu instead of %lu.", arr.capacity, arr.size);
+
+    int_gar_free(&arr);
+    TEST_END;
+}
+
 UNIT_TEST(copy_array) {
     size_t cap = 20, size = 5;
     int_gar_t arr, copy;
@@ -84,6 +97,7 @@ UNIT_TEST(free_values) {
 
 LIST_TESTS(
     new_array,
+    fit_array,
     copy_array,
     deepcopy_str,
     free_values,
