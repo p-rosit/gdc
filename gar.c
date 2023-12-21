@@ -1,4 +1,6 @@
-#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "gar.h"
 
 gar_make_basic(short, short)

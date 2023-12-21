@@ -1,8 +1,7 @@
 #ifndef GAR_H
 #define GAR_H
 
-#include <stdlib.h>
-#include <string.h>
+#include <stddef.h>
 #include <stdint.h>
 
 typedef enum gar_error {
@@ -51,7 +50,7 @@ typedef enum gar_error {
     } GARP_ARR(name);                                                           \
                                                                                 \
     void        GARP_JOIN(name, _gar_new)(GARP_ARR(name)*);                     \
-    gar_error_t GARP_JOIN(name, _gar_copy)(GARP_ARR(name)*, GARP_ARR(name)*);   \
+    gar_error_t GARP_JOIN(name, _gar_copy)(const GARP_ARR(name)*, GARP_ARR(name)*); \
     void        GARP_JOIN(name, _gar_free)(GARP_ARR(name)*);                    \
     gar_error_t GARP_JOIN(name, _gar_set_capacity)(GARP_ARR(name)*, size_t);    \
     gar_error_t GARP_JOIN(name, _gar_fit_capacity)(GARP_ARR(name)*);            \
@@ -62,19 +61,19 @@ typedef enum gar_error {
     gar_error_t GARP_JOIN(name, _gar_push)(GARP_ARR(name)*, type);              \
     gar_error_t GARP_JOIN(name, _gar_pop)(GARP_ARR(name)*, type*);              \
                                                                                 \
-    gar_error_t GARP_JOIN(name, _gar_concat)(GARP_ARR(name)*, GARP_ARR(name)*); \
+    gar_error_t GARP_JOIN(name, _gar_concat)(GARP_ARR(name)*, const GARP_ARR(name)*); \
                                                                                 \
     gar_error_t GARP_JOIN(name, _gar_insert)(GARP_ARR(name)*, size_t, type);    \
     gar_error_t GARP_JOIN(name, _gar_remove)(GARP_ARR(name)*, size_t, type*);   \
                                                                                 \
-    size_t      GARP_JOIN(name, _gar_count)(GARP_ARR(name)*, int (*filter)(type)); \
-    gar_error_t GARP_JOIN(name, _gar_find)(GARP_ARR(name)*, int (*filter)(type), type*); \
+    size_t      GARP_JOIN(name, _gar_count)(const GARP_ARR(name)*, int (*filter)(type)); \
+    gar_error_t GARP_JOIN(name, _gar_find)(const GARP_ARR(name)*, int (*filter)(type), type*); \
     gar_error_t GARP_JOIN(name, _gar_filter)(GARP_ARR(name)*, int (*filter)(type), GARP_ARR(name)*); \
                                                                                 \
     void        GARP_JOIN(name, _gar_sort)(GARP_ARR(name)*, int (*ord)(type, type)); \
 
 #define gar_make_deepcopy_h(name, type) \
-    gar_error_t GARP_JOIN(name, _gar_deepcopy)(GARP_ARR(name)*, GARP_ARR(name)*);\
+    gar_error_t GARP_JOIN(name, _gar_deepcopy)(const GARP_ARR(name)*, GARP_ARR(name)*); \
 
 #define gar_make_free_h(name, type) \
     void        GARP_JOIN(name, _gar_free_values)(GARP_ARR(name)*);             \
@@ -111,7 +110,7 @@ typedef enum gar_error {
     }
 
 #define GARP_COPY(name, type) \
-    gar_error_t GARP_JOIN(name, _gar_copy)(GARP_ARR(name)* src, GARP_ARR(name)* dst) { \
+    gar_error_t GARP_JOIN(name, _gar_copy)(const GARP_ARR(name)* src, GARP_ARR(name)* dst) { \
         gar_error_t error = GAR_OK;                                             \
                                                                                 \
         dst->capacity = src->size;                                              \
@@ -211,13 +210,13 @@ typedef enum gar_error {
     }
 
 #define GARP_CONCAT(name, type) \
-    gar_error_t GARP_JOIN(name, _gar_concat)(GARP_ARR(name)* array, GARP_ARR(name)* append_array) {\
+    gar_error_t GARP_JOIN(name, _gar_concat)(GARP_ARR(name)* array, const GARP_ARR(name)* append_array) { \
         gar_error_t error;                                                      \
         size_t capacity, new_size;                                              \
         new_size = array->size + append_array->size;                            \
         \
         if (new_size > array->capacity) {\
-            capacity = array->capacity;\
+            capacity = array->capacity + (array->capacity == 0);\
             while (capacity < new_size) {\
                 capacity *= 2;\
             }\
@@ -279,7 +278,7 @@ typedef enum gar_error {
     }
 
 #define GARP_COUNT(name, type) \
-    size_t GARP_JOIN(name, _gar_count)(GARP_ARR(name)* array, int (*filter)(type)) { \
+    size_t GARP_JOIN(name, _gar_count)(const GARP_ARR(name)* array, int (*filter)(type)) { \
         size_t total_count = 0;                                                 \
         for (size_t i = 0; i < array->size; i++) {                              \
             total_count += filter(array->values[i]) != 0;                       \
@@ -289,7 +288,7 @@ typedef enum gar_error {
     }
 
 #define GARP_FIND(name, type) \
-    gar_error_t GARP_JOIN(name, _gar_find)(GARP_ARR(name)* array, int (*filter)(type), type* value_ptr) { \
+    gar_error_t GARP_JOIN(name, _gar_find)(const GARP_ARR(name)* array, int (*filter)(type), type* value_ptr) { \
         int exists = 0;                                                         \
         for (size_t i = 0; i < array->size; i++) {                              \
             if (filter(array->values[i])) {                                     \
@@ -372,18 +371,10 @@ typedef enum gar_error {
             GARP_JOIN(garp_qsort_, name)(array, ord, 0, array->size - 1);\
         } \
     \
-    }\
-    \
-    void GARP_JOIN(name, _gar_tsort)(GARP_ARR(name)* array, int (*ord)(type, type)) {\
-        if (array->size < 2) {\
-            return;\
-        } \
-        \
-    }\
-
+    }
 
 #define gar_make_deepcopy(name, type, copy_function) \
-    gar_error_t GARP_JOIN(name, _gar_deepcopy)(GARP_ARR(name)* src, GARP_ARR(name)* dst) { \
+    gar_error_t GARP_JOIN(name, _gar_deepcopy)(const GARP_ARR(name)* src, GARP_ARR(name)* dst) { \
         gar_error_t error;                                                      \
                                                                                 \
         GARP_JOIN(name, _gar_new)(dst);                                         \
