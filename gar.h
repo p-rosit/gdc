@@ -214,23 +214,23 @@ typedef enum gar_error {
         gar_error_t error;                                                      \
         size_t capacity, new_size;                                              \
         new_size = array->size + append_array->size;                            \
-        \
-        if (new_size > array->capacity) {\
-            capacity = array->capacity + (array->capacity == 0);\
-            while (capacity < new_size) {\
-                capacity *= 2;\
-            }\
+                                                                                \
+        if (new_size > array->capacity) {                                       \
+            capacity = array->capacity + (array->capacity == 0);                \
+            while (capacity < new_size) {                                       \
+                capacity *= 2;                                                  \
+            }                                                                   \
             error = GARP_JOIN(name, _gar_set_capacity)(array, capacity);        \
-            if (error) {\
-                return error;\
-            }\
-        }\
-        \
-        for (size_t i = 0; i < append_array->size; i++) {\
-            array->values[array->size + i] = append_array->values[i];\
-        }\
-        array->size += append_array->size;\
-        \
+            if (error) {                                                        \
+                return error;                                                   \
+            }                                                                   \
+        }                                                                       \
+                                                                                \
+        for (size_t i = 0; i < append_array->size; i++) {                       \
+            array->values[array->size + i] = append_array->values[i];           \
+        }                                                                       \
+        array->size += append_array->size;                                      \
+                                                                                \
         return GAR_OK;                                                          \
     }
 
@@ -328,49 +328,49 @@ typedef enum gar_error {
 
 #define GARP_SORT(name, type) \
     size_t GARP_JOIN(garp_partition_, name)(GARP_ARR(name)* array, int (*ord)(type, type), size_t lo, size_t hi) {\
-        int set = 0;\
-        size_t i = lo;\
-        type pivot;\
-        type temp;\
-        pivot = array->values[hi];\
-        \
-        for (size_t j = lo; j < hi; j++) {\
-            if (ord(array->values[j], pivot) < 0) {\
-                i += set;\
-                set = 1;\
-                temp = array->values[i];\
-                array->values[i] = array->values[j];\
-                array->values[j] = temp;\
-            }\
-        }\
-        \
-        i += set;\
-        temp = array->values[i];\
-        array->values[i] = array->values[hi];\
-        array->values[hi] = temp;\
-        \
-        return i;\
-    } \
-    \
+        int set = 0;                                                            \
+        size_t i = lo;                                                          \
+        type pivot;                                                             \
+        type temp;                                                              \
+        pivot = array->values[hi];                                              \
+                                                                                \
+        for (size_t j = lo; j < hi; j++) {                                      \
+            if (ord(array->values[j], pivot) < 0) {                             \
+                i += set;                                                       \
+                set = 1;                                                        \
+                temp = array->values[i];                                        \
+                array->values[i] = array->values[j];                            \
+                array->values[j] = temp;                                        \
+            }                                                                   \
+        }                                                                       \
+                                                                                \
+        i += set;                                                               \
+        temp = array->values[i];                                                \
+        array->values[i] = array->values[hi];                                   \
+        array->values[hi] = temp;                                               \
+                                                                                \
+        return i;                                                               \
+    }                                                                           \
+                                                                                \
     void GARP_JOIN(garp_qsort_, name)(GARP_ARR(name)* array, int (*ord)(type, type), size_t lo, size_t hi) { \
-        size_t pivot; \
-        if (lo >= hi) { \
-            return; \
-        } \
-        \
-        pivot = GARP_JOIN(garp_partition_, name)(array, ord, lo, hi);\
-        \
-        if (pivot > 0) {\
-            GARP_JOIN(garp_qsort_, name)(array, ord, lo, pivot - 1);\
-        }\
-        GARP_JOIN(garp_qsort_, name)(array, ord, pivot + 1, hi);\
-    } \
-    \
+        size_t pivot;                                                           \
+        if (lo >= hi) {                                                         \
+            return;                                                             \
+        }                                                                       \
+                                                                                \
+        pivot = GARP_JOIN(garp_partition_, name)(array, ord, lo, hi);           \
+                                                                                \
+        if (pivot > 0) {                                                        \
+            GARP_JOIN(garp_qsort_, name)(array, ord, lo, pivot - 1);            \
+        }                                                                       \
+        GARP_JOIN(garp_qsort_, name)(array, ord, pivot + 1, hi);                \
+    }                                                                           \
+                                                                                \
     void GARP_JOIN(name, _gar_sort)(GARP_ARR(name)* array, int (*ord)(type, type)) {\
-        if (array->size > 1) { \
-            GARP_JOIN(garp_qsort_, name)(array, ord, 0, array->size - 1);\
-        } \
-    \
+        if (array->size > 1) {                                                  \
+            GARP_JOIN(garp_qsort_, name)(array, ord, 0, array->size - 1);       \
+        }                                                                       \
+                                                                                \
     }
 
 #define gar_make_deepcopy(name, type, copy_function) \
