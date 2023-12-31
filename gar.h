@@ -182,9 +182,10 @@ typedef enum gar_error {
 
 #define GARP_PUSH(name, type) \
     gar_error_t GARP_JOIN(name, _gar_push)(GARP_ARR(name)* array, type value) { \
-        if (array->size >= array->capacity) {                                   \
+        size_t capacity = array->capacity;                                      \
+        if (array->size >= capacity) {                                          \
             gar_error_t error = GARP_JOIN(name, _gar_set_capacity)(             \
-                array, 2 * array->capacity + (array->capacity == 0)             \
+                array, capacity + capacity / 2 + 2 * (capacity == 0)            \
             );                                                                  \
             if (error != GAR_OK) {                                              \
                 return error;                                                   \
@@ -216,9 +217,9 @@ typedef enum gar_error {
         new_size = array->size + append_array->size;                            \
                                                                                 \
         if (new_size > array->capacity) {                                       \
-            capacity = array->capacity + (array->capacity == 0);                \
+            capacity = array->capacity + 2 * (array->capacity == 0);            \
             while (capacity < new_size) {                                       \
-                capacity *= 2;                                                  \
+                capacity += capacity / 2;                                       \
             }                                                                   \
             error = GARP_JOIN(name, _gar_set_capacity)(array, capacity);        \
             if (error) {                                                        \
@@ -236,13 +237,16 @@ typedef enum gar_error {
 
 #define GARP_INSERT(name, type) \
     gar_error_t GARP_JOIN(name, _gar_insert)(GARP_ARR(name)* array, size_t index, type value) { \
+        size_t capacity;                                                        \
+                                                                                \
         if (index < 0 || array->size + 1 <= index) {                            \
             return GAR_IDX_OOB;                                                 \
         }                                                                       \
                                                                                 \
-        if (array->size >= array->capacity) {                                   \
+        capacity = array->capacity;                                             \
+        if (array->size >= capacity) {                                          \
             gar_error_t error = GARP_JOIN(name, _gar_set_capacity)(             \
-                array, 2 * array->capacity + (array->capacity == 0)             \
+                array, capacity + capacity / 2 + 2 * (capacity == 0)            \
             );                                                                  \
             if (error != GAR_OK) {                                              \
                 return error;                                                   \
