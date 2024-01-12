@@ -46,13 +46,13 @@ UNIT_TEST(sort_simple) {
 
     CALL_TEST(make_array, &arr, cap, 0);
     int vals[] = {0, 9, 1, 8, 2, 7};
-    v_size = sizeof vals / sizeof(int);
+    v_size = sizeof(vals) / sizeof(int);
     for (size_t i = 0; i < v_size; i++) {int_gar_push(&arr, vals[i]);}
 
     int_gar_sort(&arr, int_ord);
 
     int res[] = {0, 1, 2, 7, 8, 9};
-    v_size = sizeof res / sizeof(int);
+    v_size = sizeof(res) / sizeof(int);
     CALL_TEST(array_eq, &arr, v_size, res);
 
     TEST_END;
@@ -65,13 +65,13 @@ UNIT_TEST(sort_duplicates) {
 
     CALL_TEST(make_array, &arr, cap, 0);
     int vals[] = {0, 3, 4, 3, 6, 7, 0};
-    v_size = sizeof vals / sizeof(int);
+    v_size = sizeof(vals) / sizeof(int);
     for (size_t i = 0; i < v_size; i++) {int_gar_push(&arr, vals[i]);}
     
     int_gar_sort(&arr, int_ord);
 
     int res[] = {0, 0, 3, 3, 4, 6, 7};
-    v_size = sizeof res / sizeof(int);
+    v_size = sizeof(res) / sizeof(int);
     CALL_TEST(array_eq, &arr, v_size, res);
 
     TEST_END;

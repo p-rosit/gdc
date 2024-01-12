@@ -13,7 +13,7 @@ UNIT_TEST(insert_value) {
     ASSERT_EQUAL(int_gar_insert(&arr, 2, -1), GAR_OK, "Could not insert value.");
 
     int res[5] = {0, 1, -1, 2, 3};
-    CALL_TEST(array_eq, &arr, sizeof res / sizeof(int), res);
+    CALL_TEST(array_eq, &arr, sizeof(res) / sizeof(int), res);
 
     int_gar_free(&arr);
     TEST_END;
@@ -28,7 +28,7 @@ UNIT_TEST(insert_final_value) {
     ASSERT_EQUAL(int_gar_insert(&arr, size, -1), GAR_OK, "Could not insert value.");
 
     int res[5] = {0, 1, 2, 3, -1};
-    CALL_TEST(array_eq, &arr, sizeof res / sizeof(int), res);
+    CALL_TEST(array_eq, &arr, sizeof(res) / sizeof(int), res);
 
     int_gar_free(&arr);
     TEST_END;
@@ -44,7 +44,7 @@ UNIT_TEST(remove_value) {
     ASSERT_EQUAL(int_gar_remove(&arr, 1, &v), GAR_OK, "Could not remove value.");
 
     int res[3] = {0, 2, 3};
-    CALL_TEST(array_eq, &arr, sizeof res / sizeof(int), res);
+    CALL_TEST(array_eq, &arr, sizeof(res) / sizeof(int), res);
     ASSERT_EQUAL(v, 1, "Remove value is %d instead of 1.", v);
 
     int_gar_free(&arr);
@@ -61,7 +61,7 @@ UNIT_TEST(remove_final_value) {
     ASSERT_EQUAL(int_gar_remove(&arr, 3, &v), GAR_OK, "Could not remove value.");
 
     int res[3] = {0, 1, 2};
-    CALL_TEST(array_eq, &arr, sizeof res / sizeof(int), res);
+    CALL_TEST(array_eq, &arr, sizeof(res) / sizeof(int), res);
     ASSERT_EQUAL(v, 3, "Remove value is %d instead of 3.", v);
 
     int_gar_free(&arr);

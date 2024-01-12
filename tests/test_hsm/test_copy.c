@@ -29,7 +29,7 @@ UNIT_TEST(copy_map) {
     s2i_hsm_t src, dst;
     char k[] = {10, 20, 30, 40, 50, 60};
 
-    size = sizeof k / sizeof(char);
+    size = sizeof(k) / sizeof(char);
     int v[size];
     for (i = 0; i < size; i++) v[i] = i;
 
@@ -80,7 +80,7 @@ UNIT_TEST(deepcopy_map) {
     s2i_hsm_t src, dst;
     char k[][2] = {"A", "B", "C", "D"}, *temp;
 
-    size = sizeof k / (sizeof(*k) * sizeof(**k));
+    size = sizeof(k) / (sizeof(*k) * sizeof(**k));
     int v[size];
     for (i = 0; i < size; i++) v[i] = i;
 

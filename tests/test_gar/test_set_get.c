@@ -13,7 +13,7 @@ UNIT_TEST(set) {
     ASSERT_EQUAL(int_gar_set(&arr, 3, 9), GAR_OK, "Could not set value.");
 
     int res[] = {0, 1, 2, 9, 4};
-    v_size = sizeof res / sizeof(int);
+    v_size = sizeof(res) / sizeof(int);
     CALL_TEST(array_eq, &arr, v_size, res);
 
     TEST_END;
@@ -41,7 +41,7 @@ UNIT_TEST(invalid_set) {
     ASSERT_EQUAL(int_gar_set(&arr, size + 2, size - 1), GAR_IDX_OOB, "Could set index %lu in array of size %lu.", size + 2, arr.size);
 
     int res[] = {0, 1, 2, 3, 4};
-    v_size = sizeof res / sizeof(int);
+    v_size = sizeof(res) / sizeof(int);
     CALL_TEST(array_eq, &arr, v_size, res);
 
     TEST_END;

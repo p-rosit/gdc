@@ -13,7 +13,7 @@ UNIT_TEST(concat) {
     ASSERT_EQUAL(int_gar_concat(&a, &b), GAR_OK, "Could not append arrays.");
 
     int res[] = {0, 1, 2, 3, 4, 0, 1, 2};
-    size_t v_size = sizeof res / sizeof(int);
+    size_t v_size = sizeof(res) / sizeof(int);
     CALL_TEST(array_eq, &a, v_size, res);
 
     TEST_END;
@@ -41,7 +41,7 @@ UNIT_TEST(concat_on_empty) {
     ASSERT_EQUAL(int_gar_concat(&a, &b), GAR_OK, "Could not append arrays.");
 
     int res[] = {0, 1, 2};
-    size_t v_size = sizeof res / sizeof(int);
+    size_t v_size = sizeof(res) / sizeof(int);
     CALL_TEST(array_eq, &a, v_size, res);
 
     TEST_END;
@@ -56,7 +56,7 @@ UNIT_TEST(concat_with_empty) {
     ASSERT_EQUAL(int_gar_concat(&a, &b), GAR_OK, "Could not append arrays.");
 
     int res[] = {0, 1, 2, 3, 4};
-    size_t v_size = sizeof res / sizeof(int);
+    size_t v_size = sizeof(res) / sizeof(int);
     CALL_TEST(array_eq, &a, v_size, res);
 
     TEST_END;

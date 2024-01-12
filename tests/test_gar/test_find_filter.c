@@ -93,14 +93,14 @@ UNIT_TEST(filter_array) {
     CALL_TEST(make_array, &arr, cap, 0);
 
     int values[] = {1, 9, 2, 8, 3, 7, 4, 6};
-    v_size = sizeof values / sizeof(int);
+    v_size = sizeof(values) / sizeof(int);
     for (size_t i = 0; i < v_size; i++) {
         ASSERT_EQUAL(int_gar_push(&arr, values[i]), GAR_OK, "Could not push value.");
     }
     ASSERT_EQUAL(int_gar_filter(&arr, more_than_5, &filter), GAR_OK, "Could not filter array.");
 
     int res[] = {9, 8, 7, 6};
-    v_size = sizeof res / sizeof(int);
+    v_size = sizeof(res) / sizeof(int);
     CALL_TEST(array_eq, &filter, v_size, res);
     ASSERT_EQUAL(filter.capacity, arr.size, "Capacity is %lu instead of %lu.", filter.capacity, arr.size);
 
