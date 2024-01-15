@@ -50,7 +50,7 @@ UNIT_TEST(free_kvp) {
 
     for (size_t i = 0; i < size; i++) {
         map.meta_data[i] = (hsmp_meta_data_t) {.offset = 0, .hash = i};
-        map.keys[i] = strdup(keys[i]);
+        map.keys[i] = str_duplicate(keys[i]);
         map.values[i] = i;
     }
 

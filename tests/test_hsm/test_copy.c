@@ -86,7 +86,7 @@ UNIT_TEST(deepcopy_map) {
 
     s2i_hsm_new(&src);
     for (i = 0; i < size; i++) {
-        temp = strdup(k[i]);
+        temp = str_duplicate(k[i]);
         result_ok(s2i_hsm_insert(&src, temp, v[i]), "Could not insert pair: {\"%c\": %d}.", k[i], v[i]);
     }
 

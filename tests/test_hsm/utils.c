@@ -15,8 +15,19 @@ void s2i_free(char* key, int value) {
     free(key);
 }
 
+char* str_duplicate(const char* src) {
+    size_t len = strlen(src);
+    char* dst = malloc(len + 1);
+
+    for (size_t i = 0; i < len + 1; i++) {
+        dst[i] = src[i];
+    }
+
+    return dst;
+}
+
 void s2i_copy_item(const char* str_src, const int int_src, char** str_dst, int *int_dst) {
-    *str_dst = strdup(str_src);
+    *str_dst = str_duplicate(str_src);
     *int_dst = int_src;
 }
 
