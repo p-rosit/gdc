@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "../../cut/cut.h"
-#include "../../hsm.h"
+#include "../../map.h"
 
 #define result_ok(error, ...) \
     ASSERT_EQUAL(error, HSM_OK, __VA_ARGS__)
