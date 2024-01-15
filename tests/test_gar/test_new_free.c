@@ -56,9 +56,9 @@ UNIT_TEST(deepcopy_str) {
     string_gar_new(&arr);
     ASSERT_EQUAL(string_gar_set_capacity(&arr, cap), GAR_OK, "Could not set capacity.");
 
-    ASSERT_EQUAL(string_gar_push(&arr, strdup("A string")), GAR_OK, "Could not push value.");
-    ASSERT_EQUAL(string_gar_push(&arr, strdup("B string")), GAR_OK, "Could not push value.");
-    ASSERT_EQUAL(string_gar_push(&arr, strdup("C string")), GAR_OK, "Could not push value.");
+    ASSERT_EQUAL(string_gar_push(&arr, str_duplicate("A string")), GAR_OK, "Could not push value.");
+    ASSERT_EQUAL(string_gar_push(&arr, str_duplicate("B string")), GAR_OK, "Could not push value.");
+    ASSERT_EQUAL(string_gar_push(&arr, str_duplicate("C string")), GAR_OK, "Could not push value.");
 
     ASSERT_EQUAL(string_gar_deepcopy(&arr, &copy), GAR_OK, "Could not copy array.");
 
@@ -82,9 +82,9 @@ UNIT_TEST(free_values) {
     string_gar_new(&arr);
     ASSERT_EQUAL(string_gar_set_capacity(&arr, cap), GAR_OK, "Could not set capacity.");
 
-    ASSERT_EQUAL(string_gar_push(&arr, strdup("A string")), GAR_OK, "Could not push value.");
-    ASSERT_EQUAL(string_gar_push(&arr, strdup("B string")), GAR_OK, "Could not push value.");
-    ASSERT_EQUAL(string_gar_push(&arr, strdup("C string")), GAR_OK, "Could not push value.");
+    ASSERT_EQUAL(string_gar_push(&arr, str_duplicate("A string")), GAR_OK, "Could not push value.");
+    ASSERT_EQUAL(string_gar_push(&arr, str_duplicate("B string")), GAR_OK, "Could not push value.");
+    ASSERT_EQUAL(string_gar_push(&arr, str_duplicate("C string")), GAR_OK, "Could not push value.");
 
     string_gar_free_values(&arr);
 

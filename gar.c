@@ -29,6 +29,17 @@ gar_make_basic(char, char)
 gar_make_basic(uchar, unsigned char)
 gar_make_basic(schar, signed char)
 
+char* string_deepcopy(const char* src) {
+    size_t len = strlen(src);
+    char* dst = malloc(len + 1);
+    
+    for (size_t i = 0; i < len + 1; i++) {
+        dst[i] = src[i];
+    }
+
+    return dst;
+}
+
 gar_make_basic(string, char*)
-gar_make_deepcopy(string, char*, strdup)
+gar_make_deepcopy(string, char*, string_deepcopy)
 gar_make_free(string, char*, free)

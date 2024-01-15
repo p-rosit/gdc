@@ -3,6 +3,17 @@
 #include "../../gar.h"
 
 
+char* str_duplicate(const char* src) {
+    size_t len = strlen(src);
+    char* dst = malloc(len + 1);
+    
+    for (size_t i = 0; i < len + 1; i++) {
+        dst[i] = src[i];
+    }
+
+    return dst;
+}
+
 SUB_TEST(make_array, int_gar_t* arr, size_t cap, size_t size) {
     int_gar_new(arr);
     ASSERT_EQUAL(int_gar_set_capacity(arr, cap), GAR_OK, "Could not set capacity to %lu.", cap);
