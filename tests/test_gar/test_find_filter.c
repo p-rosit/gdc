@@ -63,7 +63,6 @@ UNIT_TEST(find_duplicate) {
 UNIT_TEST(find_no_out) {
     size_t cap = 20, size = 10;
     int_gar_t arr;
-    int u;
 
     CALL_TEST(make_array, &arr, cap, size);
 

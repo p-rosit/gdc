@@ -63,11 +63,11 @@ UNIT_TEST(for_each_statement) {
 
     if (0)
         for_each_gar(&arr, int temp)
-            TEST_FAIL("Unreachable statement executed.");
+            TEST_FAIL("Unreachable statement executed (%d).", temp);
 
     if (0)
         for_each_ptr_gar(&arr, int* temp)
-            TEST_FAIL("Unreachable statement executed.");
+            TEST_FAIL("Unreachable statement executed. (%p)", temp);
 
     int_gar_free(&arr);
     TEST_END;

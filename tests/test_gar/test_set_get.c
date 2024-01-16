@@ -20,7 +20,7 @@ UNIT_TEST(set) {
 }
 
 UNIT_TEST(get) {
-    size_t cap = 10, size = 5, v_size;
+    size_t cap = 10, size = 5;
     int_gar_t arr;
     int u;
 
@@ -49,13 +49,13 @@ UNIT_TEST(invalid_set) {
 }
 
 UNIT_TEST(invalid_get) {
-    size_t cap = 10, size = 5, v_size;
+    size_t cap = 10, size = 5;
     int_gar_t arr;
-    int u;
+    int u = 0;
 
     CALL_TEST(make_array, &arr, cap, size);
 
-    ASSERT_EQUAL(int_gar_get(&arr, size + 2, &u), GAR_IDX_OOB, "Could get index %lu in array of size %lu.", size + 2, arr.size);
+    ASSERT_EQUAL(int_gar_get(&arr, size + 2, &u), GAR_IDX_OOB, "Could get index %lu in array of size %lu. Value: %d", size + 2, arr.size);
 
     TEST_END;
 }

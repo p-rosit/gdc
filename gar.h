@@ -124,7 +124,7 @@ typedef enum gar_error {
         }                                                                       \
                                                                                 \
         memcpy(dst->values, src->values, src->size * sizeof(type));             \
-        return GAR_OK;                                                          \
+        return error;                                                           \
     }
 
 #define GARP_FREE(name, type) \
