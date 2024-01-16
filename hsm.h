@@ -1,14 +1,17 @@
-#include "gdc.h"
-
 #ifndef HSM_H
 #define HSM_H
+#include "gdc.h"
+
+/*
+ *  HSM: HaSh Map
+ **/
 
 /* Name of structure */
 #define HSM_NAME hsm
-#define HSM_FUNC(type_name, func_name) GDC_FUNC(type_name, HSM_NAME, func_name)
-#define HSM_PRIVATE(type_name, func_name) GDC_FUNC_PRIVATE(type_name, HSM_NAME, func_name)
-#define HSM(name) GDC_STRUCT(name, HSM_NAME)
-#define HSM_STRUCT(name) GDC_STRUCT_PRIVATE(HSM_NAME, name)
+#define HSM_FUNC(type_name, func_name)      GDC_FUNC(type_name, HSM_NAME, func_name)
+#define HSM_PRIVATE(type_name, func_name)   GDC_FUNC_PRIVATE(type_name, HSM_NAME, func_name)
+#define HSM(name)                           GDC_STRUCT(name, HSM_NAME)
+#define HSM_STRUCT(name)                    GDC_STRUCT_PRIVATE(HSM_NAME, name)
 
 #include <stddef.h>
 #include <stdint.h>
