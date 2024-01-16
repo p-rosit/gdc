@@ -1,5 +1,17 @@
 #ifndef GAR_H
 #define GAR_H
+#include "gdc.h"
+
+/*
+ * GAR: Growable ARray
+ **/
+
+/* Name of structure */
+#define GAR_NAME gar
+#define GAR_FUNC(type_name, func_name)      GDC_FUNC(type_name, GAR_NAME, func_name)
+#define GAR_PRIVATE(type_name, func_name)   GDC_FUNC_PRIVATE(type_name, GAR_NAME, func_name)
+#define GAR(name)                           GDC_STRUCT(name, GAR_NAME)
+#define GAR_STRUCT(name)                    GDC_STRUCT_PRIVATE(GAR_NAME, name)
 
 #include <stddef.h>
 #include <stdint.h>
