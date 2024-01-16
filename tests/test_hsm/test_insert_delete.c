@@ -1,6 +1,6 @@
 #include "../../cut/cut.h"
 
-#include "../../map.h"
+#include "../../hsm.h"
 
 #include "utils.c"
 
@@ -12,14 +12,14 @@ UNIT_TEST(insert) {
     s2i_hsm_t map;
     char* k = (char*) key;
     int v = 4;
-    hsmp_meta_data_t md;
+    HSM_STRUCT(meta_data) md;
 
     CALL_TEST(make_map, &map, cap);
 
-    ASSERT_EQUAL(s2i_hsm_insert(&map, k, v), HSM_OK, "Could not insert pair {\"%s\": %d}.", key, v);
+    ASSERT_EQUAL(s2i_hsm_insert(&map, k, v), GDC_OK, "Could not insert pair {\"%s\": %d}.", key, v);
     ASSERT_EQUAL(map.size, 1, "Size is %lu instead of 1.", map.size);
 
-    md = (hsmp_meta_data_t) {.offset = 0, .hash = str_hash(k)};
+    md = (HSM_STRUCT(meta_data)) {.offset = 0, .hash = str_hash(k)};
     CALL_TEST(check_data, &map, md, k, v);
 
     s2i_hsm_free(&map);
@@ -52,18 +52,18 @@ UNIT_TEST(insert_twice) {
     s2i_hsm_t map;
     char* k = (char*) key;
     int v = 4;
-    hsmp_meta_data_t md;
-    hsm_error_t error;
+    HSM_STRUCT(meta_data) md;
+    gdc_error_t error;
 
     CALL_TEST(make_map, &map, cap);
 
-    ASSERT_EQUAL(s2i_hsm_insert(&map, k, v), HSM_OK, "Could not insert pair {\"%s\": %d}.", key, v);
+    ASSERT_EQUAL(s2i_hsm_insert(&map, k, v), GDC_OK, "Could not insert pair {\"%s\": %d}.", key, v);
     ASSERT_EQUAL(map.size, 1, "Size is %lu instead of 1.", map.size);
 
     error = s2i_hsm_insert(&map, k, v + 2);
-    ASSERT_EQUAL(error, HSM_KEY_EXISTS, "Accidentally overwrote key.");
+    ASSERT_EQUAL(error, GDC_ALREADY_PRESENT, "Accidentally overwrote key.");
 
-    md = (hsmp_meta_data_t) {.offset = 0, .hash = str_hash(k)};
+    md = (HSM_STRUCT(meta_data)) {.offset = 0, .hash = str_hash(k)};
     CALL_TEST(check_data, &map, md, k, v);
 
     s2i_hsm_free(&map);
@@ -75,12 +75,12 @@ UNIT_TEST(delete_missing) {
     s2i_hsm_t map;
     char k = 'A';
     int v;
-    hsm_error_t error;
+    gdc_error_t error;
 
     CALL_TEST(make_map, &map, cap);
     
     error = s2i_hsm_delete(&map, &k, &v);
-    ASSERT_EQUAL(error, HSM_NOT_A_KEY, "Key accidentally deleted.");
+    ASSERT_EQUAL(error, GDC_NOT_PRESENT, "Key accidentally deleted.");
 
     s2i_hsm_free(&map);
     TEST_END;
@@ -91,11 +91,11 @@ UNIT_TEST(insert_collision) {
     s2i_hsm_t map;
     char k1 = 110, k2 = 120;
     int v1 = 4, v2 = 8;
-    hsmp_meta_data_t md1, md2;
+    HSM_STRUCT(meta_data) md1, md2;
 
     CALL_TEST(make_map, &map, cap);
-    md1 = (hsmp_meta_data_t) {.offset = 0, .hash = k1};
-    md2 = (hsmp_meta_data_t) {.offset = 0, .hash = k2};
+    md1 = (HSM_STRUCT(meta_data)) {.offset = 0, .hash = k1};
+    md2 = (HSM_STRUCT(meta_data)) {.offset = 0, .hash = k2};
     t1 = hsmp_target_s2i(&map, md1); t2 = hsmp_target_s2i(&map, md2);
     ASSERT_EQUAL(t1, t2, "Target indices are %lu and %lu, i.e. not equal.", t1, t2);
 
@@ -103,9 +103,9 @@ UNIT_TEST(insert_collision) {
     result_ok(s2i_hsm_insert(&map, &k2, v2), "Could not insert pair {\"%c\": %d}.", k1, v1);
     ASSERT_EQUAL(map.size, 2, "Size is %lu instead of 2.", map.size);
 
-    md1 = (hsmp_meta_data_t) {.offset = 0, .hash = k1};
+    md1 = (HSM_STRUCT(meta_data)) {.offset = 0, .hash = k1};
     CALL_TEST(check_data, &map, md1, &k1, v1);
-    md2 = (hsmp_meta_data_t) {.offset = 1, .hash = k2};
+    md2 = (HSM_STRUCT(meta_data)) {.offset = 1, .hash = k2};
     CALL_TEST(check_data, &map, md2, &k2, v2);
 
     s2i_hsm_free(&map);
@@ -118,11 +118,11 @@ UNIT_TEST(verify_delete_move) {
     s2i_hsm_t map;
     char k1 = 110, k2 = 120;
     int v1 = 4, v2 = 8, w;
-    hsmp_meta_data_t md1, md2;
+    HSM_STRUCT(meta_data) md1, md2;
 
     CALL_TEST(make_map, &map, cap);
-    md1 = (hsmp_meta_data_t) {.offset = 0, .hash = k1};
-    md2 = (hsmp_meta_data_t) {.offset = 0, .hash = k2};
+    md1 = (HSM_STRUCT(meta_data)) {.offset = 0, .hash = k1};
+    md2 = (HSM_STRUCT(meta_data)) {.offset = 0, .hash = k2};
     t1 = hsmp_target_s2i(&map, md1); t2 = hsmp_target_s2i(&map, md2);
     ASSERT_EQUAL(t1, t2, "Target indices are %lu and %lu, i.e. not equal.", t1, t2);
 
@@ -133,7 +133,7 @@ UNIT_TEST(verify_delete_move) {
     ASSERT_EQUAL(map.size, 1, "Size is %lu instead of 1.", map.size);
     ASSERT_EQUAL(v1, w, "Got %d instead of %d.", v1, w);
 
-    md2 = (hsmp_meta_data_t) {.offset = 0, .hash = k2};
+    md2 = (HSM_STRUCT(meta_data)) {.offset = 0, .hash = k2};
     CALL_TEST(check_data, &map, md2, &k2, v2);
 
     s2i_hsm_free(&map);
@@ -270,7 +270,7 @@ UNIT_TEST(insert_to_empty) {
 }
 
 UNIT_TEST(delete_from_empty) {
-    hsm_error_t error;
+    gdc_error_t error;
     s2i_hsm_t map;
     char* k = (char*) key;
     int v;
@@ -278,7 +278,7 @@ UNIT_TEST(delete_from_empty) {
     s2i_hsm_new(&map);
 
     error = s2i_hsm_delete(&map, k, &v);
-    ASSERT_EQUAL(error, HSM_NOT_A_KEY, "Got nonsense value %d.", v);
+    ASSERT_EQUAL(error, GDC_NOT_PRESENT, "Got nonsense value %d.", v);
 
     s2i_hsm_free(&map);
     TEST_END;

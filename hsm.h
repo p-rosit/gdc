@@ -1,55 +1,51 @@
+#include "gdc.h"
+
 #ifndef HSM_H
 #define HSM_H
+
+/* Name of structure */
+#define HSM_NAME hsm
+#define HSM_FUNC(type_name, func_name) GDC_FUNC(type_name, HSM_NAME, func_name)
+#define HSM_PRIVATE(type_name, func_name) GDC_FUNC_PRIVATE(type_name, HSM_NAME, func_name)
+#define HSM(name) GDC_STRUCT(name, HSM_NAME)
+#define HSM_STRUCT(name) GDC_STRUCT_PRIVATE(HSM_NAME, name)
 
 #include <stddef.h>
 #include <stdint.h>
 
-typedef enum hsm_error {
-    HSM_OK,
-    HSM_SMALL_CAPACITY,
-    HSM_BIG_CAPACITY,
-    HSM_KEY_EXISTS,
-    HSM_NOT_A_KEY,
-    HSMP_TOO_MANY_COLLISIONS,
-} hsm_error_t;
 
-typedef struct hsmp_meta_data {
+typedef struct HSM_STRUCT(meta_data) {
     size_t offset;
     size_t hash;
-} hsmp_meta_data_t;
-
-#define HSMP_JOIN(a, b) HSMP_JOIN_(a, b)
-#define HSMP_JOIN_(a, b) a ## b
-
-#define HSMP_MAP(name) HSMP_JOIN(name, _hsm_t)
+} HSM_STRUCT(meta_data);
 
 #define hsm_make_basic_h(name, key_type, value_type) \
-    typedef struct HSMP_MAP(name) {                                             \
+    typedef struct HSM(name) {                                                  \
         size_t capacity;                                                        \
         size_t size;                                                            \
         size_t max_offset;                                                      \
-        hsmp_meta_data_t* meta_data;                                            \
+        HSM_STRUCT(meta_data)* meta_data;                                       \
         key_type* keys;                                                         \
         value_type* values;                                                     \
-    } HSMP_MAP(name);                                                           \
+    } HSM(name);                                                                \
                                                                                 \
-    void        HSMP_JOIN(name, _hsm_new)(HSMP_MAP(name)*);                     \
-    hsm_error_t HSMP_JOIN(name, _hsm_copy)(const HSMP_MAP(name)*, HSMP_MAP(name)*); \
-    void        HSMP_JOIN(name, _hsm_free)(HSMP_MAP(name)*);                    \
-    hsm_error_t HSMP_JOIN(name, _hsm_ensure_capacity)(HSMP_MAP(name)*, size_t); \
-    hsm_error_t HSMP_JOIN(name, _hsm_fit_capacity)(HSMP_MAP(name)*);            \
+    void        HSM_FUNC(name, new)(HSM(name)*);                                \
+    gdc_error_t HSM_FUNC(name, copy)(const HSM(name)*, HSM(name)*);             \
+    void        HSM_FUNC(name, free)(HSM(name)*);                               \
+    gdc_error_t HSM_FUNC(name, ensure_capacity)(HSM(name)*, size_t);            \
+    gdc_error_t HSM_FUNC(name, fit_capacity)(HSM(name)*);                       \
                                                                                 \
-    hsm_error_t HSMP_JOIN(name, _hsm_insert)(HSMP_MAP(name)*, key_type, value_type); \
-    hsm_error_t HSMP_JOIN(name, _hsm_delete)(HSMP_MAP(name)*, key_type, value_type*); \
+    gdc_error_t HSM_FUNC(name, hsm_insert)(HSM(name)*, key_type, value_type);   \
+    gdc_error_t HSM_FUNC(name, hsm_delete)(HSM(name)*, key_type, value_type*);  \
                                                                                 \
-    hsm_error_t HSMP_JOIN(name, _hsm_set)(HSMP_MAP(name)*, key_type, value_type); \
-    hsm_error_t HSMP_JOIN(name, _hsm_get)(HSMP_MAP(name)*, key_type, value_type*); \
+    gdc_error_t HSM_FUNC(name, hsm_set)(HSM(name)*, key_type, value_type);      \
+    gdc_error_t HSM_FUNC(name, hsm_get)(HSM(name)*, key_type, value_type*);     \
 
 #define hsm_make_deepcopy_h(name, key_type, value_type) \
-    hsm_error_t HSMP_JOIN(name, _hsm_deepcopy)(const HSMP_MAP(name)*, HSMP_MAP(name)*); \
+    gdc_error_t HSM_FUNC(name, deepcopy)(const HSM(name)*, HSM(name)*);         \
 
 #define hsm_make_free_h(name, key_type, value_type) \
-    hsm_error_t HSMP_JOIN(name, _hsm_free_items)(HSMP_MAP(name)*);              \
+    gdc_error_t HSM_FUNC(name, free_items)(HSM(name)*);                         \
 
 #define hsm_make_basic(name, key_type, value_type, hash_func) \
     HSMP_HELPER_FUNCTIONS(name, key_type, value_type)                           \
@@ -73,7 +69,7 @@ typedef struct hsmp_meta_data {
     HSMP_FREE_ITEMS(name, key_type, value_type, free_item_func)
 
 #define HSMP_NEW(name, key_type, value_type, hash_func) \
-    void HSMP_JOIN(name, _hsm_new)(HSMP_MAP(name)* map) {                       \
+    void HSM_FUNC(name, new)(HSM(name)* map) {                                  \
         map->capacity = 0;                                                      \
         map->size = 0;                                                          \
         map->max_offset = 0;                                                    \
@@ -83,12 +79,12 @@ typedef struct hsmp_meta_data {
     }
 
 #define HSMP_COPY(name, key_type, value_type, hash_func) \
-    hsm_error_t HSMP_JOIN(name, _hsm_copy)(const HSMP_MAP(name)* src, HSMP_MAP(name)* dst) { \
-        hsm_error_t error;                                                      \
-        HSMP_JOIN(name, _hsm_new)(dst);                                         \
-        error = HSMP_JOIN(hsmp_set_capacity_, name)(dst, src->capacity);        \
+    gdc_error_t HSM_FUNC(name, copy)(const HSM(name)* src, HSM(name)* dst) {    \
+        gdc_error_t error;                                                      \
+        HSM_FUNC(name, new)(dst);                                               \
+        error = HSM_PRIVATE(name, set_capacity)(dst, src->capacity);            \
                                                                                 \
-        if (error != HSM_OK) {                                                  \
+        if (error != GDC_OK) {                                                  \
             return error;                                                       \
         }                                                                       \
                                                                                 \
@@ -100,11 +96,11 @@ typedef struct hsmp_meta_data {
                                                                                 \
         dst->size = src->size;                                                  \
                                                                                 \
-        return HSM_OK;                                                          \
+        return GDC_OK;                                                          \
     }
 
 #define HSMP_FREE(name, key_type, value_type, hash_func) \
-    void HSMP_JOIN(name, _hsm_free)(HSMP_MAP(name)* map) {                      \
+    void HSM_FUNC(name, free)(HSM(name)* map) {                                 \
         map->capacity = 0;                                                      \
         map->size = 0;                                                          \
         map->max_offset = 0;                                                    \
@@ -114,13 +110,13 @@ typedef struct hsmp_meta_data {
     }
 
 #define HSMP_ENSURE_CAPACITY(name, key_type, value_type, hash_func) \
-    hsm_error_t HSMP_JOIN(name, _hsm_ensure_capacity)(HSMP_MAP(name)* map, size_t capacity) {\
-        hsm_error_t error = HSMP_TOO_MANY_COLLISIONS;                           \
+    gdc_error_t HSM_FUNC(name, ensure_capacity)(HSM(name)* map, size_t capacity) { \
+        gdc_error_t error = GDC_INCORRECT_CALL;                                 \
         size_t test_capacity = capacity;                                        \
                                                                                 \
-        while (error == HSMP_TOO_MANY_COLLISIONS) {                             \
-            error = HSMP_JOIN(hsmp_set_capacity_, name)(map, test_capacity);    \
-            if (error == HSM_BIG_CAPACITY) {                                    \
+        while (error == GDC_INCORRECT_CALL) {                                   \
+            error = HSM_PRIVATE(name, set_capacity)(map, test_capacity);        \
+            if (error == GDC_MEMORY_ERROR) {                                    \
                 break;                                                          \
             }                                                                   \
             test_capacity += test_capacity / 2 + 2 * (test_capacity < 2);       \
@@ -130,50 +126,50 @@ typedef struct hsmp_meta_data {
     }
 
 #define HSMP_FIT_CAPACITY(name, key_type, value_type, hash_func) \
-    hsm_error_t HSMP_JOIN(name, _hsm_fit_capacity)(HSMP_MAP(name)* map) {       \
-        return HSMP_JOIN(name, _hsm_ensure_capacity)(map, map->size);           \
+    gdc_error_t HSM_FUNC(name, fit_capacity)(HSM(name)* map) {                  \
+        return HSM_FUNC(name, ensure_capacity)(map, map->size);                 \
     }
 
 #define HSMP_INSERT(name, key_type, value_type, hash_func) \
-    hsm_error_t HSMP_JOIN(name, _hsm_insert)(HSMP_MAP(name)* map, key_type key, value_type value) { \
-        hsm_error_t error;                                                      \
+    gdc_error_t HSM_FUNC(name, insert)(HSM(name)* map, key_type key, value_type value) { \
+        gdc_error_t error;                                                      \
         size_t target;                                                          \
-        hsmp_meta_data_t md;                                                    \
+        HSM_STRUCT(meta_data) md;                                               \
                                                                                 \
         md.hash = hash_func(key);                                               \
                                                                                 \
         if (map->capacity > 0) {                                                \
-            error = HSMP_JOIN(hsmp_find_kvp_, name)(map, &md);                  \
-            target = HSMP_JOIN(hsmp_target_, name)(map, md);                    \
+            error = HSM_PRIVATE(name, find_kvp)(map, &md);                      \
+            target = HSM_PRIVATE(name, target)(map, md);                        \
                                                                                 \
-            if (error == HSM_OK && map->meta_data[target].hash == md.hash && map->meta_data[target].offset < map->max_offset) { \
-                return HSM_KEY_EXISTS;                                          \
+            if (error == GDC_OK && map->meta_data[target].hash == md.hash && map->meta_data[target].offset < map->max_offset) { \
+                return GDC_ALREADY_PRESENT;                                     \
             }                                                                   \
         } else {                                                                \
             target = 0;                                                         \
-            error = HSMP_TOO_MANY_COLLISIONS;                                   \
+            error = GDC_INCORRECT_CALL;                                         \
         }                                                                       \
                                                                                 \
-        error = HSMP_JOIN(hsmp_ir_kvp_, name)(map, error, target, md, key, value); \
+        error = HSM_PRIVATE(name, ir_kvp)(map, error, target, md, key, value);  \
                                                                                 \
         return error;                                                           \
     }
 
 #define HSMP_DELETE(name, key_type, value_type, hash_func) \
-    hsm_error_t HSMP_JOIN(name, _hsm_delete)(HSMP_MAP(name)* map, key_type key, value_type* value) { \
+    gdc_error_t HSM_FUNC(name, delete)(HSM(name)* map, key_type key, value_type* value) { \
         size_t target;                                                          \
-        hsmp_meta_data_t md;                                                    \
+        HSM_STRUCT(meta_data) md;                                               \
                                                                                 \
         if (map->capacity == 0) {                                               \
-            return HSM_NOT_A_KEY;                                               \
+            return GDC_NOT_PRESENT;                                             \
         }                                                                       \
                                                                                 \
         md.hash = hash_func(key);                                               \
-        HSMP_JOIN(hsmp_find_kvp_, name)(map, &md);                              \
-        target = HSMP_JOIN(hsmp_target_, name)(map, md);                        \
+        HSM_PRIVATE(name, find_kvp)(map, &md);                                  \
+        target = HSM_PRIVATE(name, target)(map, md);                            \
                                                                                 \
         if (map->meta_data[target].offset >= map->max_offset) {                 \
-            return HSM_NOT_A_KEY;                                               \
+            return GDC_NOT_PRESENT;                                             \
         }                                                                       \
                                                                                 \
         map->meta_data[target].offset = map->max_offset;                        \
@@ -192,58 +188,58 @@ typedef struct hsmp_meta_data {
         }                                                                       \
                                                                                 \
         map->size -= 1;                                                         \
-        return HSM_OK;                                                          \
+        return GDC_OK;                                                          \
     }
 
 #define HSMP_SET(name, key_type, value_type, hash_func) \
-    hsm_error_t HSMP_JOIN(name, _hsm_set)(HSMP_MAP(name)* map, key_type key, value_type value) { \
-        hsm_error_t error;                                                      \
+    gdc_error_t HSM_FUNC(name, set)(HSM(name)* map, key_type key, value_type value) { \
+        gdc_error_t error;                                                      \
         size_t target;                                                          \
-        hsmp_meta_data_t md;                                                    \
+        HSM_STRUCT(meta_data) md;                                               \
                                                                                 \
         md.hash = hash_func(key);                                               \
                                                                                 \
         if (map->capacity > 0) {                                                \
-            error = HSMP_JOIN(hsmp_find_kvp_, name)(map, &md);                  \
-            target = HSMP_JOIN(hsmp_target_, name)(map, md);                    \
+            error = HSM_PRIVATE(name, find_kvp)(map, &md);                      \
+            target = HSM_PRIVATE(name, target)(map, md);                        \
                                                                                 \
-            if (error == HSM_OK && map->meta_data[target].hash == md.hash && map->meta_data[target].offset < map->max_offset) { \
+            if (error == GDC_OK && map->meta_data[target].hash == md.hash && map->meta_data[target].offset < map->max_offset) { \
                 map->values[target] = value;                                    \
-                return HSM_OK;                                                  \
+                return GDC_OK;                                                  \
             }                                                                   \
         } else {                                                                \
             target = 0;                                                         \
-            error = HSMP_TOO_MANY_COLLISIONS;                                   \
+            error = GDC_INCORRECT_CALL;                                         \
         }                                                                       \
                                                                                 \
-        error = HSMP_JOIN(hsmp_ir_kvp_, name)(map, error, target, md, key, value); \
+        error = HSM_PRIVATE(name, ir_kvp)(map, error, target, md, key, value);  \
                                                                                 \
         return error;                                                           \
     }
 
 #define HSMP_GET(name, key_type, value_type, hash_func) \
-    hsm_error_t HSMP_JOIN(name, _hsm_get)(HSMP_MAP(name)* map, key_type key, value_type* value) { \
-        hsm_error_t error;                                                      \
+    gdc_error_t HSM_FUNC(name, get)(HSM(name)* map, key_type key, value_type* value) { \
+        gdc_error_t error;                                                      \
         size_t target;                                                          \
-        hsmp_meta_data_t md;                                                    \
+        HSM_STRUCT(meta_data) md;                                               \
                                                                                 \
         if (map->size <= 0) {                                                   \
-            return HSM_NOT_A_KEY;                                               \
+            return GDC_NOT_PRESENT;                                             \
         }                                                                       \
                                                                                 \
         md.hash = hash_func(key);                                               \
-        error = HSMP_JOIN(hsmp_find_kvp_, name)(map, &md);                      \
-        target = HSMP_JOIN(hsmp_target_, name)(map, md);                        \
+        error = HSM_PRIVATE(name, find_kvp)(map, &md);                          \
+        target = HSM_PRIVATE(name, target)(map, md);                            \
                                                                                 \
-        if (error == HSM_OK && map->meta_data[target].hash == md.hash && map->meta_data[target].offset < map->max_offset) { \
+        if (error == GDC_OK && map->meta_data[target].hash == md.hash && map->meta_data[target].offset < map->max_offset) { \
             *value = map->values[target];                                       \
-            return HSM_OK;                                                      \
+            return GDC_OK;                                                      \
         }                                                                       \
-        return HSM_NOT_A_KEY;                                                   \
+        return GDC_NOT_PRESENT;                                                 \
     }
 
 #define HSMP_HELPER_FUNCTIONS(name, key_type, value_type) \
-    size_t HSMP_JOIN(hsmp_compute_offset_, name)(size_t capacity) {             \
+    size_t HSM_PRIVATE(name, compute_offset)(size_t capacity) {                 \
         size_t max_offset;                                                      \
                                                                                 \
         max_offset = 0;                                                         \
@@ -254,20 +250,20 @@ typedef struct hsmp_meta_data {
         return max_offset + (max_offset == 0 && capacity != 0);                 \
     }                                                                           \
                                                                                 \
-    size_t HSMP_JOIN(hsmp_target_, name)(HSMP_MAP(name)* map, hsmp_meta_data_t md) { \
+    size_t HSM_PRIVATE(name, target)(HSM(name)* map, HSM_STRUCT(meta_data) md) { \
         return (md.hash % map->capacity) + md.offset;                           \
     }                                                                           \
                                                                                 \
-    size_t HSMP_JOIN(hsmp_find_kvp_, name)(HSMP_MAP(name)* map, hsmp_meta_data_t *md) { \
+    size_t HSM_PRIVATE(name, find_kvp)(HSM(name)* map, HSM_STRUCT(meta_data) *md) { \
         size_t i, target_index;                                                 \
                                                                                 \
         if (map->capacity <= 0) {                                               \
             md->offset = map->max_offset;                                       \
-            return HSMP_TOO_MANY_COLLISIONS;                                    \
+            return GDC_INCORRECT_CALL;                                          \
         }                                                                       \
                                                                                 \
         md->offset = 0;                                                         \
-        target_index = HSMP_JOIN(hsmp_target_, name)(map, *md);                 \
+        target_index = HSM_PRIVATE(name, target)(map, *md);                     \
         for (i = target_index; md->offset < map->max_offset; i++) {             \
             if (map->meta_data[i].offset < md->offset ||                        \
                 map->meta_data[i].offset >= map->max_offset ||                  \
@@ -278,13 +274,13 @@ typedef struct hsmp_meta_data {
         }                                                                       \
                                                                                 \
         if (md->offset < map->max_offset) {                                     \
-            return HSM_OK;                                                      \
+            return GDC_OK;                                                      \
         } else {                                                                \
-            return HSMP_TOO_MANY_COLLISIONS;                                    \
+            return GDC_INCORRECT_CALL;                                          \
         }                                                                       \
     }                                                                           \
-    void HSMP_JOIN(hsmp_swap_kvp_, name)(HSMP_MAP(name)* map, size_t target_index, hsmp_meta_data_t* md, key_type* key, value_type* value) { \
-        hsmp_meta_data_t temp_md;                                               \
+    void HSM_PRIVATE(name, swap_kvp)(HSM(name)* map, size_t target_index, HSM_STRUCT(meta_data)* md, key_type* key, value_type* value) { \
+        HSM_STRUCT(meta_data) temp_md;                                          \
         key_type temp_key;                                                      \
         value_type temp_value;                                                  \
                                                                                 \
@@ -301,26 +297,26 @@ typedef struct hsmp_meta_data {
         *value = temp_value;                                                    \
     }                                                                           \
                                                                                 \
-    hsm_error_t HSMP_JOIN(hsmp_add_kvp_, name)(HSMP_MAP(name)* map, size_t target_index, hsmp_meta_data_t *md, key_type *key, value_type *value) { \
-        hsm_error_t error = HSMP_TOO_MANY_COLLISIONS;                           \
+    gdc_error_t HSM_PRIVATE(name, add_kvp)(HSM(name)* map, size_t target_index, HSM_STRUCT(meta_data) *md, key_type *key, value_type *value) { \
+        gdc_error_t error = GDC_INCORRECT_CALL;                                 \
                                                                                 \
         if (md->offset >= map->max_offset) {                                    \
-            return HSM_OK;                                                      \
+            return GDC_OK;                                                      \
         }                                                                       \
                                                                                 \
         for (size_t i = target_index; i < map->capacity + map->max_offset; i++) { \
                                                                                 \
-            HSMP_JOIN(hsmp_swap_kvp_, name)(map, i, md, key, value);            \
+            HSM_PRIVATE(name, swap_kvp)(map, i, md, key, value);                \
                                                                                 \
             if (md->offset >= map->max_offset) {                                \
-                error = HSM_OK;                                                 \
+                error = GDC_OK;                                                 \
                 break;                                                          \
             }                                                                   \
                                                                                 \
             md->offset += 1;                                                    \
                                                                                 \
             if (md->offset >= map->max_offset) {                                \
-                error = HSMP_TOO_MANY_COLLISIONS;                               \
+                error = GDC_INCORRECT_CALL;                                     \
                 break;                                                          \
             }                                                                   \
         }                                                                       \
@@ -328,24 +324,24 @@ typedef struct hsmp_meta_data {
         return error;                                                           \
     }                                                                           \
                                                                                 \
-    hsm_error_t HSMP_JOIN(hsmp_set_capacity_, name)(HSMP_MAP(name)* map, size_t capacity) { \
-        hsm_error_t error = HSM_OK;                                             \
+    gdc_error_t HSM_PRIVATE(name, set_capacity)(HSM(name)* map, size_t capacity) { \
+        gdc_error_t error = GDC_OK;                                             \
         size_t i, total_capacity, target;                                       \
-        hsmp_meta_data_t md;                                                    \
+        HSM_STRUCT(meta_data) md;                                               \
         key_type key;                                                           \
         value_type value;                                                       \
-        HSMP_MAP(name) new_map;                                                 \
+        HSM(name) new_map;                                                      \
                                                                                 \
         if (capacity < map->size) {                                             \
-            return HSM_SMALL_CAPACITY;                                          \
+            return GDC_CAPACITY_ERROR;                                          \
         }                                                                       \
                                                                                 \
         new_map.capacity = capacity;                                            \
         new_map.size = map->size;                                               \
-        new_map.max_offset = HSMP_JOIN(hsmp_compute_offset_, name)(capacity);   \
+        new_map.max_offset = HSM_PRIVATE(name, compute_offset)(capacity);       \
                                                                                 \
         total_capacity = new_map.capacity + new_map.max_offset;                 \
-        new_map.meta_data = malloc(total_capacity * sizeof(hsmp_meta_data_t));  \
+        new_map.meta_data = malloc(total_capacity * sizeof(HSM_STRUCT(meta_data))); \
         new_map.keys = malloc(total_capacity * sizeof(key_type));               \
         new_map.values = malloc(total_capacity * sizeof(value_type));           \
                                                                                 \
@@ -353,7 +349,7 @@ typedef struct hsmp_meta_data {
             free(new_map.meta_data);                                            \
             free(new_map.keys);                                                 \
             free(new_map.values);                                               \
-            return HSM_BIG_CAPACITY;                                            \
+            return GDC_MEMORY_ERROR;                                            \
         }                                                                       \
                                                                                 \
         for (i = 0; i < new_map.capacity + new_map.max_offset; i++) {           \
@@ -368,25 +364,25 @@ typedef struct hsmp_meta_data {
             key = map->keys[i];                                                 \
             value = map->values[i];                                             \
                                                                                 \
-            error = HSMP_JOIN(hsmp_find_kvp_, name)(&new_map, &md);             \
-            if (error != HSM_OK) {                                              \
+            error = HSM_PRIVATE(name, find_kvp)(&new_map, &md);                 \
+            if (error != GDC_OK) {                                              \
                 break;                                                          \
             }                                                                   \
                                                                                 \
-            target = HSMP_JOIN(hsmp_target_, name)(&new_map, md);               \
-            HSMP_JOIN(hsmp_swap_kvp_, name)(&new_map, target, &md, &key, &value); \
+            target = HSM_PRIVATE(name, target)(&new_map, md);                   \
+            HSM_PRIVATE(name, swap_kvp)(&new_map, target, &md, &key, &value);   \
             if (md.offset >= map->max_offset) {                                 \
                 continue;                                                       \
             }                                                                   \
                                                                                 \
             target += 1; md.offset += 1;                                        \
-            error = HSMP_JOIN(hsmp_add_kvp_, name)(&new_map, target, &md, &key, &value); \
-            if (error != HSM_OK) {                                              \
+            error = HSM_PRIVATE(name, add_kvp)(&new_map, target, &md, &key, &value); \
+            if (error != GDC_OK) {                                              \
                 break;                                                          \
             }                                                                   \
         }                                                                       \
                                                                                 \
-        if (error == HSM_OK) {                                                  \
+        if (error == GDC_OK) {                                                  \
             free(map->meta_data);                                               \
             free(map->keys);                                                    \
             free(map->values);                                                  \
@@ -400,12 +396,12 @@ typedef struct hsmp_meta_data {
         return error;                                                           \
     }                                                                           \
                                                                                 \
-    hsm_error_t HSMP_JOIN(hsmp_ir_kvp_, name)(HSMP_MAP(name)* map, hsm_error_t error, size_t target, hsmp_meta_data_t md, key_type key, value_type value) { \
+    gdc_error_t HSM_PRIVATE(name, ir_kvp)(HSM(name)* map, gdc_error_t error, size_t target, HSM_STRUCT(meta_data) md, key_type key, value_type value) { \
         size_t new_capacity = map->capacity;                                    \
                                                                                 \
-        if (error == HSM_OK) {                                                  \
+        if (error == GDC_OK) {                                                  \
             goto place_kvp;                                                     \
-        } else if (error == HSMP_TOO_MANY_COLLISIONS) {                         \
+        } else if (error == GDC_INCORRECT_CALL) {                               \
             goto increase_size;                                                 \
         } else {                                                                \
             return error;                                                       \
@@ -413,39 +409,39 @@ typedef struct hsmp_meta_data {
                                                                                 \
         do {                                                                    \
             increase_size:                                                      \
-            while (error == HSMP_TOO_MANY_COLLISIONS) {                         \
+            while (error == GDC_INCORRECT_CALL) {                               \
                 new_capacity += new_capacity / 2 + 2 * (new_capacity < 2);      \
-                error = HSMP_JOIN(hsmp_set_capacity_, name)(map, new_capacity); \
+                error = HSM_PRIVATE(name, set_capacity)(map, new_capacity);     \
             }                                                                   \
-            error = HSMP_JOIN(hsmp_find_kvp_, name)(map, &md);                  \
-            target = HSMP_JOIN(hsmp_target_, name)(map, md);                    \
+            error = HSM_PRIVATE(name, find_kvp)(map, &md);                      \
+            target = HSM_PRIVATE(name, target)(map, md);                        \
                                                                                 \
-            if (error == HSMP_TOO_MANY_COLLISIONS) {                            \
+            if (error == GDC_INCORRECT_CALL) {                                  \
                 continue;                                                       \
             }                                                                   \
                                                                                 \
             place_kvp:                                                          \
-            HSMP_JOIN(hsmp_swap_kvp_, name)(map, target, &md, &key, &value);    \
+            HSM_PRIVATE(name, swap_kvp)(map, target, &md, &key, &value);        \
             if (md.offset < map->max_offset) {                                  \
                 target += 1; md.offset += 1;                                    \
-                error = HSMP_JOIN(hsmp_add_kvp_, name)(map, target, &md, &key, &value); \
-                if (error != HSMP_TOO_MANY_COLLISIONS) {                        \
+                error = HSM_PRIVATE(name, add_kvp)(map, target, &md, &key, &value); \
+                if (error != GDC_INCORRECT_CALL) {                              \
                     break;                                                      \
                 }                                                               \
             }                                                                   \
-        } while (error == HSMP_TOO_MANY_COLLISIONS);                            \
+        } while (error == GDC_INCORRECT_CALL);                                  \
                                                                                 \
-        map->size += error == HSM_OK;                                           \
+        map->size += error == GDC_OK;                                           \
         return error;                                                           \
     }
 
 #define HSMP_DEEP_COPY(name, key_type, value_type, copy_item_func) \
-    hsm_error_t HSMP_JOIN(name, _hsm_deepcopy)(const HSMP_MAP(name)* src, HSMP_MAP(name)* dst) { \
-        hsm_error_t error;                                                      \
+    gdc_error_t HSM_FUNC(name, deepcopy)(const HSM(name)* src, HSM(name)* dst) { \
+        gdc_error_t error;                                                      \
                                                                                 \
-        HSMP_JOIN(name, _hsm_new)(dst);                                         \
-        error = HSMP_JOIN(hsmp_set_capacity_, name)(dst, src->capacity);        \
-        if (error != HSM_OK) {                                                  \
+        HSM_FUNC(name, new)(dst);                                               \
+        error = HSM_PRIVATE(name, set_capacity)(dst, src->capacity);            \
+        if (error != GDC_OK) {                                                  \
             return error;                                                       \
         }                                                                       \
                                                                                 \
@@ -465,7 +461,7 @@ typedef struct hsmp_meta_data {
     }
 
 #define HSMP_FREE_ITEMS(name, key_type, value_type, free_item_func) \
-    hsm_error_t HSMP_JOIN(name, _hsm_free_items(HSMP_MAP(name)* map)) {         \
+    gdc_error_t HSM_FUNC(name, free_items(HSM(name)* map)) {         \
         for (size_t i = 0; i < map->capacity + map->max_offset; i++) {          \
             map->meta_data[i].offset = map->max_offset;                         \
             if (map->meta_data[i].offset < map->max_offset) {                   \
@@ -473,7 +469,7 @@ typedef struct hsmp_meta_data {
             }                                                                   \
         }                                                                       \
         map->size = 0;                                                          \
-        return HSM_OK;                                                          \
+        return GDC_OK;                                                          \
     }
 
 #endif

@@ -1,5 +1,5 @@
 #include "../../cut/cut.h"
-#include "../../map.h"
+#include "../../hsm.h"
 
 #include "utils.c"
 
@@ -8,7 +8,7 @@ const char key[] = "key";
 
 UNIT_TEST(find_kvp_empty_map) {
     s2i_hsm_t map;
-    hsmp_meta_data_t md;
+    HSM_STRUCT(meta_data) md;
 
     CALL_TEST(make_map, &map, 0);
     md.hash = str_hash(key);
@@ -26,7 +26,7 @@ UNIT_TEST(find_kvp_empty_map) {
 
 UNIT_TEST(find_kvp_no_collision) {
     s2i_hsm_t map;
-    hsmp_meta_data_t md;
+    HSM_STRUCT(meta_data) md;
 
     CALL_TEST(make_map, &map, 10);
     md.hash = str_hash(key);
@@ -43,15 +43,15 @@ UNIT_TEST(find_kvp_no_collision) {
 UNIT_TEST(find_kvp_with_collision) {
     size_t target;
     s2i_hsm_t map;
-    hsmp_meta_data_t md;
+    HSM_STRUCT(meta_data) md;
 
     CALL_TEST(make_map, &map, 20);
     ASSERT_TRUE(4 <= map.max_offset, "Expected max offset to be at least 4, got %lu.", map.max_offset);
     md.hash = str_hash(key);
     target = md.hash % map.capacity;
 
-    map.meta_data[target + 0] = (hsmp_meta_data_t) {.hash = md.hash + 1, .offset = 0};
-    map.meta_data[target + 1] = (hsmp_meta_data_t) {.hash = md.hash + 2, .offset = 1};
+    map.meta_data[target + 0] = (HSM_STRUCT(meta_data)) {.hash = md.hash + 1, .offset = 0};
+    map.meta_data[target + 1] = (HSM_STRUCT(meta_data)) {.hash = md.hash + 2, .offset = 1};
 
     hsmp_find_kvp_s2i(&map, &md);
 
@@ -64,15 +64,15 @@ UNIT_TEST(find_kvp_with_collision) {
 UNIT_TEST(find_kvp_with_replace) {
     size_t target;
     s2i_hsm_t map;
-    hsmp_meta_data_t md;
+    HSM_STRUCT(meta_data) md;
 
     CALL_TEST(make_map, &map, 20);
     ASSERT_TRUE(4 <= map.max_offset, "Expected max offset to be at least 4, got %lu.", map.max_offset);
     md.hash = str_hash(key);
     target = md.hash % map.capacity;
 
-    map.meta_data[target + 0] = (hsmp_meta_data_t) {.hash = md.hash + 1, .offset = 0};
-    map.meta_data[target + 1] = (hsmp_meta_data_t) {.hash = md.hash + 2, .offset = 0};
+    map.meta_data[target + 0] = (HSM_STRUCT(meta_data)) {.hash = md.hash + 1, .offset = 0};
+    map.meta_data[target + 1] = (HSM_STRUCT(meta_data)) {.hash = md.hash + 2, .offset = 0};
 
     hsmp_find_kvp_s2i(&map, &md);
 
@@ -85,15 +85,15 @@ UNIT_TEST(find_kvp_with_replace) {
 UNIT_TEST(find_kvp_existing) {
     size_t target;
     s2i_hsm_t map;
-    hsmp_meta_data_t md;
+    HSM_STRUCT(meta_data) md;
 
     CALL_TEST(make_map, &map, 20);
     ASSERT_TRUE(4 <= map.max_offset, "Expected max offset to be at least 4, got %lu.", map.max_offset);
     md.hash = str_hash(key);
     target = md.hash % map.capacity;
 
-    map.meta_data[target + 0] = (hsmp_meta_data_t) {.hash = md.hash + 1, .offset = 0};
-    map.meta_data[target + 1] = (hsmp_meta_data_t) {.hash = md.hash, .offset = 1};
+    map.meta_data[target + 0] = (HSM_STRUCT(meta_data)) {.hash = md.hash + 1, .offset = 0};
+    map.meta_data[target + 1] = (HSM_STRUCT(meta_data)) {.hash = md.hash, .offset = 1};
 
     hsmp_find_kvp_s2i(&map, &md);
 
@@ -108,7 +108,7 @@ UNIT_TEST(swap_kvp) {
     s2i_hsm_t map;
     char stri[] = "value", strj[] = "another", *key;
     int i = 5, j = 6, val;
-    hsmp_meta_data_t mdi, mdj, md;
+    HSM_STRUCT(meta_data) mdi, mdj, md;
 
     CALL_TEST(make_map, &map, 10);
 
@@ -146,7 +146,7 @@ UNIT_TEST(swap_kvp) {
 UNIT_TEST(add_kvp) {
     size_t target;
     s2i_hsm_t map;
-    hsmp_meta_data_t md, expected_md;
+    HSM_STRUCT(meta_data) md, expected_md;
     char *k, *expected_k;
     int v, expected_v;
 
@@ -154,11 +154,11 @@ UNIT_TEST(add_kvp) {
 
     k = expected_k = (char*) key;
     v = expected_v = 1;
-    md = expected_md = (hsmp_meta_data_t) {.hash = str_hash(key), .offset = 0};
+    md = expected_md = (HSM_STRUCT(meta_data)) {.hash = str_hash(key), .offset = 0};
 
     target = hsmp_target_s2i(&map, md);
     ASSERT_EQUAL(
-        hsmp_add_kvp_s2i(&map, target, &md, &k, &v), HSM_OK,
+        hsmp_add_kvp_s2i(&map, target, &md, &k, &v), GDC_OK,
         "Could not insert key value pair."
     );
 
@@ -171,7 +171,7 @@ UNIT_TEST(add_kvp) {
 UNIT_TEST(add_empty_kvp) {
     size_t target;
     s2i_hsm_t map;
-    hsmp_meta_data_t md, expected_md;
+    HSM_STRUCT(meta_data) md, expected_md;
     char *k, *expected_k;
     int v, expected_v;
 
@@ -179,14 +179,14 @@ UNIT_TEST(add_empty_kvp) {
 
     k = expected_k = (char*) key;
     v = expected_v = 1;
-    md = (hsmp_meta_data_t) {.hash = str_hash(key) + 2, .offset = map.max_offset};
-    expected_md = (hsmp_meta_data_t) {.hash = str_hash(key), .offset = 0};
+    md = (HSM_STRUCT(meta_data)) {.hash = str_hash(key) + 2, .offset = map.max_offset};
+    expected_md = (HSM_STRUCT(meta_data)) {.hash = str_hash(key), .offset = 0};
 
     target = md.hash % map.capacity;
-    map.meta_data[target] = (hsmp_meta_data_t) {.hash = str_hash(key), .offset = 0};
+    map.meta_data[target] = (HSM_STRUCT(meta_data)) {.hash = str_hash(key), .offset = 0};
     map.keys[target] = expected_k;
     map.values[target] = expected_v;
-    ASSERT_EQUAL(hsmp_add_kvp_s2i(&map, target, &md, &k, &v), HSM_OK,
+    ASSERT_EQUAL(hsmp_add_kvp_s2i(&map, target, &md, &k, &v), GDC_OK,
         "Could not insert empty key value pair.");
 
     ASSERT_EQUAL(
@@ -213,7 +213,7 @@ UNIT_TEST(add_empty_kvp) {
 UNIT_TEST(add_colliding_kvp) {
     size_t target, size = 2;
     s2i_hsm_t map;
-    hsmp_meta_data_t md, expected_md;
+    HSM_STRUCT(meta_data) md, expected_md;
     char *k, *expected_k;
     int v, expected_v;
 
@@ -222,18 +222,18 @@ UNIT_TEST(add_colliding_kvp) {
 
     k = expected_k = (char*) key;
     v = expected_v = 1;
-    md = expected_md = (hsmp_meta_data_t) {.hash = str_hash(key), .offset = 0};
+    md = expected_md = (HSM_STRUCT(meta_data)) {.hash = str_hash(key), .offset = 0};
 
     target = hsmp_target_s2i(&map, md);
 
     for (size_t i = 0; i < size; i++) {
-        map.meta_data[target + i] = (hsmp_meta_data_t) {.hash = str_hash(key) + i + 1, .offset = i};
+        map.meta_data[target + i] = (HSM_STRUCT(meta_data)) {.hash = str_hash(key) + i + 1, .offset = i};
         map.keys[target + i] = expected_k + i + 1;
         map.values[target + i] = expected_v + i + 1;
     }
 
     ASSERT_EQUAL(
-        hsmp_add_kvp_s2i(&map, target, &md, &k, &v), HSM_OK,
+        hsmp_add_kvp_s2i(&map, target, &md, &k, &v), GDC_OK,
         "Could not insert key value pair."
     );
 
@@ -263,7 +263,7 @@ UNIT_TEST(add_colliding_kvp) {
 UNIT_TEST(add_kvp_after_insert) {
     size_t target, size = 5;
     s2i_hsm_t map;
-    hsmp_meta_data_t md, expected_md;
+    HSM_STRUCT(meta_data) md, expected_md;
     char *k, *expected_k;
     int v, expected_v;
 
@@ -272,19 +272,19 @@ UNIT_TEST(add_kvp_after_insert) {
 
     k = expected_k = (char*) key;
     v = expected_v = 1;
-    md = expected_md = (hsmp_meta_data_t) {.hash = str_hash(key), .offset = 0};
+    md = expected_md = (HSM_STRUCT(meta_data)) {.hash = str_hash(key), .offset = 0};
 
     target = md.hash % map.capacity;
 
     for (size_t i = 0; i < size; i++) {
         if (i == 2) continue;
-        map.meta_data[target + i] = (hsmp_meta_data_t) {.hash = str_hash(key) + i + 1, .offset = 0};
+        map.meta_data[target + i] = (HSM_STRUCT(meta_data)) {.hash = str_hash(key) + i + 1, .offset = 0};
         map.keys[target + i] = expected_k + i + 1;
         map.values[target + i] = expected_v + i + 1;
     }
 
     ASSERT_EQUAL(
-        hsmp_add_kvp_s2i(&map, target, &md, &k, &v), HSM_OK,
+        hsmp_add_kvp_s2i(&map, target, &md, &k, &v), GDC_OK,
         "Could not insert key value pair."
     );
 

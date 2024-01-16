@@ -1,6 +1,6 @@
 #include "../../cut/cut.h"
 
-#include "../../map.h"
+#include "../../hsm.h"
 
 #include "utils.c"
 
@@ -49,7 +49,7 @@ UNIT_TEST(free_kvp) {
     s2i_hsm_ensure_capacity(&map, 10);
 
     for (size_t i = 0; i < size; i++) {
-        map.meta_data[i] = (hsmp_meta_data_t) {.offset = 0, .hash = i};
+        map.meta_data[i] = (HSM_STRUCT(meta_data)) {.offset = 0, .hash = i};
         map.keys[i] = str_duplicate(keys[i]);
         map.values[i] = i;
     }

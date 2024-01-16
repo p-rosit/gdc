@@ -2,10 +2,10 @@
 #include <string.h>
 
 #include "../../cut/cut.h"
-#include "../../map.h"
+#include "../../hsm.h"
 
 #define result_ok(error, ...) \
-    ASSERT_EQUAL(error, HSM_OK, __VA_ARGS__)
+    ASSERT_EQUAL(error, GDC_OK, __VA_ARGS__)
 
 size_t str_hash(const char* str) {
     return *str;
@@ -43,7 +43,7 @@ hsm_make_deepcopy(s2i, char*, int, s2i_copy_item)
 
 SUB_TEST(make_map, s2i_hsm_t* map, size_t capacity) {
     s2i_hsm_new(map);
-    ASSERT_EQUAL(s2i_hsm_ensure_capacity(map, capacity), HSM_OK, "Could not allocate map with capacity %lu.", capacity);
+    ASSERT_EQUAL(s2i_hsm_ensure_capacity(map, capacity), GDC_OK, "Could not allocate map with capacity %lu.", capacity);
     ASSERT_EQUAL(map->capacity, capacity, "Capacity is %lu instead of %lu.", map->capacity, capacity);
     ASSERT_EQUAL(map->size, 0, "Size is %lu instead of %lu.", map->size, 0);
     TEST_END;
@@ -64,7 +64,7 @@ SUB_TEST(print_map, s2i_hsm_t* map) {
     TEST_END;
 }
 
-SUB_TEST(check_data, s2i_hsm_t* map, hsmp_meta_data_t md, char* key, int value) {
+SUB_TEST(check_data, s2i_hsm_t* map, HSM_STRUCT(meta_data) md, char* key, int value) {
     size_t index;
     if (md.offset < map->max_offset) {
         index = hsmp_target_s2i(map, md);
@@ -83,7 +83,7 @@ SUB_TEST(check_map, s2i_hsm_t* map, size_t size, char* keys, int* values) {
     size_t hash, index, target, i;
     char* key;
     int value, exists;
-    hsmp_meta_data_t md;
+    HSM_STRUCT(meta_data) md;
 
     for (index = 0; index < size; index++) {
         exists = 0;
@@ -104,7 +104,7 @@ SUB_TEST(check_map, s2i_hsm_t* map, size_t size, char* keys, int* values) {
         if (!exists) {
             TEST_FAIL("Pair {\"%c\": %d} not encountered.", key, value);
         }
-        md = (hsmp_meta_data_t) {.offset = target - (hash % map->capacity), .hash = hash};
+        md = (HSM_STRUCT(meta_data)) {.offset = target - (hash % map->capacity), .hash = hash};
         CALL_TEST(check_data, map, md, key, value);
     }
 
