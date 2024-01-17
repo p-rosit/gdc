@@ -16,12 +16,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define GARP_JOIN(a, b) GARP_JOIN_(a, b)
-#define GARP_JOIN_(a, b) a ## b
-
-#define GARP_ARR(name)  GARP_JOIN(name, _gar_t)
-#define GARP_IDX        GARP_JOIN(garp_index_, __LINE__)
-#define GARP_ITER       GARP_JOIN(garp_iter_, __LINE__)
+#define GAR_IDX         GDC_JOIN(garp_index_, __LINE__)
+#define GAR_ITER        GDC_JOIN(garp_iter_, __LINE__)
 
 #define for_each_gar(arr, value) \
     for (                                                                       \
@@ -48,40 +44,43 @@
     )
 
 #define gar_make_basic_h(name, type) \
-    typedef struct GARP_ARR(name) {                                             \
+    typedef struct GAR(name) {                                                  \
         size_t capacity;                                                        \
         size_t size;                                                            \
         type* values;                                                           \
-    } GARP_ARR(name);                                                           \
+    } GAR(name);                                                                \
                                                                                 \
-    void        GARP_JOIN(name, _gar_new)(GARP_ARR(name)*);                     \
-    gdc_error_t GARP_JOIN(name, _gar_copy)(const GARP_ARR(name)*, GARP_ARR(name)*); \
-    void        GARP_JOIN(name, _gar_free)(GARP_ARR(name)*);                    \
-    gdc_error_t GARP_JOIN(name, _gar_set_capacity)(GARP_ARR(name)*, size_t);    \
-    gdc_error_t GARP_JOIN(name, _gar_fit_capacity)(GARP_ARR(name)*);            \
+    void        GAR_FUNC(name, new)(GAR(name)*);                                \
+    gdc_error_t GAR_FUNC(name, copy)(const GAR(name)*, GAR(name)*);             \
+    void        GAR_FUNC(name, free)(GAR(name)*);                               \
+    gdc_error_t GAR_FUNC(name, set_capacity)(GAR(name)*, size_t);               \
+    gdc_error_t GAR_FUNC(name, fit_capacity)(GAR(name)*);                       \
                                                                                 \
-    gdc_error_t GARP_JOIN(name, _gar_set)(GARP_ARR(name)*, size_t, type);       \
-    gdc_error_t GARP_JOIN(name, _gar_get)(GARP_ARR(name)*, size_t, type*);      \
+    gdc_error_t GAR_FUNC(name, set)(GAR(name)*, size_t, type);                  \
+    gdc_error_t GAR_FUNC(name, get)(GAR(name)*, size_t, type*);                 \
                                                                                 \
-    gdc_error_t GARP_JOIN(name, _gar_push)(GARP_ARR(name)*, type);              \
-    gdc_error_t GARP_JOIN(name, _gar_pop)(GARP_ARR(name)*, type*);              \
+    gdc_error_t GAR_FUNC(name, push)(GAR(name)*, type);                         \
+    gdc_error_t GAR_FUNC(name, pop)(GAR(name)*, type*);                         \
                                                                                 \
-    gdc_error_t GARP_JOIN(name, _gar_concat)(GARP_ARR(name)*, const GARP_ARR(name)*); \
+    gdc_error_t GAR_FUNC(name, concat)(GAR(name)*, const GAR(name)*);           \
                                                                                 \
-    gdc_error_t GARP_JOIN(name, _gar_insert)(GARP_ARR(name)*, size_t, type);    \
-    gdc_error_t GARP_JOIN(name, _gar_remove)(GARP_ARR(name)*, size_t, type*);   \
+    gdc_error_t GAR_FUNC(name, insert)(GAR(name)*, size_t, type);               \
+    gdc_error_t GAR_FUNC(name, remove)(GAR(name)*, size_t, type*);              \
                                                                                 \
-    size_t      GARP_JOIN(name, _gar_count)(const GARP_ARR(name)*, int (*filter)(type)); \
-    gdc_error_t GARP_JOIN(name, _gar_find)(const GARP_ARR(name)*, int (*filter)(type), type*); \
-    gdc_error_t GARP_JOIN(name, _gar_filter)(GARP_ARR(name)*, int (*filter)(type), GARP_ARR(name)*); \
+    size_t      GAR_FUNC(name, count)(const GAR(name)*, int (*filter)(type));   \
+    gdc_error_t GAR_FUNC(name, find)(const GAR(name)*, int (*filter)(type), type*); \
+    gdc_error_t GAR_FUNC(name, filter)(GAR(name)*, int (*filter)(type), GAR(name)*); \
                                                                                 \
-    void        GARP_JOIN(name, _gar_sort)(GARP_ARR(name)*, int (*ord)(type, type)); \
+    void        GAR_FUNC(name, sort)(GAR(name)*, int (*ord)(type, type));       \
 
 #define gar_make_deepcopy_h(name, type) \
-    gdc_error_t GARP_JOIN(name, _gar_deepcopy)(const GARP_ARR(name)*, GARP_ARR(name)*); \
+    gdc_error_t GAR_FUNC(name, deepcopy)(const GAR(name)*, GAR(name)*);         \
 
 #define gar_make_free_h(name, type) \
-    void        GARP_JOIN(name, _gar_free_values)(GARP_ARR(name)*);             \
+    void        GAR_FUNC(name, free_values)(GAR(name)*);                        \
+
+#define gar_make_serialize_h(name, type) \
+    void        GAR_FUNC(name, to_json)(const GAR(name)*);                      \
 
 #define gar_make_basic(name, type) \
     GARP_NEW(name, type)                                                        \
@@ -108,14 +107,14 @@
     GARP_SORT(name, type)                                                       \
 
 #define GARP_NEW(name, type) \
-    void GARP_JOIN(name, _gar_new)(GARP_ARR(name)* array) {                     \
+    void GAR_FUNC(name, new)(GAR(name)* array) {                                \
         array->capacity = 0;                                                    \
         array->size = 0;                                                        \
         array->values = NULL;                                                   \
     }
 
 #define GARP_COPY(name, type) \
-    gdc_error_t GARP_JOIN(name, _gar_copy)(const GARP_ARR(name)* src, GARP_ARR(name)* dst) { \
+    gdc_error_t GAR_FUNC(name, copy)(const GAR(name)* src, GAR(name)* dst) {    \
         gdc_error_t error = GDC_OK;                                             \
                                                                                 \
         dst->capacity = src->size;                                              \
@@ -133,12 +132,12 @@
     }
 
 #define GARP_FREE(name, type) \
-    void GARP_JOIN(name, _gar_free)(GARP_ARR(name)* array) {                    \
+    void GAR_FUNC(name, free)(GAR(name)* array) {                               \
         free(array->values);                                                    \
     }
 
 #define GARP_SET_CAPACITY(name, type) \
-    gdc_error_t GARP_JOIN(name, _gar_set_capacity)(GARP_ARR(name)* array, size_t capacity) { \
+    gdc_error_t GAR_FUNC(name, set_capacity)(GAR(name)* array, size_t capacity) { \
         type* values;                                                           \
                                                                                 \
         if (capacity < array->size) {                                           \
@@ -163,33 +162,33 @@
     }
 
 #define GARP_FIT_CAPACITY(name, type) \
-    gdc_error_t GARP_JOIN(name, _gar_fit_capacity)(GARP_ARR(name)* array) {     \
-        return GARP_JOIN(name, _gar_set_capacity)(array, array->size);          \
+    gdc_error_t GAR_FUNC(name, fit_capacity)(GAR(name)* array) {                \
+        return GAR_FUNC(name, set_capacity)(array, array->size);                \
     }
 
 #define GARP_SET(name, type) \
-    gdc_error_t GARP_JOIN(name, _gar_set)(GARP_ARR(name)* array, size_t index, type value) { \
+    gdc_error_t GAR_FUNC(name, set)(GAR(name)* array, size_t index, type value) { \
         if (array->size <= index) {                                             \
-            return GDC_INDEX_OOB;                                                 \
+            return GDC_INDEX_OOB;                                               \
         }                                                                       \
         array->values[index] = value;                                           \
         return GDC_OK;                                                          \
     }
 
 #define GARP_GET(name, type) \
-    gdc_error_t GARP_JOIN(name, _gar_get)(GARP_ARR(name)* array, size_t index, type* value) { \
+    gdc_error_t GAR_FUNC(name, get)(GAR(name)* array, size_t index, type* value) { \
         if (array->size <= index) {                                             \
-            return GDC_INDEX_OOB;                                                 \
+            return GDC_INDEX_OOB;                                               \
         }                                                                       \
         *value = array->values[index];                                          \
         return GDC_OK;                                                          \
     }
 
 #define GARP_PUSH(name, type) \
-    gdc_error_t GARP_JOIN(name, _gar_push)(GARP_ARR(name)* array, type value) { \
+    gdc_error_t GAR_FUNC(name, push)(GAR(name)* array, type value) {            \
         size_t capacity = array->capacity;                                      \
         if (array->size >= capacity) {                                          \
-            gdc_error_t error = GARP_JOIN(name, _gar_set_capacity)(             \
+            gdc_error_t error = GAR_FUNC(name, set_capacity)(                   \
                 array, capacity + capacity / 2 + 2 * (capacity == 0)            \
             );                                                                  \
             if (error != GDC_OK) {                                              \
@@ -202,9 +201,9 @@
     }
 
 #define GARP_POP(name, type) \
-    gdc_error_t GARP_JOIN(name, _gar_pop)(GARP_ARR(name)* array, type* value_ptr) { \
+    gdc_error_t GAR_FUNC(name, pop)(GAR(name)* array, type* value_ptr) {        \
         if (array->size <= 0) {                                                 \
-            return GDC_INDEX_OOB;                                                 \
+            return GDC_INDEX_OOB;                                               \
         }                                                                       \
                                                                                 \
         if (value_ptr != NULL) {                                                \
@@ -216,7 +215,7 @@
     }
 
 #define GARP_CONCAT(name, type) \
-    gdc_error_t GARP_JOIN(name, _gar_concat)(GARP_ARR(name)* array, const GARP_ARR(name)* append_array) { \
+    gdc_error_t GAR_FUNC(name, concat)(GAR(name)* array, const GAR(name)* append_array) { \
         gdc_error_t error;                                                      \
         size_t capacity, new_size;                                              \
         new_size = array->size + append_array->size;                            \
@@ -226,7 +225,7 @@
             while (capacity < new_size) {                                       \
                 capacity += capacity / 2;                                       \
             }                                                                   \
-            error = GARP_JOIN(name, _gar_set_capacity)(array, capacity);        \
+            error = GAR_FUNC(name, set_capacity)(array, capacity);              \
             if (error) {                                                        \
                 return error;                                                   \
             }                                                                   \
@@ -241,16 +240,16 @@
     }
 
 #define GARP_INSERT(name, type) \
-    gdc_error_t GARP_JOIN(name, _gar_insert)(GARP_ARR(name)* array, size_t index, type value) { \
+    gdc_error_t GAR_FUNC(name, insert)(GAR(name)* array, size_t index, type value) { \
         size_t capacity;                                                        \
                                                                                 \
         if (index < 0 || array->size + 1 <= index) {                            \
-            return GDC_INDEX_OOB;                                                 \
+            return GDC_INDEX_OOB;                                               \
         }                                                                       \
                                                                                 \
         capacity = array->capacity;                                             \
         if (array->size >= capacity) {                                          \
-            gdc_error_t error = GARP_JOIN(name, _gar_set_capacity)(             \
+            gdc_error_t error = GAR_FUNC(name, set_capacity)(                   \
                 array, capacity + capacity / 2 + 2 * (capacity == 0)            \
             );                                                                  \
             if (error != GDC_OK) {                                              \
@@ -269,9 +268,9 @@
     }
 
 #define GARP_REMOVE(name, type) \
-    gdc_error_t GARP_JOIN(name, _gar_remove)(GARP_ARR(name)* array, size_t index, type* value_ptr) { \
+    gdc_error_t GAR_FUNC(name, remove)(GAR(name)* array, size_t index, type* value_ptr) { \
         if (index < 0 || array->size < index) {                                 \
-            return GDC_INDEX_OOB;                                                 \
+            return GDC_INDEX_OOB;                                               \
         }                                                                       \
                                                                                 \
         if (value_ptr != NULL) {                                                \
@@ -287,7 +286,7 @@
     }
 
 #define GARP_COUNT(name, type) \
-    size_t GARP_JOIN(name, _gar_count)(const GARP_ARR(name)* array, int (*filter)(type)) { \
+    size_t GAR_FUNC(name, count)(const GAR(name)* array, int (*filter)(type)) { \
         size_t total_count = 0;                                                 \
         for (size_t i = 0; i < array->size; i++) {                              \
             total_count += filter(array->values[i]) != 0;                       \
@@ -297,7 +296,7 @@
     }
 
 #define GARP_FIND(name, type) \
-    gdc_error_t GARP_JOIN(name, _gar_find)(const GARP_ARR(name)* array, int (*filter)(type), type* value_ptr) { \
+    gdc_error_t GAR_FUNC(name, find)(const GAR(name)* array, int (*filter)(type), type* value_ptr) { \
         int exists = 0;                                                         \
         for (size_t i = 0; i < array->size; i++) {                              \
             if (filter(array->values[i])) {                                     \
@@ -310,18 +309,18 @@
         }                                                                       \
                                                                                 \
         if (!exists) {                                                          \
-            return GDC_INDEX_OOB;                                                 \
+            return GDC_INDEX_OOB;                                               \
         }                                                                       \
                                                                                 \
         return GDC_OK;                                                          \
     }
 
 #define GARP_FILTER(name, type) \
-    gdc_error_t GARP_JOIN(name, _gar_filter)(GARP_ARR(name)* src, int (*filter)(type), GARP_ARR(name)* dst) { \
+    gdc_error_t GAR_FUNC(name, filter)(GAR(name)* src, int (*filter)(type), GAR(name)* dst) { \
         gdc_error_t error;                                                      \
                                                                                 \
-        GARP_JOIN(name, _gar_new)(dst);                                         \
-        error = GARP_JOIN(name, _gar_set_capacity)(dst, src->size);             \
+        GAR_FUNC(name, new)(dst);                                               \
+        error = GAR_FUNC(name, set_capacity)(dst, src->size);                   \
         if (error != GDC_OK) {                                                  \
             return error;                                                       \
         }                                                                       \
@@ -336,7 +335,7 @@
     }
 
 #define GARP_SORT(name, type) \
-    size_t GARP_JOIN(garp_partition_, name)(GARP_ARR(name)* array, int (*ord)(type, type), size_t lo, size_t hi) {\
+    size_t GAR_PRIVATE(name, partition)(GAR(name)* array, int (*ord)(type, type), size_t lo, size_t hi) {\
         int set = 0;                                                            \
         size_t i = lo;                                                          \
         type pivot;                                                             \
@@ -361,33 +360,33 @@
         return i;                                                               \
     }                                                                           \
                                                                                 \
-    void GARP_JOIN(garp_qsort_, name)(GARP_ARR(name)* array, int (*ord)(type, type), size_t lo, size_t hi) { \
+    void GAR_PRIVATE(name, qsort)(GAR(name)* array, int (*ord)(type, type), size_t lo, size_t hi) { \
         size_t pivot;                                                           \
         if (lo >= hi) {                                                         \
             return;                                                             \
         }                                                                       \
                                                                                 \
-        pivot = GARP_JOIN(garp_partition_, name)(array, ord, lo, hi);           \
+        pivot = GAR_PRIVATE(name, partition)(array, ord, lo, hi);               \
                                                                                 \
         if (pivot > 0) {                                                        \
-            GARP_JOIN(garp_qsort_, name)(array, ord, lo, pivot - 1);            \
+            GAR_PRIVATE(name, qsort)(array, ord, lo, pivot - 1);                \
         }                                                                       \
-        GARP_JOIN(garp_qsort_, name)(array, ord, pivot + 1, hi);                \
+        GAR_PRIVATE(name, qsort)(array, ord, pivot + 1, hi);                    \
     }                                                                           \
                                                                                 \
-    void GARP_JOIN(name, _gar_sort)(GARP_ARR(name)* array, int (*ord)(type, type)) {\
+    void GAR_FUNC(name, sort)(GAR(name)* array, int (*ord)(type, type)) {       \
         if (array->size > 1) {                                                  \
-            GARP_JOIN(garp_qsort_, name)(array, ord, 0, array->size - 1);       \
+            GAR_PRIVATE(name, qsort)(array, ord, 0, array->size - 1);           \
         }                                                                       \
                                                                                 \
     }
 
 #define gar_make_deepcopy(name, type, copy_function) \
-    gdc_error_t GARP_JOIN(name, _gar_deepcopy)(const GARP_ARR(name)* src, GARP_ARR(name)* dst) { \
+    gdc_error_t GAR_FUNC(name, deepcopy)(const GAR(name)* src, GAR(name)* dst) { \
         gdc_error_t error;                                                      \
                                                                                 \
-        GARP_JOIN(name, _gar_new)(dst);                                         \
-        error = GARP_JOIN(name, _gar_set_capacity)(dst, src->size);             \
+        GAR_FUNC(name, new)(dst);                                               \
+        error = GAR_FUNC(name, set_capacity)(dst, src->size);                   \
         if (error != GDC_OK) {                                                  \
             return error;                                                       \
         }                                                                       \
@@ -401,7 +400,7 @@
     }
 
 #define gar_make_free(name, type, free_func) \
-    void GARP_JOIN(name, _gar_free_values)(GARP_ARR(name)* array) {             \
+    void GAR_FUNC(name, free_values)(GAR(name)* array) {                        \
         for (size_t i = 0; i < array->size; i++) {                              \
             free_func(array->values[i]);                                        \
         }                                                                       \
