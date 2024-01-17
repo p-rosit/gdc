@@ -39,7 +39,7 @@ UNIT_TEST(find_unique) {
 
     CALL_TEST(make_array, &arr, cap, size);
 
-    ASSERT_EQUAL(int_gar_find(&arr, is_3, &u), GAR_OK, "Could not find value.");
+    ASSERT_EQUAL(int_gar_find(&arr, is_3, &u), GDC_OK, "Could not find value.");
     ASSERT_EQUAL(u, 3, "Value is %d instead of 3.", u);
 
     int_gar_free(&arr);
@@ -53,7 +53,7 @@ UNIT_TEST(find_duplicate) {
 
     CALL_TEST(make_array, &arr, cap, size);
 
-    ASSERT_EQUAL(int_gar_find(&arr, more_than_5, &u), GAR_OK, "Could not find value.");
+    ASSERT_EQUAL(int_gar_find(&arr, more_than_5, &u), GDC_OK, "Could not find value.");
     ASSERT_EQUAL(u, 6, "Value is %d instead of 6.", u);
 
     int_gar_free(&arr);
@@ -66,7 +66,7 @@ UNIT_TEST(find_no_out) {
 
     CALL_TEST(make_array, &arr, cap, size);
 
-    ASSERT_EQUAL(int_gar_find(&arr, is_3, NULL), GAR_OK, "Could not find value.");
+    ASSERT_EQUAL(int_gar_find(&arr, is_3, NULL), GDC_OK, "Could not find value.");
 
     int_gar_free(&arr);
     TEST_END;
@@ -79,7 +79,7 @@ UNIT_TEST(find_non_existing) {
 
     CALL_TEST(make_array, &arr, cap, size);
 
-    ASSERT_EQUAL(int_gar_find(&arr, is_11, &u), GAR_IDX_OOB, "Found %d when searching for 11.\n", u);
+    ASSERT_EQUAL(int_gar_find(&arr, is_11, &u), GDC_INDEX_OOB, "Found %d when searching for 11.\n", u);
 
     int_gar_free(&arr);
     TEST_END;
@@ -94,9 +94,9 @@ UNIT_TEST(filter_array) {
     int values[] = {1, 9, 2, 8, 3, 7, 4, 6};
     v_size = sizeof(values) / sizeof(int);
     for (size_t i = 0; i < v_size; i++) {
-        ASSERT_EQUAL(int_gar_push(&arr, values[i]), GAR_OK, "Could not push value.");
+        ASSERT_EQUAL(int_gar_push(&arr, values[i]), GDC_OK, "Could not push value.");
     }
-    ASSERT_EQUAL(int_gar_filter(&arr, more_than_5, &filter), GAR_OK, "Could not filter array.");
+    ASSERT_EQUAL(int_gar_filter(&arr, more_than_5, &filter), GDC_OK, "Could not filter array.");
 
     int res[] = {9, 8, 7, 6};
     v_size = sizeof(res) / sizeof(int);

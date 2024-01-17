@@ -16,13 +16,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef enum gar_error {
-    GAR_OK,
-    GAR_SMALL_CAPACITY,
-    GAR_BIG_CAPACITY,
-    GAR_IDX_OOB,
-} gar_error_t;
-
 #define GARP_JOIN(a, b) GARP_JOIN_(a, b)
 #define GARP_JOIN_(a, b) a ## b
 
@@ -62,30 +55,30 @@ typedef enum gar_error {
     } GARP_ARR(name);                                                           \
                                                                                 \
     void        GARP_JOIN(name, _gar_new)(GARP_ARR(name)*);                     \
-    gar_error_t GARP_JOIN(name, _gar_copy)(const GARP_ARR(name)*, GARP_ARR(name)*); \
+    gdc_error_t GARP_JOIN(name, _gar_copy)(const GARP_ARR(name)*, GARP_ARR(name)*); \
     void        GARP_JOIN(name, _gar_free)(GARP_ARR(name)*);                    \
-    gar_error_t GARP_JOIN(name, _gar_set_capacity)(GARP_ARR(name)*, size_t);    \
-    gar_error_t GARP_JOIN(name, _gar_fit_capacity)(GARP_ARR(name)*);            \
+    gdc_error_t GARP_JOIN(name, _gar_set_capacity)(GARP_ARR(name)*, size_t);    \
+    gdc_error_t GARP_JOIN(name, _gar_fit_capacity)(GARP_ARR(name)*);            \
                                                                                 \
-    gar_error_t GARP_JOIN(name, _gar_set)(GARP_ARR(name)*, size_t, type);       \
-    gar_error_t GARP_JOIN(name, _gar_get)(GARP_ARR(name)*, size_t, type*);      \
+    gdc_error_t GARP_JOIN(name, _gar_set)(GARP_ARR(name)*, size_t, type);       \
+    gdc_error_t GARP_JOIN(name, _gar_get)(GARP_ARR(name)*, size_t, type*);      \
                                                                                 \
-    gar_error_t GARP_JOIN(name, _gar_push)(GARP_ARR(name)*, type);              \
-    gar_error_t GARP_JOIN(name, _gar_pop)(GARP_ARR(name)*, type*);              \
+    gdc_error_t GARP_JOIN(name, _gar_push)(GARP_ARR(name)*, type);              \
+    gdc_error_t GARP_JOIN(name, _gar_pop)(GARP_ARR(name)*, type*);              \
                                                                                 \
-    gar_error_t GARP_JOIN(name, _gar_concat)(GARP_ARR(name)*, const GARP_ARR(name)*); \
+    gdc_error_t GARP_JOIN(name, _gar_concat)(GARP_ARR(name)*, const GARP_ARR(name)*); \
                                                                                 \
-    gar_error_t GARP_JOIN(name, _gar_insert)(GARP_ARR(name)*, size_t, type);    \
-    gar_error_t GARP_JOIN(name, _gar_remove)(GARP_ARR(name)*, size_t, type*);   \
+    gdc_error_t GARP_JOIN(name, _gar_insert)(GARP_ARR(name)*, size_t, type);    \
+    gdc_error_t GARP_JOIN(name, _gar_remove)(GARP_ARR(name)*, size_t, type*);   \
                                                                                 \
     size_t      GARP_JOIN(name, _gar_count)(const GARP_ARR(name)*, int (*filter)(type)); \
-    gar_error_t GARP_JOIN(name, _gar_find)(const GARP_ARR(name)*, int (*filter)(type), type*); \
-    gar_error_t GARP_JOIN(name, _gar_filter)(GARP_ARR(name)*, int (*filter)(type), GARP_ARR(name)*); \
+    gdc_error_t GARP_JOIN(name, _gar_find)(const GARP_ARR(name)*, int (*filter)(type), type*); \
+    gdc_error_t GARP_JOIN(name, _gar_filter)(GARP_ARR(name)*, int (*filter)(type), GARP_ARR(name)*); \
                                                                                 \
     void        GARP_JOIN(name, _gar_sort)(GARP_ARR(name)*, int (*ord)(type, type)); \
 
 #define gar_make_deepcopy_h(name, type) \
-    gar_error_t GARP_JOIN(name, _gar_deepcopy)(const GARP_ARR(name)*, GARP_ARR(name)*); \
+    gdc_error_t GARP_JOIN(name, _gar_deepcopy)(const GARP_ARR(name)*, GARP_ARR(name)*); \
 
 #define gar_make_free_h(name, type) \
     void        GARP_JOIN(name, _gar_free_values)(GARP_ARR(name)*);             \
@@ -122,8 +115,8 @@ typedef enum gar_error {
     }
 
 #define GARP_COPY(name, type) \
-    gar_error_t GARP_JOIN(name, _gar_copy)(const GARP_ARR(name)* src, GARP_ARR(name)* dst) { \
-        gar_error_t error = GAR_OK;                                             \
+    gdc_error_t GARP_JOIN(name, _gar_copy)(const GARP_ARR(name)* src, GARP_ARR(name)* dst) { \
+        gdc_error_t error = GDC_OK;                                             \
                                                                                 \
         dst->capacity = src->size;                                              \
         dst->size = src->size;                                                  \
@@ -132,7 +125,7 @@ typedef enum gar_error {
         if (dst->values == NULL && src->size != 0) {                            \
             dst->capacity = 0;                                                  \
             dst->size = 0;                                                      \
-            return GAR_BIG_CAPACITY;                                            \
+            return GDC_MEMORY_ERROR;                                            \
         }                                                                       \
                                                                                 \
         memcpy(dst->values, src->values, src->size * sizeof(type));             \
@@ -145,20 +138,20 @@ typedef enum gar_error {
     }
 
 #define GARP_SET_CAPACITY(name, type) \
-    gar_error_t GARP_JOIN(name, _gar_set_capacity)(GARP_ARR(name)* array, size_t capacity) { \
+    gdc_error_t GARP_JOIN(name, _gar_set_capacity)(GARP_ARR(name)* array, size_t capacity) { \
         type* values;                                                           \
                                                                                 \
         if (capacity < array->size) {                                           \
-            return GAR_SMALL_CAPACITY;                                          \
+            return GDC_CAPACITY_ERROR;                                          \
         }                                                                       \
         if (capacity == array->capacity) {                                      \
-            return GAR_OK;                                                      \
+            return GDC_OK;                                                      \
         }                                                                       \
                                                                                 \
         values = malloc(capacity * sizeof(type));                               \
                                                                                 \
         if (values == NULL && capacity != 0) {                                  \
-            return GAR_BIG_CAPACITY;                                            \
+            return GDC_MEMORY_ERROR;                                            \
         }                                                                       \
                                                                                 \
         memcpy(values, array->values, array->size * sizeof(type));              \
@@ -166,52 +159,52 @@ typedef enum gar_error {
         free(array->values);                                                    \
         array->values = values;                                                 \
                                                                                 \
-        return GAR_OK;                                                          \
+        return GDC_OK;                                                          \
     }
 
 #define GARP_FIT_CAPACITY(name, type) \
-    gar_error_t GARP_JOIN(name, _gar_fit_capacity)(GARP_ARR(name)* array) {     \
+    gdc_error_t GARP_JOIN(name, _gar_fit_capacity)(GARP_ARR(name)* array) {     \
         return GARP_JOIN(name, _gar_set_capacity)(array, array->size);          \
     }
 
 #define GARP_SET(name, type) \
-    gar_error_t GARP_JOIN(name, _gar_set)(GARP_ARR(name)* array, size_t index, type value) { \
+    gdc_error_t GARP_JOIN(name, _gar_set)(GARP_ARR(name)* array, size_t index, type value) { \
         if (array->size <= index) {                                             \
-            return GAR_IDX_OOB;                                                 \
+            return GDC_INDEX_OOB;                                                 \
         }                                                                       \
         array->values[index] = value;                                           \
-        return GAR_OK;                                                          \
+        return GDC_OK;                                                          \
     }
 
 #define GARP_GET(name, type) \
-    gar_error_t GARP_JOIN(name, _gar_get)(GARP_ARR(name)* array, size_t index, type* value) { \
+    gdc_error_t GARP_JOIN(name, _gar_get)(GARP_ARR(name)* array, size_t index, type* value) { \
         if (array->size <= index) {                                             \
-            return GAR_IDX_OOB;                                                 \
+            return GDC_INDEX_OOB;                                                 \
         }                                                                       \
         *value = array->values[index];                                          \
-        return GAR_OK;                                                          \
+        return GDC_OK;                                                          \
     }
 
 #define GARP_PUSH(name, type) \
-    gar_error_t GARP_JOIN(name, _gar_push)(GARP_ARR(name)* array, type value) { \
+    gdc_error_t GARP_JOIN(name, _gar_push)(GARP_ARR(name)* array, type value) { \
         size_t capacity = array->capacity;                                      \
         if (array->size >= capacity) {                                          \
-            gar_error_t error = GARP_JOIN(name, _gar_set_capacity)(             \
+            gdc_error_t error = GARP_JOIN(name, _gar_set_capacity)(             \
                 array, capacity + capacity / 2 + 2 * (capacity == 0)            \
             );                                                                  \
-            if (error != GAR_OK) {                                              \
+            if (error != GDC_OK) {                                              \
                 return error;                                                   \
             }                                                                   \
         }                                                                       \
                                                                                 \
         array->values[array->size++] = value;                                   \
-        return GAR_OK;                                                          \
+        return GDC_OK;                                                          \
     }
 
 #define GARP_POP(name, type) \
-    gar_error_t GARP_JOIN(name, _gar_pop)(GARP_ARR(name)* array, type* value_ptr) { \
+    gdc_error_t GARP_JOIN(name, _gar_pop)(GARP_ARR(name)* array, type* value_ptr) { \
         if (array->size <= 0) {                                                 \
-            return GAR_IDX_OOB;                                                 \
+            return GDC_INDEX_OOB;                                                 \
         }                                                                       \
                                                                                 \
         if (value_ptr != NULL) {                                                \
@@ -219,12 +212,12 @@ typedef enum gar_error {
         }                                                                       \
                                                                                 \
         array->size -= 1;                                                       \
-        return GAR_OK;                                                          \
+        return GDC_OK;                                                          \
     }
 
 #define GARP_CONCAT(name, type) \
-    gar_error_t GARP_JOIN(name, _gar_concat)(GARP_ARR(name)* array, const GARP_ARR(name)* append_array) { \
-        gar_error_t error;                                                      \
+    gdc_error_t GARP_JOIN(name, _gar_concat)(GARP_ARR(name)* array, const GARP_ARR(name)* append_array) { \
+        gdc_error_t error;                                                      \
         size_t capacity, new_size;                                              \
         new_size = array->size + append_array->size;                            \
                                                                                 \
@@ -244,23 +237,23 @@ typedef enum gar_error {
         }                                                                       \
         array->size += append_array->size;                                      \
                                                                                 \
-        return GAR_OK;                                                          \
+        return GDC_OK;                                                          \
     }
 
 #define GARP_INSERT(name, type) \
-    gar_error_t GARP_JOIN(name, _gar_insert)(GARP_ARR(name)* array, size_t index, type value) { \
+    gdc_error_t GARP_JOIN(name, _gar_insert)(GARP_ARR(name)* array, size_t index, type value) { \
         size_t capacity;                                                        \
                                                                                 \
         if (index < 0 || array->size + 1 <= index) {                            \
-            return GAR_IDX_OOB;                                                 \
+            return GDC_INDEX_OOB;                                                 \
         }                                                                       \
                                                                                 \
         capacity = array->capacity;                                             \
         if (array->size >= capacity) {                                          \
-            gar_error_t error = GARP_JOIN(name, _gar_set_capacity)(             \
+            gdc_error_t error = GARP_JOIN(name, _gar_set_capacity)(             \
                 array, capacity + capacity / 2 + 2 * (capacity == 0)            \
             );                                                                  \
-            if (error != GAR_OK) {                                              \
+            if (error != GDC_OK) {                                              \
                 return error;                                                   \
             }                                                                   \
         }                                                                       \
@@ -272,13 +265,13 @@ typedef enum gar_error {
         array->values[index] = value;                                           \
         array->size += 1;                                                       \
                                                                                 \
-        return GAR_OK;                                                          \
+        return GDC_OK;                                                          \
     }
 
 #define GARP_REMOVE(name, type) \
-    gar_error_t GARP_JOIN(name, _gar_remove)(GARP_ARR(name)* array, size_t index, type* value_ptr) { \
+    gdc_error_t GARP_JOIN(name, _gar_remove)(GARP_ARR(name)* array, size_t index, type* value_ptr) { \
         if (index < 0 || array->size < index) {                                 \
-            return GAR_IDX_OOB;                                                 \
+            return GDC_INDEX_OOB;                                                 \
         }                                                                       \
                                                                                 \
         if (value_ptr != NULL) {                                                \
@@ -290,7 +283,7 @@ typedef enum gar_error {
         }                                                                       \
         array->size -= 1;                                                       \
                                                                                 \
-        return GAR_OK;                                                          \
+        return GDC_OK;                                                          \
     }
 
 #define GARP_COUNT(name, type) \
@@ -304,7 +297,7 @@ typedef enum gar_error {
     }
 
 #define GARP_FIND(name, type) \
-    gar_error_t GARP_JOIN(name, _gar_find)(const GARP_ARR(name)* array, int (*filter)(type), type* value_ptr) { \
+    gdc_error_t GARP_JOIN(name, _gar_find)(const GARP_ARR(name)* array, int (*filter)(type), type* value_ptr) { \
         int exists = 0;                                                         \
         for (size_t i = 0; i < array->size; i++) {                              \
             if (filter(array->values[i])) {                                     \
@@ -317,19 +310,19 @@ typedef enum gar_error {
         }                                                                       \
                                                                                 \
         if (!exists) {                                                          \
-            return GAR_IDX_OOB;                                                 \
+            return GDC_INDEX_OOB;                                                 \
         }                                                                       \
                                                                                 \
-        return GAR_OK;                                                          \
+        return GDC_OK;                                                          \
     }
 
 #define GARP_FILTER(name, type) \
-    gar_error_t GARP_JOIN(name, _gar_filter)(GARP_ARR(name)* src, int (*filter)(type), GARP_ARR(name)* dst) { \
-        gar_error_t error;                                                      \
+    gdc_error_t GARP_JOIN(name, _gar_filter)(GARP_ARR(name)* src, int (*filter)(type), GARP_ARR(name)* dst) { \
+        gdc_error_t error;                                                      \
                                                                                 \
         GARP_JOIN(name, _gar_new)(dst);                                         \
         error = GARP_JOIN(name, _gar_set_capacity)(dst, src->size);             \
-        if (error != GAR_OK) {                                                  \
+        if (error != GDC_OK) {                                                  \
             return error;                                                       \
         }                                                                       \
                                                                                 \
@@ -339,7 +332,7 @@ typedef enum gar_error {
             }                                                                   \
         }                                                                       \
                                                                                 \
-        return GAR_OK;                                                          \
+        return GDC_OK;                                                          \
     }
 
 #define GARP_SORT(name, type) \
@@ -390,12 +383,12 @@ typedef enum gar_error {
     }
 
 #define gar_make_deepcopy(name, type, copy_function) \
-    gar_error_t GARP_JOIN(name, _gar_deepcopy)(const GARP_ARR(name)* src, GARP_ARR(name)* dst) { \
-        gar_error_t error;                                                      \
+    gdc_error_t GARP_JOIN(name, _gar_deepcopy)(const GARP_ARR(name)* src, GARP_ARR(name)* dst) { \
+        gdc_error_t error;                                                      \
                                                                                 \
         GARP_JOIN(name, _gar_new)(dst);                                         \
         error = GARP_JOIN(name, _gar_set_capacity)(dst, src->size);             \
-        if (error != GAR_OK) {                                                  \
+        if (error != GDC_OK) {                                                  \
             return error;                                                       \
         }                                                                       \
                                                                                 \
@@ -404,7 +397,7 @@ typedef enum gar_error {
         }                                                                       \
         dst->size = src->size;                                                  \
                                                                                 \
-        return GAR_OK;                                                          \
+        return GDC_OK;                                                          \
     }
 
 #define gar_make_free(name, type, free_func) \

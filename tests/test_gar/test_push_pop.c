@@ -11,7 +11,7 @@ UNIT_TEST(push_items) {
     CALL_TEST(make_array, &arr, cap, 0);
 
     for (int i = 0; i < size; i++) {
-        ASSERT_EQUAL(int_gar_push(&arr, i), GAR_OK, "Could not push value: %d.", i);
+        ASSERT_EQUAL(int_gar_push(&arr, i), GDC_OK, "Could not push value: %d.", i);
         ASSERT_EQUAL(arr.size, i + 1, "Size is %d instead of %d.", arr.size, i + 1);
     }
 
@@ -40,12 +40,12 @@ UNIT_TEST(push_and_pop) {
 
     CALL_TEST(make_array, &arr, cap, size);
 
-    ASSERT_EQUAL(int_gar_pop(&arr, &u), GAR_OK, "Could not pop value.");
+    ASSERT_EQUAL(int_gar_pop(&arr, &u), GDC_OK, "Could not pop value.");
     ASSERT_EQUAL(u, size - 1, "Popped value was %d instead of 4.", u);
 
-    ASSERT_EQUAL(int_gar_pop(&arr, NULL), GAR_OK, "Could not pop value.");
+    ASSERT_EQUAL(int_gar_pop(&arr, NULL), GDC_OK, "Could not pop value.");
 
-    ASSERT_EQUAL(int_gar_pop(&arr, &u), GAR_OK, "Could not pop value.");
+    ASSERT_EQUAL(int_gar_pop(&arr, &u), GDC_OK, "Could not pop value.");
     ASSERT_EQUAL(u, size - 3, "Popped value was %d instead of 2.", u);
 
     int_gar_free(&arr);
@@ -56,7 +56,7 @@ UNIT_TEST(pop_empty) {
     int_gar_t arr;
 
     CALL_TEST(make_array, &arr, 5, 0);
-    ASSERT_EQUAL(int_gar_pop(&arr, NULL), GAR_IDX_OOB, "Array should be empty.");
+    ASSERT_EQUAL(int_gar_pop(&arr, NULL), GDC_INDEX_OOB, "Array should be empty.");
 
     int_gar_free(&arr);
     TEST_END;
