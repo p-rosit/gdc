@@ -64,11 +64,17 @@ UNIT_TEST(for_each_ptr) {
         ASSERT_EQUAL(seen[*v], 0, "Key value pair {\"%c\": %d} has been seen before.", *k, v);
         seen[*v] = 1;
         iters += 1;
+
+        *v = 0;
     }
 
     ASSERT_EQUAL(iters, size, "Iterated over %lu elements instead of %lu.", iters, size);
     for (i = 0; i < size; i++) {
         ASSERT_EQUAL(seen[i], 1, "Key value pair {\"%c\": %d} not seen.", key[i], i);
+    }
+
+    for_each_ptr_hsm(map, char* k, int *v) {
+        ASSERT_EQUAL(*v, 0, "Pair is {\"%c\": %d}, value not mutable through loop.", *k, *v);
     }
 
     s2i_hsm_free(&map);
@@ -102,13 +108,16 @@ UNIT_TEST(for_each_persist) {
     CALL_TEST(make_map, &map, cap);
     result_ok(s2i_hsm_insert(&map, &k, v), "Could not insert pair.");
 
+    temp_k = NULL;
+    temp_v = 0;
     for_each_hsm(map, temp_k, temp_v) {
         /* pass */
     }
     ASSERT_EQUAL(temp_k, &k, "Key is \"%c\" instead of \"%c\".", *temp_k, k);
     ASSERT_EQUAL(temp_v, v, "Value is %d instead of %d.", temp_v, v);
-    temp_k = NULL;
 
+    temp_k = NULL;
+    temp_pv = NULL;
     for_each_ptr_hsm(map, temp_k, temp_pv) {
         /* pass */
     }
