@@ -16,17 +16,17 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define GAR_IDX         GDC_JOIN(garp_index_, __LINE__)
-#define GAR_ITER        GDC_JOIN(garp_iter_, __LINE__)
+#define GARP_IDX    GDC_JOIN(garp_index_, __LINE__)
+#define GARP_ITER   GDC_JOIN(garp_iter_, __LINE__)
 
 #define for_each_gar(arr, value) \
     for (                                                                       \
         size_t GARP_IDX = 0, GARP_ITER = 1;                                     \
-        GARP_IDX < (arr)->size;                                                 \
+        GARP_IDX < (arr).size;                                                 \
         GARP_ITER = 1, GARP_IDX++                                               \
     )                                                                           \
     for (                                                                       \
-        value = (arr)->values[GARP_IDX];                                        \
+        value = (arr).values[GARP_IDX];                                        \
         GARP_ITER;                                                              \
         GARP_ITER = !GARP_ITER                                                  \
     )
@@ -34,11 +34,11 @@
 #define for_each_ptr_gar(arr, value) \
     for (                                                                       \
         size_t GARP_IDX = 0, GARP_ITER = 1;                                     \
-        GARP_IDX < (arr)->size;                                                 \
+        GARP_IDX < (arr).size;                                                 \
         GARP_ITER = 1, GARP_IDX++                                               \
     )                                                                           \
     for (                                                                       \
-        value = &(arr)->values[GARP_IDX];                                       \
+        value = &(arr).values[GARP_IDX];                                       \
         GARP_ITER;                                                              \
         GARP_ITER = !GARP_ITER                                                  \
     )

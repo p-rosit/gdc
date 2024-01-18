@@ -12,14 +12,14 @@ UNIT_TEST(for_each) {
     CALL_TEST(make_array, &arr, cap, size);
 
     iters = 0;
-    for_each_gar(&arr, int temp) {
+    for_each_gar(arr, int temp) {
         ASSERT_EQUAL(temp, iters, "Got %d instead of %d.", temp, iters);
         iters++;
     }
     ASSERT_EQUAL(iters, size, "Iterated over %d values instead of %d.", iters, size);
 
     iters = 0;
-    for_each_gar(&arr, value) {
+    for_each_gar(arr, value) {
         ASSERT_EQUAL(value, iters, "Got %d instead of %d.", value, iters);
         iters++;
     }
@@ -38,19 +38,24 @@ UNIT_TEST(for_each_ptr) {
     CALL_TEST(make_array, &arr, cap, size);
 
     iters = 0;
-    for_each_ptr_gar(&arr, int* temp) {
+    for_each_ptr_gar(arr, int* temp) {
         ASSERT_EQUAL(*temp, iters, "Got %d instead of %d.", temp, iters);
         iters++;
     }
     ASSERT_EQUAL(iters, size, "Iterated over %d values instead of %d.", iters, size);
 
     iters = 0;
-    for_each_ptr_gar(&arr, value) {
+    for_each_ptr_gar(arr, value) {
         ASSERT_EQUAL(*value, iters, "Got %d instead of %d.", value, iters);
+        *value = 0;
         iters++;
     }
     ASSERT_EQUAL(iters, size, "Iterated over %d values instead of %d.", iters, size);
     ASSERT_EQUAL(*value, size - 1, "Last value is %d instead of %d.", value, size - 1);
+
+    for_each_ptr_gar(arr, int* val) {
+        ASSERT_EQUAL(*val, 0, "Value is %lu, not mutable through loop.", val);
+    }
 
     int_gar_free(&arr);
     TEST_END;
@@ -62,11 +67,11 @@ UNIT_TEST(for_each_statement) {
     CALL_TEST(make_array, &arr, 2, 1);
 
     if (0)
-        for_each_gar(&arr, int temp)
+        for_each_gar(arr, int temp)
             TEST_FAIL("Unreachable statement executed (%d).", temp);
 
     if (0)
-        for_each_ptr_gar(&arr, int* temp)
+        for_each_ptr_gar(arr, int* temp)
             TEST_FAIL("Unreachable statement executed. (%p)", temp);
 
     int_gar_free(&arr);
