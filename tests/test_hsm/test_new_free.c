@@ -61,10 +61,6 @@ UNIT_TEST(free_kvp) {
     ASSERT_EQUAL(map.size, 0, "Size is %lu instead of 0.", map.size);
     ASSERT_EQUAL(map.max_offset, offset, "Max offset is %lu instead of %lu.", map.max_offset, offset);
 
-    for (size_t i = 0; i < size; i++) {
-        free(map.keys[i]);
-    }
-
     s2i_hsm_free(&map);
     ASSERT_EQUAL(map.capacity, 0, "Capacity is %lu instead of 0.", map.capacity);
     ASSERT_EQUAL(map.size, 0, "Size is %lu instead of 0.", map.size);

@@ -159,6 +159,9 @@ typedef struct HSM_STRUCT(meta_data) {
         free(map->meta_data);                                                   \
         free(map->keys);                                                        \
         free(map->values);                                                      \
+        map->meta_data = NULL;                                                  \
+        map->keys = NULL;                                                       \
+        map->values = NULL;                                                     \
     }
 
 #define HSMP_ENSURE_CAPACITY(name, key_type, value_type, hash_func) \
@@ -515,10 +518,10 @@ typedef struct HSM_STRUCT(meta_data) {
 #define HSMP_FREE_ITEMS(name, key_type, value_type, free_item_func) \
     gdc_error_t HSM_FUNC(name, free_items(HSM(name)* map)) {         \
         for (size_t i = 0; i < map->capacity + map->max_offset; i++) {          \
-            map->meta_data[i].offset = map->max_offset;                         \
             if (map->meta_data[i].offset < map->max_offset) {                   \
                 free_item_func(map->keys[i], map->values[i]);                   \
             }                                                                   \
+            map->meta_data[i].offset = map->max_offset;                         \
         }                                                                       \
         map->size = 0;                                                          \
         return GDC_OK;                                                          \
