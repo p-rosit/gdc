@@ -14,6 +14,7 @@ UNIT_TEST(ensure_from_empty) {
     ASSERT_EQUAL(map.capacity, cap, "Capacity is %lu instead of %lu.", map.capacity, cap);
     ASSERT_EQUAL(map.size, 0, "Size is %lu instead of %lu.", map.size, 0);
 
+    s2i_hsm_free(&map);
     TEST_END;
 }
 
@@ -35,6 +36,7 @@ UNIT_TEST(ensure_from_filled) {
     ASSERT_TRUE(map.capacity >= cap, "Capacity is %lu, not larger than %lu.", map.capacity, cap);
     ASSERT_EQUAL(map.size, size, "Size is %lu instead of %lu.", map.size, size);
 
+    s2i_hsm_free(&map);
     TEST_END;
 }
 
@@ -57,6 +59,7 @@ UNIT_TEST(smaller_ensure) {
     ASSERT_EQUAL(map.capacity, cap, "Capacity is %lu instead of %lu.", map.capacity, cap);
     ASSERT_EQUAL(map.size, size, "Size is %lu instead of %lu.", map.size, size);
 
+    s2i_hsm_free(&map);
     TEST_END;
 }
 
@@ -79,6 +82,7 @@ UNIT_TEST(fit_capacity) {
 
     ASSERT_EQUAL(map.size, size, "Size is %lu instead of %lu.", map.size, size);
 
+    s2i_hsm_free(&map);
     TEST_END;
 }
 

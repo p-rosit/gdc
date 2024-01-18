@@ -124,6 +124,7 @@ UNIT_TEST(for_each_persist) {
     ASSERT_EQUAL(temp_k, &k, "Key is \"%c\" instead of \"%c\".", *temp_k, k);
     ASSERT_EQUAL(*temp_pv, v, "Value is %d instead of %d.", *temp_pv, v);
 
+    s2i_hsm_free(&map);
     TEST_END;
 }
 

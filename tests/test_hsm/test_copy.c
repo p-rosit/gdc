@@ -110,7 +110,7 @@ UNIT_TEST(deepcopy_map) {
     }
 
     s2i_hsm_free_items(&src);
-    // s2i_hsm_free_items(&dst);
+    s2i_hsm_free_items(&dst);
     s2i_hsm_free(&src);
     s2i_hsm_free(&dst);
     TEST_END;
