@@ -5,17 +5,24 @@
 
 
 UNIT_TEST(concat) {
+    size_t cap;
     int_gar_t a, b;
 
     CALL_TEST(make_array, &a, 10, 5);
     CALL_TEST(make_array, &b, 30, 3);
 
-    ASSERT_EQUAL(int_gar_concat(&a, &b), GDC_OK, "Could not append arrays.");
+    cap = b.capacity;
+    ASSERT_EQUAL(int_gar_concat(&a, &b), GDC_OK, "Could not concatenate arrays.");
+
+    ASSERT_EQUAL(b.size, 0, "Size is %lu, array was not consumed.", b.size);
+    ASSERT_EQUAL(b.capacity, cap, "Capacity is %lu instead of %lu.", b.capacity, cap);
 
     int res[] = {0, 1, 2, 3, 4, 0, 1, 2};
     size_t v_size = sizeof(res) / sizeof(int);
     CALL_TEST(array_eq, &a, v_size, res);
 
+    int_gar_free(&a);
+    int_gar_free(&b);
     TEST_END;
 }
 
@@ -25,10 +32,13 @@ UNIT_TEST(concat_empty) {
     int_gar_new(&a);
     int_gar_new(&b);
 
-    ASSERT_EQUAL(int_gar_concat(&a, &b), GDC_OK, "Could not append empty arrays.");
+    ASSERT_EQUAL(int_gar_concat(&a, &b), GDC_OK, "Could not concatenate empty arrays.");
+    ASSERT_EQUAL(b.size, 0, "Size is %lu, array was not consumed.", b.size);
 
     CALL_TEST(array_eq, &a, 0, NULL);
 
+    int_gar_free(&a);
+    int_gar_free(&b);
     TEST_END;
 }
 
@@ -38,12 +48,15 @@ UNIT_TEST(concat_on_empty) {
     int_gar_new(&a);
     CALL_TEST(make_array, &b, 30, 3);
 
-    ASSERT_EQUAL(int_gar_concat(&a, &b), GDC_OK, "Could not append arrays.");
+    ASSERT_EQUAL(int_gar_concat(&a, &b), GDC_OK, "Could not concatenate arrays.");
+    ASSERT_EQUAL(b.size, 0, "Size is %lu, array was not consumed.", b.size);
 
     int res[] = {0, 1, 2};
     size_t v_size = sizeof(res) / sizeof(int);
     CALL_TEST(array_eq, &a, v_size, res);
 
+    int_gar_free(&a);
+    int_gar_free(&b);
     TEST_END;
 }
 
@@ -53,12 +66,15 @@ UNIT_TEST(concat_with_empty) {
     CALL_TEST(make_array, &a, 30, 5);
     int_gar_new(&b);
 
-    ASSERT_EQUAL(int_gar_concat(&a, &b), GDC_OK, "Could not append arrays.");
+    ASSERT_EQUAL(int_gar_concat(&a, &b), GDC_OK, "Could not concatenate arrays.");
+    ASSERT_EQUAL(b.size, 0, "Size is %lu, array was not consumed.", b.size);
 
     int res[] = {0, 1, 2, 3, 4};
     size_t v_size = sizeof(res) / sizeof(int);
     CALL_TEST(array_eq, &a, v_size, res);
 
+    int_gar_free(&a);
+    int_gar_free(&b);
     TEST_END;
 }
 

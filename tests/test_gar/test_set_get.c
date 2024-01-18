@@ -16,6 +16,7 @@ UNIT_TEST(set) {
     v_size = sizeof(res) / sizeof(int);
     CALL_TEST(array_eq, &arr, v_size, res);
 
+    int_gar_free(&arr);
     TEST_END;
 }
 
@@ -29,6 +30,7 @@ UNIT_TEST(get) {
     ASSERT_EQUAL(int_gar_get(&arr, 3, &u), GDC_OK, "Could not get value.");
     ASSERT_EQUAL(u, 3, "Value is %d instead of 3.", u);
 
+    int_gar_free(&arr);
     TEST_END;
 }
 
@@ -44,7 +46,7 @@ UNIT_TEST(invalid_set) {
     v_size = sizeof(res) / sizeof(int);
     CALL_TEST(array_eq, &arr, v_size, res);
 
-    TEST_END;
+    int_gar_free(&arr);
     TEST_END;
 }
 
@@ -57,6 +59,7 @@ UNIT_TEST(invalid_get) {
 
     ASSERT_EQUAL(int_gar_get(&arr, size + 2, &u), GDC_INDEX_OOB, "Could get index %lu in array of size %lu. Value: %d", size + 2, arr.size);
 
+    int_gar_free(&arr);
     TEST_END;
 }
 

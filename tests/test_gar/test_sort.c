@@ -19,6 +19,7 @@ UNIT_TEST(sort_empty) {
     ASSERT_EQUAL(arr.capacity, cap, "Capacity is %lu instead of %lu.", arr.capacity, cap);
     ASSERT_EQUAL(arr.size, 0, "Size is %lu instead of 0.", arr.size);
 
+    int_gar_free(&arr);
     TEST_END;
 }
 
@@ -36,6 +37,7 @@ UNIT_TEST(sort_singleton) {
     ASSERT_EQUAL(arr.size, 1, "Size is %lu instead of 1.", arr.size);
     ASSERT_EQUAL(arr.values[0], val, "Value is %d instead of %d.", arr.values[0], val);
 
+    int_gar_free(&arr);
     TEST_END;
 }
 
@@ -55,6 +57,7 @@ UNIT_TEST(sort_simple) {
     v_size = sizeof(res) / sizeof(int);
     CALL_TEST(array_eq, &arr, v_size, res);
 
+    int_gar_free(&arr);
     TEST_END;
 }
 
@@ -74,6 +77,7 @@ UNIT_TEST(sort_duplicates) {
     v_size = sizeof(res) / sizeof(int);
     CALL_TEST(array_eq, &arr, v_size, res);
 
+    int_gar_free(&arr);
     TEST_END;
 }
 
