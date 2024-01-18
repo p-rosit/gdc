@@ -16,11 +16,57 @@
 #include <stddef.h>
 #include <stdint.h>
 
-
 typedef struct HSM_STRUCT(meta_data) {
     size_t offset;
     size_t hash;
 } HSM_STRUCT(meta_data);
+
+#define HSMP_IDX    GDC_JOIN(garp_index_, __LINE__)
+#define HSMP_ITER   GDC_JOIN(garp_iter_, __LINE__)
+
+#define for_each_hsm(map, key, value) \
+    for ( \
+        size_t HSMP_IDX = 0, HSMP_ITER = 1; \
+        HSMP_IDX < (map).capacity + (map).max_offset; \
+        HSMP_ITER = 1, HSMP_IDX++ \
+    ) \
+    for ( \
+        ;\
+        HSMP_ITER && (map).meta_data[HSMP_IDX].offset < (map).max_offset;\
+        \
+    ) \
+    for ( \
+        key = (map).keys[HSMP_IDX]; \
+        HSMP_ITER; \
+        \
+    ) \
+    for ( \
+        value = (map).values[HSMP_IDX]; \
+        HSMP_ITER; \
+        HSMP_ITER = !HSMP_ITER \
+    )
+
+#define for_each_ptr_hsm(map, key, value_ptr) \
+    for ( \
+        size_t HSMP_IDX = 0, HSMP_ITER = 1; \
+        HSMP_IDX < (map).capacity + (map).max_offset; \
+        HSMP_ITER = 1, HSMP_IDX++ \
+    ) \
+    for ( \
+        ;\
+        HSMP_ITER && (map).meta_data[HSMP_IDX].offset < (map).max_offset;\
+        \
+    ) \
+    for ( \
+        key = (map).keys[HSMP_IDX]; \
+        HSMP_ITER; \
+        \
+    ) \
+    for ( \
+        value_ptr = &(map).values[HSMP_IDX]; \
+        HSMP_ITER; \
+        HSMP_ITER = !HSMP_ITER \
+    )
 
 #define hsm_make_basic_h(name, key_type, value_type) \
     typedef struct HSM(name) {                                                  \
@@ -49,6 +95,9 @@ typedef struct HSM_STRUCT(meta_data) {
 
 #define hsm_make_free_h(name, key_type, value_type) \
     gdc_error_t HSM_FUNC(name, free_items)(HSM(name)*);                         \
+
+#define hsm_make_serialize_h(name, key_type, value_type) \
+    
 
 #define hsm_make_basic(name, key_type, value_type, hash_func) \
     HSMP_HELPER_FUNCTIONS(name, key_type, value_type)                           \
