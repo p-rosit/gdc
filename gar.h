@@ -62,7 +62,7 @@
     gdc_error_t GAR_FUNC(name, push)(GAR(name)*, type);                         \
     gdc_error_t GAR_FUNC(name, pop)(GAR(name)*, type*);                         \
                                                                                 \
-    gdc_error_t GAR_FUNC(name, concat)(GAR(name)*, const GAR(name)*);           \
+    gdc_error_t GAR_FUNC(name, concat)(GAR(name)*, GAR(name)*);                 \
                                                                                 \
     gdc_error_t GAR_FUNC(name, insert)(GAR(name)*, size_t, type);               \
     gdc_error_t GAR_FUNC(name, remove)(GAR(name)*, size_t, type*);              \
@@ -215,10 +215,10 @@
     }
 
 #define GARP_CONCAT(name, type) \
-    gdc_error_t GAR_FUNC(name, concat)(GAR(name)* array, const GAR(name)* append_array) { \
+    gdc_error_t GAR_FUNC(name, concat)(GAR(name)* array, GAR(name)* from_array) { \
         gdc_error_t error;                                                      \
         size_t capacity, new_size;                                              \
-        new_size = array->size + append_array->size;                            \
+        new_size = array->size + from_array->size;                              \
                                                                                 \
         if (new_size > array->capacity) {                                       \
             capacity = array->capacity + 2 * (array->capacity == 0);            \
@@ -231,10 +231,12 @@
             }                                                                   \
         }                                                                       \
                                                                                 \
-        for (size_t i = 0; i < append_array->size; i++) {                       \
-            array->values[array->size + i] = append_array->values[i];           \
+        for (size_t i = 0; i < from_array->size; i++) {                         \
+            array->values[array->size + i] = from_array->values[i];             \
         }                                                                       \
-        array->size += append_array->size;                                      \
+        array->size += from_array->size;                                        \
+                                                                                \
+        from_array->size = 0;                                                   \
                                                                                 \
         return GDC_OK;                                                          \
     }
