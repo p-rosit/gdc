@@ -84,11 +84,13 @@ typedef struct HSM_STRUCT(meta_data) {
     gdc_error_t HSM_FUNC(name, ensure_capacity)(HSM(name)*, size_t);            \
     gdc_error_t HSM_FUNC(name, fit_capacity)(HSM(name)*);                       \
                                                                                 \
-    gdc_error_t HSM_FUNC(name, hsm_insert)(HSM(name)*, key_type, value_type);   \
-    gdc_error_t HSM_FUNC(name, hsm_delete)(HSM(name)*, key_type, value_type*);  \
+    gdc_error_t HSM_FUNC(name, insert)(HSM(name)*, key_type, value_type);       \
+    gdc_error_t HSM_FUNC(name, delete)(HSM(name)*, key_type, value_type*);      \
                                                                                 \
-    gdc_error_t HSM_FUNC(name, hsm_set)(HSM(name)*, key_type, value_type);      \
-    gdc_error_t HSM_FUNC(name, hsm_get)(HSM(name)*, key_type, value_type*);     \
+    gdc_error_t HSM_FUNC(name, set)(HSM(name)*, key_type, value_type);          \
+    gdc_error_t HSM_FUNC(name, get)(HSM(name)*, key_type, value_type*);         \
+                                                                                \
+    gdc_error_t HSM_FUNC(name, update)(HSM(name)*, HSM(name)*);                 \
 
 #define hsm_make_deepcopy_h(name, key_type, value_type) \
     gdc_error_t HSM_FUNC(name, deepcopy)(const HSM(name)*, HSM(name)*);         \
@@ -113,6 +115,8 @@ typedef struct HSM_STRUCT(meta_data) {
                                                                                 \
     HSMP_SET(name, key_type, value_type, hash_func)                             \
     HSMP_GET(name, key_type, value_type, hash_func)                             \
+                                                                                \
+    HSMP_UPDATE(name, key_type, value_type, hash_func)                          \
 
 #define hsm_make_deepcopy(name, key_type, value_type, copy_item_func) \
     HSMP_DEEP_COPY(name, key_type, value_type, copy_item_func)
@@ -291,6 +295,29 @@ typedef struct HSM_STRUCT(meta_data) {
             return GDC_OK;                                                      \
         }                                                                       \
         return GDC_NOT_PRESENT;                                                 \
+    }
+
+#define HSMP_UPDATE(name, key_type, value_type, hash_func) \
+    gdc_error_t HSM_FUNC(name, update)(HSM(name)* map, HSM(name)* from_map) {   \
+        gdc_error_t error;                                                      \
+                                                                                \
+        error = HSM_FUNC(name, ensure_capacity)(map, map->size + from_map->size); \
+        if (error != GDC_OK) {                                                  \
+            return error;                                                       \
+        }                                                                       \
+                                                                                \
+        for (size_t i = 0; i < from_map->capacity + from_map->max_offset; i++) { \
+            if (from_map->meta_data[i].offset < from_map->max_offset) {         \
+                /* TODO: avoid recomputing hash */                              \
+                error = HSM_FUNC(name, set)(map, from_map->keys[i], from_map->values[i]); \
+                from_map->meta_data[i].offset = from_map->max_offset;           \
+                                                                                \
+                if (error != GDC_OK) {break;}                                   \
+            }                                                                   \
+        }                                                                       \
+                                                                                \
+        from_map->size = 0;                                                     \
+        return error;                                                           \
     }
 
 #define HSMP_HELPER_FUNCTIONS(name, key_type, value_type) \

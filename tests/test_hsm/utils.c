@@ -81,14 +81,14 @@ SUB_TEST(check_data, s2i_hsm_t* map, HSM_STRUCT(meta_data) md, char* key, int va
 
 SUB_TEST(check_map, s2i_hsm_t* map, size_t size, char* keys, int* values) {
     size_t hash, index, target, i;
-    char* key;
+    char key;
     int value, exists;
     HSM_STRUCT(meta_data) md;
 
     for (index = 0; index < size; index++) {
         exists = 0;
         hash = str_hash(&keys[index]);
-        key = &keys[index];
+        key = keys[index];
         value = values[index];
 
         for (i = 0; i < map->capacity + map->max_offset; i++) {
@@ -104,8 +104,12 @@ SUB_TEST(check_map, s2i_hsm_t* map, size_t size, char* keys, int* values) {
         if (!exists) {
             TEST_FAIL("Pair {\"%c\": %d} not encountered.", key, value);
         }
+
         md = (HSM_STRUCT(meta_data)) {.offset = target - (hash % map->capacity), .hash = hash};
-        CALL_TEST(check_data, map, md, key, value);
+        ASSERT_EQUAL(map->meta_data[target].offset, md.offset, "Offset is %lu instead of %lu.", map->meta_data[index].offset, md.offset);
+        ASSERT_EQUAL(map->meta_data[target].hash, md.hash, "Hash is %lu instead of %lu.", map->meta_data[index].hash, md.hash);
+        ASSERT_EQUAL(*map->keys[target], key, "Key is \"%c\" instead of \"%c\".", map->keys[index], key);
+        ASSERT_EQUAL(map->values[target], value, "Value is %d instead of %d.", map->values[index], value);
     }
 
     TEST_END;
