@@ -1,6 +1,10 @@
 #ifndef GDC_H
 #define GDC_H
 
+/**
+ *  GDC: Generic Data structures in C
+ */
+
 typedef enum gdc_error {
     GDC_OK              = 0,
     GDC_MEMORY_ERROR    = 1,
@@ -9,6 +13,7 @@ typedef enum gdc_error {
     GDC_NOT_PRESENT     = 5,
     GDC_INDEX_OOB       = 6,
     GDC_INCORRECT_CALL  = 7,
+    GDC_PARSE_ERROR     = 8, 
     GDC_INTERNAL_ERROR  = 8,
 } gdc_error_t;
 
