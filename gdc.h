@@ -14,7 +14,7 @@ typedef enum gdc_error {
     GDC_INDEX_OOB       = 6,
     GDC_INCORRECT_CALL  = 7,
     GDC_PARSE_ERROR     = 8, 
-    GDC_INTERNAL_ERROR  = 8,
+    GDC_INTERNAL_ERROR  = 9,
 } gdc_error_t;
 
 /* Constructs: {type_name}_{structure_name}_{func_name}*/
