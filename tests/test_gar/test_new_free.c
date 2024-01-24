@@ -1,5 +1,4 @@
 #include "../../cut/cut.h"
-
 #include "../../gar.h"
 #include "utils.c"
 
@@ -14,6 +13,7 @@ UNIT_TEST(new_array) {
     ASSERT_TRUE(arr.size == 0, "Size is not zero, got %lu.", arr.size);
 
     int_gar_free(&arr);
+    ASSERT_EQUAL(arr.size, 0, "Size is %lu instead of 0.", arr.size);
     TEST_END;
 }
 
