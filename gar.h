@@ -2,9 +2,9 @@
 #define GAR_H
 #include "gdc.h"
 
-/*
+/**
  * GAR: Growable ARray
- **/
+ */
 
 /* Name of structure */
 #define GAR_NAME gar
@@ -15,6 +15,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <ctype.h>
 
 #define GARP_IDX    GDC_JOIN(garp_index_, __LINE__)
 #define GARP_ITER   GDC_JOIN(garp_iter_, __LINE__)
@@ -80,7 +81,11 @@
     void        GAR_FUNC(name, free_values)(GAR(name)*);                        \
 
 #define gar_make_serialize_h(name, type) \
-    void        GAR_FUNC(name, to_json)(const GAR(name)*);                      \
+    gdc_error_t GAR_FUNC(name, to_json)(const GAR(name)*, char**);              \
+    gdc_error_t GAR_FUNC(name, to_json_helper)(const GAR(name)*, char_gar_t*);  \
+
+#define gar_make_deserialize_h(name, type) \
+    gdc_error_t GAR_FUNC(name, from_json)(GAR(name)*, char*);                   \
 
 #define gar_make_basic(name, type) \
     GARP_NEW(name, type)                                                        \
@@ -133,7 +138,10 @@
 
 #define GARP_FREE(name, type) \
     void GAR_FUNC(name, free)(GAR(name)* array) {                               \
+        array->capacity = 0;                                                    \
+        array->size = 0;                                                        \
         free(array->values);                                                    \
+        array->values = NULL;                                                   \
     }
 
 #define GARP_SET_CAPACITY(name, type) \
@@ -409,9 +417,136 @@
         array->size = 0;                                                        \
     }
 
+#define gar_make_serialize(name, type, item_to_json) \
+    gdc_error_t GAR_FUNC(name, to_json)(const GAR(name)* array, char** json) { \
+        gdc_error_t error;\
+        char_gar_t str; \
+        \
+        *json = NULL; \
+        char_gar_new(&str); \
+        error = GAR_FUNC(name, to_json_helper)(array, &str); \
+        \
+        if (error == GDC_OK) { \
+            *json = str.values; \
+        }\
+        \
+        return error; \
+    } \
+    \
+    gdc_error_t GAR_FUNC(name, to_json_helper)(const GAR(name)* array, char_gar_t* json) { \
+        gdc_error_t error; \
+        \
+        error = char_gar_push(json, '['); \
+        if (error != GDC_OK) {goto execution_failed;} \
+        \
+        for (size_t i = 0; i < array->size; i++) { \
+            if (i > 0) { \
+                error = char_gar_push_string(json, ", ");\
+                if (error != GDC_OK) {goto execution_failed;} \
+            } \
+            \
+            error = item_to_json(json, array->values[i]); \
+            if (error != GDC_OK) {goto execution_failed;} \
+        } \
+        \
+        error = char_gar_push(json, ']');\
+        if (error != GDC_OK) {goto execution_failed;} \
+        error = char_gar_push(json, '\0');\
+        if (error != GDC_OK) {goto execution_failed;} \
+        \
+        return error; \
+        \
+        execution_failed:\
+        GAR_FUNC(char, free)(json);\
+        return error;\
+    }
+
+#define gar_make_deserialize(name, type, json_to_item) \
+    void GAR_PRIVATE(name, skip_whitespace)(char** str) { \
+        while (isspace(**str)) {(*str)++;} \
+    } \
+    \
+    gdc_error_t GAR_PRIVATE(name, start_array)(char** json) { \
+        if (**json == '[') { \
+            (*json)++; return GDC_OK; \
+        } else { \
+            return GDC_PARSE_ERROR; \
+        } \
+    } \
+    \
+    gdc_error_t GAR_PRIVATE(name, stop_array)(char** json) {\
+        if (**json == ']') { \
+            (*json)++; return GDC_OK; \
+        } else { \
+            return GDC_PARSE_ERROR; \
+        } \
+    } \
+    \
+    gdc_error_t GAR_PRIVATE(name, next_item)(char** json) {\
+        if (**json == ',') { \
+            (*json)++; return GDC_OK; \
+        } else { \
+            return GDC_PARSE_ERROR; \
+        } \
+    } \
+    \
+    gdc_error_t GAR_FUNC(name, from_json)(GAR(name)* array, char* json) { \
+        gdc_error_t error, stop_error; \
+        type value; \
+        \
+        GAR_FUNC(name, new)(array);\
+        \
+        GAR_PRIVATE(name, skip_whitespace)(&json); \
+        error = GAR_PRIVATE(name, start_array)(&json); \
+        if (error != GDC_OK) {goto execution_failed;} \
+        \
+        GAR_PRIVATE(name, skip_whitespace)(&json); \
+        stop_error = GAR_PRIVATE(name, stop_array)(&json);\
+        \
+        while (stop_error != GDC_OK) { \
+            GAR_PRIVATE(name, skip_whitespace)(&json); \
+            error = json_to_item(&value, &json);\
+            if (error != GDC_OK) {goto execution_failed;}\
+            error = GAR_FUNC(name, push)(array, value); \
+            if (error != GDC_OK) {goto execution_failed;}\
+            \
+            GAR_PRIVATE(name, skip_whitespace)(&json); \
+            error = GAR_PRIVATE(name, next_item)(&json); \
+            if (error == GDC_OK) { \
+                continue; \
+            } \
+            \
+            stop_error = GAR_PRIVATE(name, stop_array)(&json);\
+            if (stop_error == GDC_OK) { \
+                break;\
+            } else {\
+                goto execution_failed; \
+            } \
+        } \
+        \
+        return GDC_OK; \
+        \
+        execution_failed: \
+        GAR_FUNC(name, free)(array); \
+        return error; \
+    }
+
+gar_make_basic_h(char, char)
+gdc_error_t GAR_FUNC(char, push_string)(char_gar_t*, char*);
+
+gar_make_basic_h(uchar, unsigned char)
+gar_make_basic_h(schar, signed char)
+
+gar_make_basic_h(string, char*)
+gar_make_deepcopy_h(string, char*)
+gar_make_free_h(string, char*)
 
 gar_make_basic_h(short, short)
+
 gar_make_basic_h(int, int)
+gar_make_serialize_h(int, int)
+gar_make_deserialize_h(int, int)
+
 gar_make_basic_h(long, long)
 gar_make_basic_h(long_long, long long)
 gar_make_basic_h(ushort, unsigned short)
@@ -431,14 +566,6 @@ gar_make_basic_h(u64, uint64_t)
 gar_make_basic_h(f32, float)
 gar_make_basic_h(f64, double)
 gar_make_basic_h(f128, long double)
-
-gar_make_basic_h(char, char)
-gar_make_basic_h(uchar, unsigned char)
-gar_make_basic_h(schar, signed char)
-
-gar_make_basic_h(string, char*)
-gar_make_deepcopy_h(string, char*)
-gar_make_free_h(string, char*)
 
 #endif
 
