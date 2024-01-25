@@ -45,7 +45,7 @@ UNIT_TEST(only_whitespace) {
     int_gar_t arr;
     char json[] = "   \t\n   ";
 
-    ASSERT_EQUAL(int_gar_from_json(&arr, json), GDC_PARSE_ERROR, "Invalid json was parsed.");
+    ASSERT_EQUAL(int_gar_from_json(&arr, json), PARSE_ERROR, "Invalid json was parsed.");
     CALL_TEST(array_eq, &arr, 0, NULL);
     
     int_gar_free(&arr);
@@ -56,7 +56,7 @@ UNIT_TEST(missing_start) {
     int_gar_t arr;
     char json[] = "  5, 7, 2]";
 
-    ASSERT_EQUAL(int_gar_from_json(&arr, json), GDC_PARSE_ERROR, "Invalid json was parsed.");
+    ASSERT_EQUAL(int_gar_from_json(&arr, json), PARSE_ERROR, "Invalid json was parsed.");
     CALL_TEST(array_eq, &arr, 0, NULL);
 
     int_gar_free(&arr);
@@ -67,7 +67,7 @@ UNIT_TEST(missing_end) {
     int_gar_t arr;
     char json[] = "[1, 2, 3";
 
-    ASSERT_EQUAL(int_gar_from_json(&arr, json), GDC_PARSE_ERROR, "Invalid json was parsed.");
+    ASSERT_EQUAL(int_gar_from_json(&arr, json), PARSE_ERROR, "Invalid json was parsed.");
     CALL_TEST(array_eq, &arr, 0, NULL);
 
     int_gar_free(&arr);
@@ -78,7 +78,7 @@ UNIT_TEST(missing_value) {
     int_gar_t arr;
     char json[] = "[4, 5, , 7, 8]";
 
-    ASSERT_EQUAL(int_gar_from_json(&arr, json), GDC_PARSE_ERROR, "Invalid json was parsed.");
+    ASSERT_EQUAL(int_gar_from_json(&arr, json), PARSE_ERROR, "Invalid json was parsed.");
     CALL_TEST(array_eq, &arr, 0, NULL);
 
     int_gar_free(&arr);

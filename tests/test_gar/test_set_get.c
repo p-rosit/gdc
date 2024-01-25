@@ -9,7 +9,7 @@ UNIT_TEST(set) {
 
     CALL_TEST(make_array, &arr, cap, size);
 
-    ASSERT_EQUAL(int_gar_set(&arr, 3, 9), GDC_OK, "Could not set value.");
+    result_ok(int_gar_set(&arr, 3, 9), "Could not set value.");
 
     int res[] = {0, 1, 2, 9, 4};
     v_size = sizeof(res) / sizeof(int);
@@ -26,7 +26,7 @@ UNIT_TEST(get) {
 
     CALL_TEST(make_array, &arr, cap, size);
 
-    ASSERT_EQUAL(int_gar_get(&arr, 3, &u), GDC_OK, "Could not get value.");
+    result_ok(int_gar_get(&arr, 3, &u), "Could not get value.");
     ASSERT_EQUAL(u, 3, "Value is %d instead of 3.", u);
 
     int_gar_free(&arr);
@@ -39,7 +39,7 @@ UNIT_TEST(invalid_set) {
 
     CALL_TEST(make_array, &arr, cap, size);
 
-    ASSERT_EQUAL(int_gar_set(&arr, size + 2, size - 1), GDC_INDEX_OOB, "Could set index %lu in array of size %lu.", size + 2, arr.size);
+    ASSERT_EQUAL(int_gar_set(&arr, size + 2, size - 1), INDEX_OOB, "Could set index %lu in array of size %lu.", size + 2, arr.size);
 
     int res[] = {0, 1, 2, 3, 4};
     v_size = sizeof(res) / sizeof(int);
@@ -56,7 +56,7 @@ UNIT_TEST(invalid_get) {
 
     CALL_TEST(make_array, &arr, cap, size);
 
-    ASSERT_EQUAL(int_gar_get(&arr, size + 2, &u), GDC_INDEX_OOB, "Could get index %lu in array of size %lu. Value: %d", size + 2, arr.size);
+    ASSERT_EQUAL(int_gar_get(&arr, size + 2, &u), INDEX_OOB, "Could get index %lu in array of size %lu. Value: %d", size + 2, arr.size);
 
     int_gar_free(&arr);
     TEST_END;

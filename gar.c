@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 #include "gar.h"
-#include "slz.h"
+#include "serialize.h"
 
 gar_make_basic(short, short)
 
@@ -35,8 +35,8 @@ gar_make_basic(char, char)
 gar_make_basic(uchar, unsigned char)
 gar_make_basic(schar, signed char)
 
-gdc_error_t GAR_FUNC(char, push_string)(char_gar_t* array, char* str) {
-    gdc_error_t error;
+error_t GAR_FUNC(char, push_string)(char_gar_t* array, char* str) {
+    error_t error;
     size_t len, new_capacity, new_size;
 
     new_capacity = array->capacity;
@@ -45,7 +45,7 @@ gdc_error_t GAR_FUNC(char, push_string)(char_gar_t* array, char* str) {
     while (new_capacity < new_size) {new_capacity += new_capacity / 2;}
     error = char_gar_set_capacity(array, new_capacity);
 
-    if (error != GDC_OK) {return error;}
+    if (error != NO_ERROR) {return error;}
 
     for (size_t i = 0; i < len; i++) {
         array->values[array->size + i] = str[i];

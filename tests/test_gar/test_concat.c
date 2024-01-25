@@ -11,7 +11,7 @@ UNIT_TEST(concat) {
     CALL_TEST(make_array, &b, 30, 3);
 
     cap = b.capacity;
-    ASSERT_EQUAL(int_gar_concat(&a, &b), GDC_OK, "Could not concatenate arrays.");
+    result_ok(int_gar_concat(&a, &b), "Could not concatenate arrays.");
 
     ASSERT_EQUAL(b.size, 0, "Size is %lu, array was not consumed.", b.size);
     ASSERT_EQUAL(b.capacity, cap, "Capacity is %lu instead of %lu.", b.capacity, cap);
@@ -31,7 +31,7 @@ UNIT_TEST(concat_empty) {
     int_gar_new(&a);
     int_gar_new(&b);
 
-    ASSERT_EQUAL(int_gar_concat(&a, &b), GDC_OK, "Could not concatenate empty arrays.");
+    result_ok(int_gar_concat(&a, &b), "Could not concatenate arrays.");
     ASSERT_EQUAL(b.size, 0, "Size is %lu, array was not consumed.", b.size);
 
     CALL_TEST(array_eq, &a, 0, NULL);
@@ -47,7 +47,7 @@ UNIT_TEST(concat_on_empty) {
     int_gar_new(&a);
     CALL_TEST(make_array, &b, 30, 3);
 
-    ASSERT_EQUAL(int_gar_concat(&a, &b), GDC_OK, "Could not concatenate arrays.");
+    result_ok(int_gar_concat(&a, &b), "Could not concatenate arrays.");
     ASSERT_EQUAL(b.size, 0, "Size is %lu, array was not consumed.", b.size);
 
     int res[] = {0, 1, 2};
@@ -65,7 +65,7 @@ UNIT_TEST(concat_with_empty) {
     CALL_TEST(make_array, &a, 30, 5);
     int_gar_new(&b);
 
-    ASSERT_EQUAL(int_gar_concat(&a, &b), GDC_OK, "Could not concatenate arrays.");
+    result_ok(int_gar_concat(&a, &b), "Could not concatenate arrays.");
     ASSERT_EQUAL(b.size, 0, "Size is %lu, array was not consumed.", b.size);
 
     int res[] = {0, 1, 2, 3, 4};
