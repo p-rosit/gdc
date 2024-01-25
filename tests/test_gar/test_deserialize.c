@@ -18,8 +18,8 @@ UNIT_TEST(deserialize_single) {
 UNIT_TEST(deserialize_array) {
     size_t size;
     int_gar_t arr;
-    int values[] = {3, 4, 5, 2, 3};
-    char json[] = "[3,\n 4,\t 5, 2, 3]";
+    int values[] = {3, 4, -5, 2, -3};
+    char json[] = "[3,\n 4,\t -5, +2, -3]";
 
     result_ok(int_gar_from_json(&arr, json), "Could not parse Json.");
 
