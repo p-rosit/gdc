@@ -5,18 +5,6 @@
  *  GDC: Generic Data structures in C
  */
 
-typedef enum gdc_error {
-    GDC_OK              = 0,
-    GDC_MEMORY_ERROR    = 1,
-    GDC_CAPACITY_ERROR  = 2,
-    GDC_ALREADY_PRESENT = 3,
-    GDC_NOT_PRESENT     = 5,
-    GDC_INDEX_OOB       = 6,
-    GDC_INCORRECT_CALL  = 7,
-    GDC_PARSE_ERROR     = 8, 
-    GDC_INTERNAL_ERROR  = 9,
-} gdc_error_t;
-
 /* Constructs: {type_name}_{structure_name}_{func_name}*/
 #define GDC_FUNC(type_name, structure_name, func_name) GDC_FUNC_(type_name, structure_name, func_name)
 #define GDC_FUNC_(type_name, structure_name, func_name) type_name ## _ ## structure_name ## _ ## func_name
