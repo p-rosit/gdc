@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <limits.h>
-#include "slz.h"
+#include "serialize.h"
 
 
 gdc_error_t int2string(char_gar_t* json, int value) {
