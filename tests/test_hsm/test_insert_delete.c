@@ -16,7 +16,7 @@ UNIT_TEST(insert) {
 
     CALL_TEST(make_map, &map, cap);
 
-    ASSERT_EQUAL(s2i_hsm_insert(&map, k, v), GDC_OK, "Could not insert pair {\"%s\": %d}.", key, v);
+    result_ok(s2i_hsm_insert(&map, k, v), "Could not insert pair {\"%s\": %d}.", key, v);
     ASSERT_EQUAL(map.size, 1, "Size is %lu instead of 1.", map.size);
 
     md = (HSM_STRUCT(meta_data)) {.offset = 0, .hash = str_hash(k)};
@@ -53,15 +53,15 @@ UNIT_TEST(insert_twice) {
     char* k = (char*) key;
     int v = 4;
     HSM_STRUCT(meta_data) md;
-    gdc_error_t error;
+    error_t error;
 
     CALL_TEST(make_map, &map, cap);
 
-    ASSERT_EQUAL(s2i_hsm_insert(&map, k, v), GDC_OK, "Could not insert pair {\"%s\": %d}.", key, v);
+    result_ok(s2i_hsm_insert(&map, k, v), "Could not insert pair {\"%s\": %d}.", key, v);
     ASSERT_EQUAL(map.size, 1, "Size is %lu instead of 1.", map.size);
 
     error = s2i_hsm_insert(&map, k, v + 2);
-    ASSERT_EQUAL(error, GDC_ALREADY_PRESENT, "Accidentally overwrote key.");
+    ASSERT_EQUAL(error, ALREADY_PRESENT, "Accidentally overwrote key.");
 
     md = (HSM_STRUCT(meta_data)) {.offset = 0, .hash = str_hash(k)};
     CALL_TEST(check_data, &map, md, k, v);
@@ -75,12 +75,12 @@ UNIT_TEST(delete_missing) {
     s2i_hsm_t map;
     char k = 'A';
     int v;
-    gdc_error_t error;
+    error_t error;
 
     CALL_TEST(make_map, &map, cap);
     
     error = s2i_hsm_delete(&map, &k, &v);
-    ASSERT_EQUAL(error, GDC_NOT_PRESENT, "Key accidentally deleted.");
+    ASSERT_EQUAL(error, NOT_PRESENT, "Key accidentally deleted.");
 
     s2i_hsm_free(&map);
     TEST_END;
@@ -270,7 +270,7 @@ UNIT_TEST(insert_to_empty) {
 }
 
 UNIT_TEST(delete_from_empty) {
-    gdc_error_t error;
+    error_t error;
     s2i_hsm_t map;
     char* k = (char*) key;
     int v;
@@ -278,7 +278,7 @@ UNIT_TEST(delete_from_empty) {
     s2i_hsm_new(&map);
 
     error = s2i_hsm_delete(&map, k, &v);
-    ASSERT_EQUAL(error, GDC_NOT_PRESENT, "Got nonsense value %d.", v);
+    ASSERT_EQUAL(error, NOT_PRESENT, "Got nonsense value %d.", v);
 
     s2i_hsm_free(&map);
     TEST_END;

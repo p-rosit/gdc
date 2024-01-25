@@ -89,7 +89,7 @@ UNIT_TEST(get) {
 }
 
 UNIT_TEST(get_empty) {
-    gdc_error_t error;
+    error_t error;
     size_t cap = 10;
     s2i_hsm_t map;
     char* k = (char*) key;
@@ -98,14 +98,14 @@ UNIT_TEST(get_empty) {
     CALL_TEST(make_map, &map, cap);
 
     error = s2i_hsm_get(&map, k, &v);
-    ASSERT_EQUAL(error, GDC_NOT_PRESENT, "Got nonsene value %d.", v);
+    ASSERT_EQUAL(error, NOT_PRESENT, "Got nonsene value %d.", v);
 
     s2i_hsm_free(&map);
     TEST_END;
 }
 
 UNIT_TEST(get_from_empty) {
-    gdc_error_t error;
+    error_t error;
     s2i_hsm_t map;
     char *k = (char*) key;
     int v;
@@ -113,7 +113,7 @@ UNIT_TEST(get_from_empty) {
     CALL_TEST(make_map, &map, 0);
     error = s2i_hsm_get(&map, k, &v);
 
-    ASSERT_EQUAL(error, GDC_NOT_PRESENT, "Got nonsense value %d.", v);
+    ASSERT_EQUAL(error, NOT_PRESENT, "Got nonsense value %d.", v);
 
     s2i_hsm_free(&map);
     TEST_END;

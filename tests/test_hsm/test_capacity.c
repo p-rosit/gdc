@@ -54,7 +54,7 @@ UNIT_TEST(smaller_ensure) {
 
     cap = map.capacity;
     target_cap = map.size - 3;
-    ASSERT_EQUAL(s2i_hsm_ensure_capacity(&map, target_cap), GDC_CAPACITY_ERROR, "Capacity accidentally lowered.");
+    ASSERT_EQUAL(s2i_hsm_ensure_capacity(&map, target_cap), CAPACITY_ERROR, "Capacity accidentally lowered.");
 
     ASSERT_EQUAL(map.capacity, cap, "Capacity is %lu instead of %lu.", map.capacity, cap);
     ASSERT_EQUAL(map.size, size, "Size is %lu instead of %lu.", map.size, size);

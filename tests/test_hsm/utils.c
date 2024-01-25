@@ -5,7 +5,7 @@
 #include "../../hsm.h"
 
 #define result_ok(error, ...) \
-    ASSERT_EQUAL(error, GDC_OK, __VA_ARGS__)
+    ASSERT_EQUAL(error, NO_ERROR, __VA_ARGS__)
 
 size_t str_hash(const char* str) {
     return *str;
@@ -43,13 +43,13 @@ hsm_make_deepcopy(s2i, char*, int, s2i_copy_item)
 
 SUB_TEST(make_map, s2i_hsm_t* map, size_t capacity) {
     s2i_hsm_new(map);
-    ASSERT_EQUAL(s2i_hsm_ensure_capacity(map, capacity), GDC_OK, "Could not allocate map with capacity %lu.", capacity);
+    result_ok(s2i_hsm_ensure_capacity(map, capacity), "Could not allocate map with capacity %lu.", capacity);
     ASSERT_EQUAL(map->capacity, capacity, "Capacity is %lu instead of %lu.", map->capacity, capacity);
     ASSERT_EQUAL(map->size, 0, "Size is %lu instead of %lu.", map->size, 0);
     TEST_END;
 }
 
-SUB_TEST(print_map, s2i_hsm_t* map) {
+void print_map(s2i_hsm_t* map) {
     printf("Map[offset=%lu, capacity=%lu, size=%lu]\n", map->max_offset, map->capacity, map->size);
     for (size_t i = 0; i < map->capacity + map->max_offset; i++) {
         printf(
@@ -60,8 +60,6 @@ SUB_TEST(print_map, s2i_hsm_t* map) {
             i < map->capacity ? '}' : ']'
         );
     }
-
-    TEST_END;
 }
 
 SUB_TEST(check_data, s2i_hsm_t* map, HSM_STRUCT(meta_data) md, char* key, int value) {

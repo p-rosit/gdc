@@ -157,8 +157,8 @@ UNIT_TEST(add_kvp) {
     md = expected_md = (HSM_STRUCT(meta_data)) {.hash = str_hash(key), .offset = 0};
 
     target = hsmp_target_s2i(&map, md);
-    ASSERT_EQUAL(
-        hsmp_add_kvp_s2i(&map, target, &md, &k, &v), GDC_OK,
+    result_ok(
+        hsmp_add_kvp_s2i(&map, target, &md, &k, &v),
         "Could not insert key value pair."
     );
 
@@ -186,7 +186,7 @@ UNIT_TEST(add_empty_kvp) {
     map.meta_data[target] = (HSM_STRUCT(meta_data)) {.hash = str_hash(key), .offset = 0};
     map.keys[target] = expected_k;
     map.values[target] = expected_v;
-    ASSERT_EQUAL(hsmp_add_kvp_s2i(&map, target, &md, &k, &v), GDC_OK,
+    result_ok(hsmp_add_kvp_s2i(&map, target, &md, &k, &v),
         "Could not insert empty key value pair.");
 
     ASSERT_EQUAL(
@@ -232,8 +232,8 @@ UNIT_TEST(add_colliding_kvp) {
         map.values[target + i] = expected_v + i + 1;
     }
 
-    ASSERT_EQUAL(
-        hsmp_add_kvp_s2i(&map, target, &md, &k, &v), GDC_OK,
+    result_ok(
+        hsmp_add_kvp_s2i(&map, target, &md, &k, &v),
         "Could not insert key value pair."
     );
 
@@ -283,8 +283,8 @@ UNIT_TEST(add_kvp_after_insert) {
         map.values[target + i] = expected_v + i + 1;
     }
 
-    ASSERT_EQUAL(
-        hsmp_add_kvp_s2i(&map, target, &md, &k, &v), GDC_OK,
+    result_ok(
+        hsmp_add_kvp_s2i(&map, target, &md, &k, &v),
         "Could not insert key value pair."
     );
 
