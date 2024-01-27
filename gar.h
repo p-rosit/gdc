@@ -24,11 +24,11 @@
 #define for_each_gar(arr, value) \
     for (                                                                       \
         size_t GARP_IDX = 0, GARP_ITER = 1;                                     \
-        GARP_IDX < (arr).size;                                                 \
+        GARP_IDX < (arr).size;                                                  \
         GARP_ITER = 1, GARP_IDX++                                               \
     )                                                                           \
     for (                                                                       \
-        value = (arr).values[GARP_IDX];                                        \
+        value = (arr).values[GARP_IDX];                                         \
         GARP_ITER;                                                              \
         GARP_ITER = !GARP_ITER                                                  \
     )
@@ -36,11 +36,11 @@
 #define for_each_ptr_gar(arr, value) \
     for (                                                                       \
         size_t GARP_IDX = 0, GARP_ITER = 1;                                     \
-        GARP_IDX < (arr).size;                                                 \
+        GARP_IDX < (arr).size;                                                  \
         GARP_ITER = 1, GARP_IDX++                                               \
     )                                                                           \
     for (                                                                       \
-        value = &(arr).values[GARP_IDX];                                       \
+        value = &(arr).values[GARP_IDX];                                        \
         GARP_ITER;                                                              \
         GARP_ITER = !GARP_ITER                                                  \
     )
@@ -52,41 +52,41 @@
         type* values;                                                           \
     } GAR(name);                                                                \
                                                                                 \
-    void        GAR_FUNC(name, new)(GAR(name)*);                                \
-    error_t GAR_FUNC(name, copy)(const GAR(name)*, GAR(name)*);             \
-    void        GAR_FUNC(name, free)(GAR(name)*);                               \
-    error_t GAR_FUNC(name, set_capacity)(GAR(name)*, size_t);               \
-    error_t GAR_FUNC(name, fit_capacity)(GAR(name)*);                       \
+    void    GAR_FUNC(name, new)(GAR(name)*);                                    \
+    error_t GAR_FUNC(name, copy)(const GAR(name)*, GAR(name)*);                 \
+    void    GAR_FUNC(name, free)(GAR(name)*);                                   \
+    error_t GAR_FUNC(name, set_capacity)(GAR(name)*, size_t);                   \
+    error_t GAR_FUNC(name, fit_capacity)(GAR(name)*);                           \
                                                                                 \
-    error_t GAR_FUNC(name, set)(GAR(name)*, size_t, type);                  \
-    error_t GAR_FUNC(name, get)(GAR(name)*, size_t, type*);                 \
+    error_t GAR_FUNC(name, set)(GAR(name)*, size_t, type);                      \
+    error_t GAR_FUNC(name, get)(GAR(name)*, size_t, type*);                     \
                                                                                 \
-    error_t GAR_FUNC(name, push)(GAR(name)*, type);                         \
-    error_t GAR_FUNC(name, pop)(GAR(name)*, type*);                         \
+    error_t GAR_FUNC(name, push)(GAR(name)*, type);                             \
+    error_t GAR_FUNC(name, pop)(GAR(name)*, type*);                             \
                                                                                 \
-    error_t GAR_FUNC(name, concat)(GAR(name)*, GAR(name)*);                 \
+    error_t GAR_FUNC(name, concat)(GAR(name)*, GAR(name)*);                     \
                                                                                 \
-    error_t GAR_FUNC(name, insert)(GAR(name)*, size_t, type);               \
-    error_t GAR_FUNC(name, remove)(GAR(name)*, size_t, type*);              \
+    error_t GAR_FUNC(name, insert)(GAR(name)*, size_t, type);                   \
+    error_t GAR_FUNC(name, remove)(GAR(name)*, size_t, type*);                  \
                                                                                 \
-    size_t      GAR_FUNC(name, count)(const GAR(name)*, int (*filter)(type));   \
+    size_t  GAR_FUNC(name, count)(const GAR(name)*, int (*filter)(type));       \
     error_t GAR_FUNC(name, find)(const GAR(name)*, int (*filter)(type), type*); \
     error_t GAR_FUNC(name, filter)(GAR(name)*, int (*filter)(type), GAR(name)*); \
                                                                                 \
     void        GAR_FUNC(name, sort)(GAR(name)*, int (*ord)(type, type));       \
 
 #define gar_make_deepcopy_h(name, type) \
-    error_t GAR_FUNC(name, deepcopy)(const GAR(name)*, GAR(name)*);         \
+    error_t GAR_FUNC(name, deepcopy)(const GAR(name)*, GAR(name)*);             \
 
 #define gar_make_free_h(name, type) \
     void        GAR_FUNC(name, free_values)(GAR(name)*);                        \
 
 #define gar_make_serialize_h(name, type) \
-    error_t GAR_FUNC(name, to_json)(const GAR(name)*, char**);              \
-    error_t GAR_FUNC(name, to_json_helper)(const GAR(name)*, char_gar_t*);  \
+    error_t GAR_FUNC(name, to_json)(const GAR(name)*, char**);                  \
+    error_t GAR_FUNC(name, to_json_helper)(const GAR(name)*, char_gar_t*);      \
 
 #define gar_make_deserialize_h(name, type) \
-    error_t GAR_FUNC(name, from_json)(GAR(name)*, char*);                   \
+    error_t GAR_FUNC(name, from_json)(GAR(name)*, char*);                       \
 
 #define gar_make_basic(name, type) \
     GARP_NEW(name, type)                                                        \
@@ -120,8 +120,8 @@
     }
 
 #define GARP_COPY(name, type) \
-    error_t GAR_FUNC(name, copy)(const GAR(name)* src, GAR(name)* dst) {    \
-        error_t error = NO_ERROR;                                             \
+    error_t GAR_FUNC(name, copy)(const GAR(name)* src, GAR(name)* dst) {        \
+        error_t error = NO_ERROR;                                               \
                                                                                 \
         dst->capacity = src->size;                                              \
         dst->size = src->size;                                                  \
@@ -130,7 +130,7 @@
         if (dst->values == NULL && src->size != 0) {                            \
             dst->capacity = 0;                                                  \
             dst->size = 0;                                                      \
-            return MEMORY_ERROR;                                            \
+            return MEMORY_ERROR;                                                \
         }                                                                       \
                                                                                 \
         memcpy(dst->values, src->values, src->size * sizeof(type));             \
@@ -150,16 +150,16 @@
         type* values;                                                           \
                                                                                 \
         if (capacity < array->size) {                                           \
-            return CAPACITY_ERROR;                                          \
+            return CAPACITY_ERROR;                                              \
         }                                                                       \
         if (capacity == array->capacity) {                                      \
-            return NO_ERROR;                                                      \
+            return NO_ERROR;                                                    \
         }                                                                       \
                                                                                 \
         values = malloc(capacity * sizeof(type));                               \
                                                                                 \
         if (values == NULL && capacity != 0) {                                  \
-            return MEMORY_ERROR;                                            \
+            return MEMORY_ERROR;                                                \
         }                                                                       \
                                                                                 \
         memcpy(values, array->values, array->size * sizeof(type));              \
@@ -167,52 +167,52 @@
         free(array->values);                                                    \
         array->values = values;                                                 \
                                                                                 \
-        return NO_ERROR;                                                          \
+        return NO_ERROR;                                                        \
     }
 
 #define GARP_FIT_CAPACITY(name, type) \
-    error_t GAR_FUNC(name, fit_capacity)(GAR(name)* array) {                \
+    error_t GAR_FUNC(name, fit_capacity)(GAR(name)* array) {                    \
         return GAR_FUNC(name, set_capacity)(array, array->size);                \
     }
 
 #define GARP_SET(name, type) \
-    error_t GAR_FUNC(name, set)(GAR(name)* array, size_t index, type value) { \
+    error_t GAR_FUNC(name, set)(GAR(name)* array, size_t index, type value) {   \
         if (array->size <= index) {                                             \
-            return INDEX_OOB;                                               \
+            return INDEX_OOB;                                                   \
         }                                                                       \
         array->values[index] = value;                                           \
-        return NO_ERROR;                                                          \
+        return NO_ERROR;                                                        \
     }
 
 #define GARP_GET(name, type) \
-    error_t GAR_FUNC(name, get)(GAR(name)* array, size_t index, type* value) { \
+    error_t GAR_FUNC(name, get)(GAR(name)* array, size_t index, type* value) {  \
         if (array->size <= index) {                                             \
-            return INDEX_OOB;                                               \
+            return INDEX_OOB;                                                   \
         }                                                                       \
         *value = array->values[index];                                          \
-        return NO_ERROR;                                                          \
+        return NO_ERROR;                                                        \
     }
 
 #define GARP_PUSH(name, type) \
-    error_t GAR_FUNC(name, push)(GAR(name)* array, type value) {            \
+    error_t GAR_FUNC(name, push)(GAR(name)* array, type value) {                \
         size_t capacity = array->capacity;                                      \
         if (array->size >= capacity) {                                          \
-            error_t error = GAR_FUNC(name, set_capacity)(                   \
+            error_t error = GAR_FUNC(name, set_capacity)(                       \
                 array, capacity + capacity / 2 + 2 * (capacity == 0)            \
             );                                                                  \
-            if (error != NO_ERROR) {                                              \
+            if (error != NO_ERROR) {                                            \
                 return error;                                                   \
             }                                                                   \
         }                                                                       \
                                                                                 \
         array->values[array->size++] = value;                                   \
-        return NO_ERROR;                                                          \
+        return NO_ERROR;                                                        \
     }
 
 #define GARP_POP(name, type) \
-    error_t GAR_FUNC(name, pop)(GAR(name)* array, type* value_ptr) {        \
+    error_t GAR_FUNC(name, pop)(GAR(name)* array, type* value_ptr) {            \
         if (array->size <= 0) {                                                 \
-            return INDEX_OOB;                                               \
+            return INDEX_OOB;                                                   \
         }                                                                       \
                                                                                 \
         if (value_ptr != NULL) {                                                \
@@ -220,12 +220,12 @@
         }                                                                       \
                                                                                 \
         array->size -= 1;                                                       \
-        return NO_ERROR;                                                          \
+        return NO_ERROR;                                                        \
     }
 
 #define GARP_CONCAT(name, type) \
-    error_t GAR_FUNC(name, concat)(GAR(name)* array, GAR(name)* from_array) { \
-        error_t error;                                                      \
+    error_t GAR_FUNC(name, concat)(GAR(name)* array, GAR(name)* from_array) {   \
+        error_t error;                                                          \
         size_t capacity, new_size;                                              \
         new_size = array->size + from_array->size;                              \
                                                                                 \
@@ -247,7 +247,7 @@
                                                                                 \
         from_array->size = 0;                                                   \
                                                                                 \
-        return NO_ERROR;                                                          \
+        return NO_ERROR;                                                        \
     }
 
 #define GARP_INSERT(name, type) \
@@ -255,15 +255,15 @@
         size_t capacity;                                                        \
                                                                                 \
         if (index < 0 || array->size + 1 <= index) {                            \
-            return INDEX_OOB;                                               \
+            return INDEX_OOB;                                                   \
         }                                                                       \
                                                                                 \
         capacity = array->capacity;                                             \
         if (array->size >= capacity) {                                          \
-            error_t error = GAR_FUNC(name, set_capacity)(                   \
+            error_t error = GAR_FUNC(name, set_capacity)(                       \
                 array, capacity + capacity / 2 + 2 * (capacity == 0)            \
             );                                                                  \
-            if (error != NO_ERROR) {                                              \
+            if (error != NO_ERROR) {                                            \
                 return error;                                                   \
             }                                                                   \
         }                                                                       \
@@ -275,13 +275,13 @@
         array->values[index] = value;                                           \
         array->size += 1;                                                       \
                                                                                 \
-        return NO_ERROR;                                                          \
+        return NO_ERROR;                                                        \
     }
 
 #define GARP_REMOVE(name, type) \
     error_t GAR_FUNC(name, remove)(GAR(name)* array, size_t index, type* value_ptr) { \
         if (index < 0 || array->size < index) {                                 \
-            return INDEX_OOB;                                               \
+            return INDEX_OOB;                                                   \
         }                                                                       \
                                                                                 \
         if (value_ptr != NULL) {                                                \
@@ -293,7 +293,7 @@
         }                                                                       \
         array->size -= 1;                                                       \
                                                                                 \
-        return NO_ERROR;                                                          \
+        return NO_ERROR;                                                        \
     }
 
 #define GARP_COUNT(name, type) \
@@ -320,19 +320,19 @@
         }                                                                       \
                                                                                 \
         if (!exists) {                                                          \
-            return INDEX_OOB;                                               \
+            return INDEX_OOB;                                                   \
         }                                                                       \
                                                                                 \
-        return NO_ERROR;                                                          \
+        return NO_ERROR;                                                        \
     }
 
 #define GARP_FILTER(name, type) \
     error_t GAR_FUNC(name, filter)(GAR(name)* src, int (*filter)(type), GAR(name)* dst) { \
-        error_t error;                                                      \
+        error_t error;                                                          \
                                                                                 \
         GAR_FUNC(name, new)(dst);                                               \
         error = GAR_FUNC(name, set_capacity)(dst, src->size);                   \
-        if (error != NO_ERROR) {                                                  \
+        if (error != NO_ERROR) {                                                \
             return error;                                                       \
         }                                                                       \
                                                                                 \
@@ -342,7 +342,7 @@
             }                                                                   \
         }                                                                       \
                                                                                 \
-        return NO_ERROR;                                                          \
+        return NO_ERROR;                                                        \
     }
 
 #define GARP_SORT(name, type) \
@@ -393,12 +393,12 @@
     }
 
 #define gar_make_deepcopy(name, type, copy_function) \
-    error_t GAR_FUNC(name, deepcopy)(const GAR(name)* src, GAR(name)* dst) { \
-        error_t error;                                                      \
+    error_t GAR_FUNC(name, deepcopy)(const GAR(name)* src, GAR(name)* dst) {    \
+        error_t error;                                                          \
                                                                                 \
         GAR_FUNC(name, new)(dst);                                               \
         error = GAR_FUNC(name, set_capacity)(dst, src->size);                   \
-        if (error != NO_ERROR) {                                                  \
+        if (error != NO_ERROR) {                                                \
             return error;                                                       \
         }                                                                       \
                                                                                 \
@@ -407,7 +407,7 @@
         }                                                                       \
         dst->size = src->size;                                                  \
                                                                                 \
-        return NO_ERROR;                                                          \
+        return NO_ERROR;                                                        \
     }
 
 #define gar_make_free(name, type, free_func) \
@@ -419,117 +419,117 @@
     }
 
 #define gar_make_serialize(name, type, item_to_json) \
-    error_t GAR_FUNC(name, to_json)(const GAR(name)* array, char** json) { \
-        error_t error;\
-        char_gar_t str; \
-        \
-        *json = NULL; \
-        char_gar_new(&str); \
-        error = GAR_FUNC(name, to_json_helper)(array, &str); \
-        \
-        if (error == NO_ERROR) { \
-            *json = str.values; \
-        }\
-        \
-        return error; \
-    } \
-    \
+    error_t GAR_FUNC(name, to_json)(const GAR(name)* array, char** json) {      \
+        error_t error;                                                          \
+        char_gar_t str;                                                         \
+                                                                                \
+        *json = NULL;                                                           \
+        char_gar_new(&str);                                                     \
+        error = GAR_FUNC(name, to_json_helper)(array, &str);                    \
+                                                                                \
+        if (error == NO_ERROR) {                                                \
+            *json = str.values;                                                 \
+        }                                                                       \
+                                                                                \
+        return error;                                                           \
+    }                                                                           \
+                                                                                \
     error_t GAR_FUNC(name, to_json_helper)(const GAR(name)* array, char_gar_t* json) { \
-        error_t error; \
-        \
-        error = char_gar_push(json, '['); \
-        if (error != NO_ERROR) {goto execution_failed;} \
-        \
-        for (size_t i = 0; i < array->size; i++) { \
-            if (i > 0) { \
-                error = char_gar_push_string(json, ", ");\
-                if (error != NO_ERROR) {goto execution_failed;} \
-            } \
-            \
-            error = item_to_json(json, array->values[i]); \
-            if (error != NO_ERROR) {goto execution_failed;} \
-        } \
-        \
-        error = char_gar_push(json, ']');\
-        if (error != NO_ERROR) {goto execution_failed;} \
-        error = char_gar_push(json, '\0');\
-        if (error != NO_ERROR) {goto execution_failed;} \
-        \
-        return error; \
-        \
-        execution_failed:\
-        GAR_FUNC(char, free)(json);\
-        return error;\
+        error_t error;                                                          \
+                                                                                \
+        error = char_gar_push(json, '[');                                       \
+        if (error != NO_ERROR) {goto execution_failed;}                         \
+                                                                                \
+        for (size_t i = 0; i < array->size; i++) {                              \
+            if (i > 0) {                                                        \
+                error = char_gar_push_string(json, ", ");                       \
+                if (error != NO_ERROR) {goto execution_failed;}                 \
+            }                                                                   \
+                                                                                \
+            error = item_to_json(json, array->values[i]);                       \
+            if (error != NO_ERROR) {goto execution_failed;}                     \
+        }                                                                       \
+                                                                                \
+        error = char_gar_push(json, ']');                                       \
+        if (error != NO_ERROR) {goto execution_failed;}                         \
+        error = char_gar_push(json, '\0');                                      \
+        if (error != NO_ERROR) {goto execution_failed;}                         \
+                                                                                \
+        return error;                                                           \
+                                                                                \
+        execution_failed:                                                       \
+        GAR_FUNC(char, free)(json);                                             \
+        return error;                                                           \
     }
 
 #define gar_make_deserialize(name, type, json_to_item) \
-    void GAR_PRIVATE(name, skip_whitespace)(char** str) { \
-        while (isspace(**str)) {(*str)++;} \
-    } \
-    \
-    error_t GAR_PRIVATE(name, start_array)(char** json) { \
-        if (**json == '[') { \
-            (*json)++; return NO_ERROR; \
-        } else { \
-            return PARSE_ERROR; \
-        } \
-    } \
-    \
-    error_t GAR_PRIVATE(name, stop_array)(char** json) {\
-        if (**json == ']') { \
-            (*json)++; return NO_ERROR; \
-        } else { \
-            return PARSE_ERROR; \
-        } \
-    } \
-    \
-    error_t GAR_PRIVATE(name, next_item)(char** json) {\
-        if (**json == ',') { \
-            (*json)++; return NO_ERROR; \
-        } else { \
-            return PARSE_ERROR; \
-        } \
-    } \
-    \
-    error_t GAR_FUNC(name, from_json)(GAR(name)* array, char* json) { \
-        error_t error, stop_error; \
-        type value; \
-        \
-        GAR_FUNC(name, new)(array);\
-        \
-        GAR_PRIVATE(name, skip_whitespace)(&json); \
-        error = GAR_PRIVATE(name, start_array)(&json); \
-        if (error != NO_ERROR) {goto execution_failed;} \
-        \
-        GAR_PRIVATE(name, skip_whitespace)(&json); \
-        stop_error = GAR_PRIVATE(name, stop_array)(&json);\
-        \
-        while (stop_error != NO_ERROR) { \
-            GAR_PRIVATE(name, skip_whitespace)(&json); \
-            error = json_to_item(&value, &json);\
-            if (error != NO_ERROR) {goto execution_failed;}\
-            error = GAR_FUNC(name, push)(array, value); \
-            if (error != NO_ERROR) {goto execution_failed;}\
-            \
-            GAR_PRIVATE(name, skip_whitespace)(&json); \
-            error = GAR_PRIVATE(name, next_item)(&json); \
-            if (error == NO_ERROR) { \
-                continue; \
-            } \
-            \
-            stop_error = GAR_PRIVATE(name, stop_array)(&json);\
-            if (stop_error == NO_ERROR) { \
-                break;\
-            } else {\
-                goto execution_failed; \
-            } \
-        } \
-        \
-        return NO_ERROR; \
-        \
-        execution_failed: \
-        GAR_FUNC(name, free)(array); \
-        return error; \
+    void GAR_PRIVATE(name, skip_whitespace)(char** str) {                       \
+        while (isspace(**str)) {(*str)++;}                                      \
+    }                                                                           \
+                                                                                \
+    error_t GAR_PRIVATE(name, start_array)(char** json) {                       \
+        if (**json == '[') {                                                    \
+            (*json)++; return NO_ERROR;                                         \
+        } else {                                                                \
+            return PARSE_ERROR;                                                 \
+        }                                                                       \
+    }                                                                           \
+                                                                                \
+    error_t GAR_PRIVATE(name, stop_array)(char** json) {                        \
+        if (**json == ']') {                                                    \
+            (*json)++; return NO_ERROR;                                         \
+        } else {                                                                \
+            return PARSE_ERROR;                                                 \
+        }                                                                       \
+    }                                                                           \
+                                                                                \
+    error_t GAR_PRIVATE(name, next_item)(char** json) {                         \
+        if (**json == ',') {                                                    \
+            (*json)++; return NO_ERROR;                                         \
+        } else {                                                                \
+            return PARSE_ERROR;                                                 \
+        }                                                                       \
+    }                                                                           \
+                                                                                \
+    error_t GAR_FUNC(name, from_json)(GAR(name)* array, char* json) {           \
+        error_t error, stop_error;                                              \
+        type value;                                                             \
+                                                                                \
+        GAR_FUNC(name, new)(array);                                             \
+                                                                                \
+        GAR_PRIVATE(name, skip_whitespace)(&json);                              \
+        error = GAR_PRIVATE(name, start_array)(&json);                          \
+        if (error != NO_ERROR) {goto execution_failed;}                         \
+                                                                                \
+        GAR_PRIVATE(name, skip_whitespace)(&json);                              \
+        stop_error = GAR_PRIVATE(name, stop_array)(&json);                      \
+                                                                                \
+        while (stop_error != NO_ERROR) {                                        \
+            GAR_PRIVATE(name, skip_whitespace)(&json);                          \
+            error = json_to_item(&value, &json);                                \
+            if (error != NO_ERROR) {goto execution_failed;}                     \
+            error = GAR_FUNC(name, push)(array, value);                         \
+            if (error != NO_ERROR) {goto execution_failed;}                     \
+                                                                                \
+            GAR_PRIVATE(name, skip_whitespace)(&json);                          \
+            error = GAR_PRIVATE(name, next_item)(&json);                        \
+            if (error == NO_ERROR) {                                            \
+                continue;                                                       \
+            }                                                                   \
+                                                                                \
+            stop_error = GAR_PRIVATE(name, stop_array)(&json);                  \
+            if (stop_error == NO_ERROR) {                                       \
+                break;                                                          \
+            } else {                                                            \
+                goto execution_failed;                                          \
+            }                                                                   \
+        }                                                                       \
+                                                                                \
+        return NO_ERROR;                                                        \
+                                                                                \
+        execution_failed:                                                       \
+        GAR_FUNC(name, free)(array);                                            \
+        return error;                                                           \
     }
 
 gar_make_basic_h(char, char)
