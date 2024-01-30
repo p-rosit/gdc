@@ -426,12 +426,16 @@
         *json = NULL;                                                           \
         char_gar_new(&str);                                                     \
         error = GAR_FUNC(name, to_json_helper)(array, &str);                    \
-                                                                                \
-        if (error == NO_ERROR) {                                                \
-            *json = str.values;                                                 \
-        }                                                                       \
+        if (error != NO_ERROR) {goto execution_failed;}\
+        \
+        error = GAR_FUNC(char, make_string)(&str, json); \
+        if (error != NO_ERROR) {goto execution_failed;}\
                                                                                 \
         return error;                                                           \
+        \
+        execution_failed:\
+        char_gar_free(&str); \
+        return error;\
     }                                                                           \
                                                                                 \
     error_t GAR_FUNC(name, to_json_helper)(const GAR(name)* array, char_gar_t* json) { \
@@ -452,8 +456,6 @@
                                                                                 \
         error = char_gar_push(json, ']');                                       \
         if (error != NO_ERROR) {goto execution_failed;}                         \
-        error = char_gar_push(json, '\0');                                      \
-        if (error != NO_ERROR) {goto execution_failed;}                         \
                                                                                 \
         return error;                                                           \
                                                                                 \
@@ -463,61 +465,33 @@
     }
 
 #define gar_make_deserialize(name, type, json_to_item) \
-    void GAR_PRIVATE(name, skip_whitespace)(char** str) {                       \
-        while (isspace(**str)) {(*str)++;}                                      \
-    }                                                                           \
-                                                                                \
-    error_t GAR_PRIVATE(name, start_array)(char** json) {                       \
-        if (**json == '[') {                                                    \
-            (*json)++; return NO_ERROR;                                         \
-        } else {                                                                \
-            return PARSE_ERROR;                                                 \
-        }                                                                       \
-    }                                                                           \
-                                                                                \
-    error_t GAR_PRIVATE(name, stop_array)(char** json) {                        \
-        if (**json == ']') {                                                    \
-            (*json)++; return NO_ERROR;                                         \
-        } else {                                                                \
-            return PARSE_ERROR;                                                 \
-        }                                                                       \
-    }                                                                           \
-                                                                                \
-    error_t GAR_PRIVATE(name, next_item)(char** json) {                         \
-        if (**json == ',') {                                                    \
-            (*json)++; return NO_ERROR;                                         \
-        } else {                                                                \
-            return PARSE_ERROR;                                                 \
-        }                                                                       \
-    }                                                                           \
-                                                                                \
     error_t GAR_FUNC(name, from_json)(GAR(name)* array, char* json) {           \
         error_t error, stop_error;                                              \
         type value;                                                             \
                                                                                 \
         GAR_FUNC(name, new)(array);                                             \
                                                                                 \
-        GAR_PRIVATE(name, skip_whitespace)(&json);                              \
-        error = GAR_PRIVATE(name, start_array)(&json);                          \
+        serialize_skip_whitespace(&json);                              \
+        error = serialize_start_array(&json);                          \
         if (error != NO_ERROR) {goto execution_failed;}                         \
                                                                                 \
-        GAR_PRIVATE(name, skip_whitespace)(&json);                              \
-        stop_error = GAR_PRIVATE(name, stop_array)(&json);                      \
+        serialize_skip_whitespace(&json);                              \
+        stop_error = serialize_stop_array(&json);                      \
                                                                                 \
         while (stop_error != NO_ERROR) {                                        \
-            GAR_PRIVATE(name, skip_whitespace)(&json);                          \
+            serialize_skip_whitespace(&json);                          \
             error = json_to_item(&value, &json);                                \
             if (error != NO_ERROR) {goto execution_failed;}                     \
             error = GAR_FUNC(name, push)(array, value);                         \
             if (error != NO_ERROR) {goto execution_failed;}                     \
                                                                                 \
-            GAR_PRIVATE(name, skip_whitespace)(&json);                          \
-            error = GAR_PRIVATE(name, next_item)(&json);                        \
+            serialize_skip_whitespace(&json);                          \
+            error = serialize_next_item(&json);                        \
             if (error == NO_ERROR) {                                            \
                 continue;                                                       \
             }                                                                   \
                                                                                 \
-            stop_error = GAR_PRIVATE(name, stop_array)(&json);                  \
+            stop_error = serialize_stop_array(&json);                  \
             if (stop_error == NO_ERROR) {                                       \
                 break;                                                          \
             } else {                                                            \
@@ -534,6 +508,7 @@
 
 gar_make_basic_h(char, char)
 error_t GAR_FUNC(char, push_string)(char_gar_t*, char*);
+error_t GAR_FUNC(char, make_string)(char_gar_t*, char**);
 
 gar_make_basic_h(uchar, unsigned char)
 gar_make_basic_h(schar, signed char)
@@ -541,6 +516,8 @@ gar_make_basic_h(schar, signed char)
 gar_make_basic_h(string, char*)
 gar_make_deepcopy_h(string, char*)
 gar_make_free_h(string, char*)
+gar_make_serialize_h(string, char*)
+gar_make_deserialize_h(string, char*)
 
 gar_make_basic_h(short, short)
 

@@ -55,6 +55,17 @@ error_t GAR_FUNC(char, push_string)(char_gar_t* array, char* str) {
     return error;
 }
 
+error_t GAR_FUNC(char, make_string)(char_gar_t* array, char** str) {
+    error_t error;
+
+    error = char_gar_push(array, '\0');
+    if (error != NO_ERROR) {return error;}
+
+    *str = array->values;
+
+    return error;
+}
+
 char* string_deepcopy(const char* src) {
     size_t len = strlen(src);
     char* dst = malloc(len + 1);
@@ -69,4 +80,6 @@ char* string_deepcopy(const char* src) {
 gar_make_basic(string, char*)
 gar_make_deepcopy(string, char*, string_deepcopy)
 gar_make_free(string, char*, free)
+gar_make_serialize(string, char*, char_ptr2string)
+gar_make_deserialize(string, char*, string2char_ptr)
 
