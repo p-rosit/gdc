@@ -2,6 +2,49 @@
 #include <limits.h>
 #include "serialize.h"
 
+void serialize_skip_whitespace(char** str) {
+    while (isspace(**str)) {(*str)++;}
+}
+
+error_t serialize_start_array(char** json) {
+    if (**json == '[') {
+        (*json)++; return NO_ERROR;
+    } else {
+        return PARSE_ERROR;
+    }
+}
+
+error_t serialize_stop_array(char** json) {
+    if (**json == ']') {
+        (*json)++; return NO_ERROR;
+    } else {
+        return PARSE_ERROR;
+    }
+}
+
+error_t serialize_start_map(char** json) {
+    if (**json == '{') {
+        (*json)++; return NO_ERROR;
+    } else {
+        return PARSE_ERROR;
+    }
+}
+
+error_t serialize_stop_map(char** json) {
+    if (**json == '}') {
+        (*json)++; return NO_ERROR;
+    } else {
+        return PARSE_ERROR;
+    }
+}
+
+error_t serialize_next_item(char** json) {
+    if (**json == ',') {
+        (*json)++; return NO_ERROR;
+    } else {
+        return PARSE_ERROR;
+    }
+}
 
 error_t int2string(char_gar_t* json, int value) {
     /* TODO: make generic*/
@@ -38,3 +81,45 @@ error_t string2int(int* value, char** json) {
     *json = str - 1;
     return NO_ERROR;
 }
+
+error_t char_ptr2string(char_gar_t* json, char* value) {
+    error_t error;
+
+    error = char_gar_push(json, '"');
+    if (error != NO_ERROR) {return error;}
+
+    error = char_gar_push_string(json, value);
+    if (error != NO_ERROR) {return error;}
+
+    error = char_gar_push(json, '"');
+    if (error != NO_ERROR) {return error;}
+
+    return NO_ERROR;
+}
+
+error_t string2char_ptr(char** value, char** json) {
+    error_t error;
+    char_gar_t dyn_str;
+    char c, *str = *json;
+    
+    char_gar_new(&dyn_str);
+
+    c = *str++;
+    if (c != '"') {error = PARSE_ERROR; goto execution_failed;} /* String did not start correctly */
+
+    for (c = *str++; c != '"' && c != '\0'; c = *str++) {
+        error = char_gar_push(&dyn_str, c);
+        if (error != NO_ERROR) {goto execution_failed;}
+    }
+
+    if (c != '"') {error = PARSE_ERROR; goto execution_failed;} /* String did not end correctly */
+
+    *json = str;
+    char_gar_make_string(&dyn_str, value);
+    return error;
+
+    execution_failed:
+    char_gar_free(&dyn_str);
+    return error;
+}
+
