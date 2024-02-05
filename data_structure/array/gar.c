@@ -4,6 +4,7 @@
 
 #include "gar.h"
 #include "../../serialize/serialize.h"
+#include "../../serialize/deserialize.h"
 
 gar_make_basic(short, short)
 

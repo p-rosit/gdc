@@ -486,7 +486,7 @@
             if (error != NO_ERROR) {goto execution_failed;}                     \
                                                                                 \
             serialize_skip_whitespace(&json);                          \
-            error = serialize_next_item(&json);                        \
+            error = serialize_next_entry(&json);                        \
             if (error == NO_ERROR) {                                            \
                 continue;                                                       \
             }                                                                   \
