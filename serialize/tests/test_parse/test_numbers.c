@@ -1,7 +1,7 @@
 #include <limits.h>
 #include "../../../cut/cut.h"
 #include "../../parse.h"
-#include "utils.c"
+#include "../utils.c"
 
 
 #define SERIALIZE_NUMBER(str, num, is_signed) \

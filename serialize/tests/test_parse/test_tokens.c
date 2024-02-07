@@ -1,6 +1,6 @@
 #include "../../../cut/cut.h"
 #include "../../parse.h"
-#include "utils.c"
+#include "../utils.c"
 
 #define CORRECT_TOKEN(name, func, json, next_char) \
     UNIT_TEST(name) { \
