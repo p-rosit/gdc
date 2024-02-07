@@ -1,5 +1,5 @@
 #include "../../../cut/cut.h"
-#include "../../deserialize.h"
+#include "../../parse.h"
 #include "utils.c"
 
 #define TEST_STRING_PARSE(name, input, expected_result) \

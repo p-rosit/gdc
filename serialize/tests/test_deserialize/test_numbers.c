@@ -1,6 +1,6 @@
 #include <limits.h>
 #include "../../../cut/cut.h"
-#include "../../deserialize.h"
+#include "../../parse.h"
 #include "utils.c"
 
 
@@ -13,7 +13,7 @@
 #define BASE_TEST(name, type, upper_limit, is_signed) \
     UNIT_TEST(JOIN_TOKENS(name, _test_n_numbers)) {                             \
         error_t error;                                                          \
-        char num[100], *temp;                                                   \
+        char num[500], *temp;                                                   \
         long long seed = 85, new_num;                                           \
         type v;                                                                 \
                                                                                 \
@@ -47,7 +47,7 @@
     UNIT_TEST(JOIN_TOKENS(name, _test_above_limit)) {                           \
         size_t len;                                                             \
         error_t error;                                                          \
-        char num[100], *temp;                                                   \
+        char num[500], *temp;                                                   \
         type v;                                                                 \
                                                                                 \
         SERIALIZE_NUMBER(num, (long long) upper_limit, is_signed);              \
@@ -71,7 +71,7 @@
     UNIT_TEST(JOIN_TOKENS(name, _test_below_limit)) {                           \
         size_t len;                                                             \
         error_t error;                                                          \
-        char num[100], *temp;                                                   \
+        char num[500], *temp;                                                   \
         type v;                                                                 \
                                                                                 \
         SERIALIZE_NUMBER(num, (long long) upper_limit, 1);                      \

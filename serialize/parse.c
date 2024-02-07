@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include <string.h>
 #include "../error.h"
-#include "deserialize.h"
+#include "parse.h"
 
 void parse_skip_whitespace(char** str) {
     while (isspace(**str)) {(*str)++;}
