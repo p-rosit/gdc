@@ -30,6 +30,7 @@ error_t json_end_map(json_str_t*);
 error_t json_next_entry(json_str_t*);
 error_t json_map_divider(json_str_t*);
 
+SERIALIZE(short, short);
 SERIALIZE(int, int);
 
 SERIALIZE(string, char*);

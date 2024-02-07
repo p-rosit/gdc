@@ -145,6 +145,7 @@ error_t json_push(json_str_t* json, char c) {
         memcpy(characters, json->characters, json->size);
         free(json->characters);
         json->characters = characters;
+        json->capacity = capacity;
     }
 
     json->characters[json->size++] = c;
@@ -167,6 +168,7 @@ error_t json_push_str(json_str_t* json, char* str) {
         memcpy(characters, json->characters, json->size);
         free(json->characters);
         json->characters = characters;
+        json->capacity = capacity;
     }
 
     for (size_t i = 0; i < length; i++) {
@@ -181,6 +183,7 @@ error_t json_to_str(json_str_t* json, char** str) {
     if (error != NO_ERROR) {return error;}
 
     *str = json->characters;
+    *json = json_new();
     return NO_ERROR;
 }
 
@@ -192,21 +195,29 @@ JSON_PUSH_DIVIDER(json_next_entry,  ',')
 JSON_PUSH_DIVIDER(json_map_divider, ':')
 
 #define APPROX_LOG10(name, type) \
-    /* TODO */
+    size_t JOIN_TOKENS(name, _approx_log10)(type num) {                         \
+        size_t log = 0;                                                         \
+                                                                                \
+        num = (num < 0) ? 1 - num : num;                                        \
+        for (size_t i = 0; num > 0; num /= 2, i++) {                            \
+            log = (num % 2) ? i : log;                                          \
+        }                                                                       \
+                                                                                \
+        /* return approx_log2(num) * log10(2) */                                \
+        return log * 0.301;                                                     \
+    }
 
-#define SERIALIZE_SIGNED_NUMBER(name, type, lower_limit, upper_limit) \
-    /* TODO */
+#define SERIALIZE_NUMBER(name, type, print_option) \
+    APPROX_LOG10(name, type)                                                    \
+                                                                                \
+    error_t JOIN_TOKENS(serialize_, name)(json_str_t* json, type value) {       \
+        char num[JOIN_TOKENS(name, _approx_log10)(value) + 5];                  \
+        sprintf(num, print_option, value);                                      \
+        return json_push_str(json, num);                                        \
+    }
 
-#define SERIALIZE_UNSIGNED_NUMBER(name, type, upper_limit) \
-    /* TODO */
-
-error_t int2string(json_str_t* json, int value) {
-    /* TODO: make generic*/
-    char num[11];
-    sprintf(num, "%d", value);
-
-    return json_push_str(json, num);
-}
+SERIALIZE_NUMBER(short, short, "%d")
+SERIALIZE_NUMBER(int, int, "%d")
 
 error_t char_ptr2string(json_str_t* json, char* value) {
     error_t error;
