@@ -330,9 +330,8 @@ typedef struct HSM_STRUCT(meta_data) {
 
 #define HSMP_HELPER_FUNCTIONS(name, key_type, value_type) \
     size_t HSM_PRIVATE(name, compute_offset)(size_t capacity) {                 \
-        size_t max_offset;                                                      \
+        size_t max_offset = 0;                                                  \
                                                                                 \
-        max_offset = 0;                                                         \
         for (size_t i = 0; capacity > 0; capacity >>= 1, i++) {                 \
             max_offset = i * (capacity % 2) + max_offset / 2;                   \
         }                                                                       \
