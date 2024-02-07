@@ -412,9 +412,6 @@
     }
 
 gar_make_basic_h(char, char)
-error_t GAR_FUNC(char, push_string)(char_gar_t*, char*);
-error_t GAR_FUNC(char, make_string)(char_gar_t*, char**);
-
 gar_make_basic_h(uchar, unsigned char)
 gar_make_basic_h(schar, signed char)
 
@@ -430,15 +427,6 @@ gar_make_basic_h(ushort, unsigned short)
 gar_make_basic_h(uint, unsigned int)
 gar_make_basic_h(ulong, unsigned long)
 gar_make_basic_h(ulong_long, unsigned long long)
-
-gar_make_basic_h(i8, int8_t)
-gar_make_basic_h(i16, int16_t)
-gar_make_basic_h(i32, int32_t)
-gar_make_basic_h(i64, int64_t)
-gar_make_basic_h(u8, uint8_t)
-gar_make_basic_h(u16, uint16_t)
-gar_make_basic_h(u32, uint32_t)
-gar_make_basic_h(u64, uint64_t)
 
 gar_make_basic_h(f32, float)
 gar_make_basic_h(f64, double)
