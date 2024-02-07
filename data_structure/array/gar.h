@@ -81,13 +81,6 @@
 #define gar_make_free_h(name, type) \
     void        GAR_FUNC(name, free_values)(GAR(name)*);                        \
 
-#define gar_make_serialize_h(name, type) \
-    error_t GAR_FUNC(name, to_json)(const GAR(name)*, char**);                  \
-    error_t GAR_FUNC(name, to_json_helper)(const GAR(name)*, char_gar_t*);      \
-
-#define gar_make_deserialize_h(name, type) \
-    error_t GAR_FUNC(name, from_json)(GAR(name)*, char*);                       \
-
 #define gar_make_basic(name, type) \
     GARP_NEW(name, type)                                                        \
     GARP_COPY(name, type)                                                       \
@@ -418,94 +411,6 @@
         array->size = 0;                                                        \
     }
 
-#define gar_make_serialize(name, type, item_to_json) \
-    error_t GAR_FUNC(name, to_json)(const GAR(name)* array, char** json) {      \
-        error_t error;                                                          \
-        char_gar_t str;                                                         \
-                                                                                \
-        *json = NULL;                                                           \
-        char_gar_new(&str);                                                     \
-        error = GAR_FUNC(name, to_json_helper)(array, &str);                    \
-        if (error != NO_ERROR) {goto execution_failed;}\
-        \
-        error = GAR_FUNC(char, make_string)(&str, json); \
-        if (error != NO_ERROR) {goto execution_failed;}\
-                                                                                \
-        return error;                                                           \
-        \
-        execution_failed:\
-        char_gar_free(&str); \
-        return error;\
-    }                                                                           \
-                                                                                \
-    error_t GAR_FUNC(name, to_json_helper)(const GAR(name)* array, char_gar_t* json) { \
-        error_t error;                                                          \
-                                                                                \
-        error = char_gar_push(json, '[');                                       \
-        if (error != NO_ERROR) {goto execution_failed;}                         \
-                                                                                \
-        for (size_t i = 0; i < array->size; i++) {                              \
-            if (i > 0) {                                                        \
-                error = char_gar_push_string(json, ", ");                       \
-                if (error != NO_ERROR) {goto execution_failed;}                 \
-            }                                                                   \
-                                                                                \
-            error = item_to_json(json, array->values[i]);                       \
-            if (error != NO_ERROR) {goto execution_failed;}                     \
-        }                                                                       \
-                                                                                \
-        error = char_gar_push(json, ']');                                       \
-        if (error != NO_ERROR) {goto execution_failed;}                         \
-                                                                                \
-        return error;                                                           \
-                                                                                \
-        execution_failed:                                                       \
-        GAR_FUNC(char, free)(json);                                             \
-        return error;                                                           \
-    }
-
-#define gar_make_deserialize(name, type, json_to_item) \
-    error_t GAR_FUNC(name, from_json)(GAR(name)* array, char* json) {           \
-        error_t error, stop_error;                                              \
-        type value;                                                             \
-                                                                                \
-        GAR_FUNC(name, new)(array);                                             \
-                                                                                \
-        serialize_skip_whitespace(&json);                              \
-        error = serialize_start_array(&json);                          \
-        if (error != NO_ERROR) {goto execution_failed;}                         \
-                                                                                \
-        serialize_skip_whitespace(&json);                              \
-        stop_error = serialize_stop_array(&json);                      \
-                                                                                \
-        while (stop_error != NO_ERROR) {                                        \
-            serialize_skip_whitespace(&json);                          \
-            error = json_to_item(&value, &json);                                \
-            if (error != NO_ERROR) {goto execution_failed;}                     \
-            error = GAR_FUNC(name, push)(array, value);                         \
-            if (error != NO_ERROR) {goto execution_failed;}                     \
-                                                                                \
-            serialize_skip_whitespace(&json);                          \
-            error = serialize_next_entry(&json);                        \
-            if (error == NO_ERROR) {                                            \
-                continue;                                                       \
-            }                                                                   \
-                                                                                \
-            stop_error = serialize_stop_array(&json);                  \
-            if (stop_error == NO_ERROR) {                                       \
-                break;                                                          \
-            } else {                                                            \
-                goto execution_failed;                                          \
-            }                                                                   \
-        }                                                                       \
-                                                                                \
-        return NO_ERROR;                                                        \
-                                                                                \
-        execution_failed:                                                       \
-        GAR_FUNC(name, free)(array);                                            \
-        return error;                                                           \
-    }
-
 gar_make_basic_h(char, char)
 error_t GAR_FUNC(char, push_string)(char_gar_t*, char*);
 error_t GAR_FUNC(char, make_string)(char_gar_t*, char**);
@@ -516,15 +421,9 @@ gar_make_basic_h(schar, signed char)
 gar_make_basic_h(string, char*)
 gar_make_deepcopy_h(string, char*)
 gar_make_free_h(string, char*)
-gar_make_serialize_h(string, char*)
-gar_make_deserialize_h(string, char*)
 
 gar_make_basic_h(short, short)
-
 gar_make_basic_h(int, int)
-gar_make_serialize_h(int, int)
-gar_make_deserialize_h(int, int)
-
 gar_make_basic_h(long, long)
 gar_make_basic_h(long_long, long long)
 gar_make_basic_h(ushort, unsigned short)
