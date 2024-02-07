@@ -102,13 +102,6 @@ typedef struct HSM_STRUCT(meta_data) {
 #define hsm_make_free_h(name, key_type, value_type) \
     error_t HSM_FUNC(name, free_items)(HSM(name)*);                             \
 
-#define hsm_make_serialize_h(name, key_type, value_type) \
-    error_t HSM_FUNC(name, to_json)(const HSM(name)*, char**);                  \
-    error_t HSM_FUNC(name, to_json_helper)(const HSM(name)*, char_gar_t*);      \
-
-#define hsm_make_deserialize_h(name, key_type, value_type) \
-    error_t HSM_FUNC(name, from_json)(GAR(name)*, char*);                       \
-
 #define hsm_make_basic(name, key_type, value_type, hash_func) \
     HSMP_HELPER_FUNCTIONS(name, key_type, value_type)                           \
                                                                                 \
@@ -559,61 +552,6 @@ typedef struct HSM_STRUCT(meta_data) {
         }                                                                       \
         map->size = 0;                                                          \
         return NO_ERROR;                                                        \
-    }
-
-#define hsm_make_serialize(name, key_type, value_type, key_to_json, value_to_json) \
-    error_t HSM_FUNC(name, to_json)(const HSM(name)* map, char** json) {        \
-        error_t error; \
-        char_gar_t str; \
-        \
-        *json = NULL; \
-        char_gar_new(&str); \
-        error = HSM_FUNC(name, to_json_helper)(map, &str); \
-        if (error != NO_ERROR) {goto execution_failed;} \
-        \
-        error = GAR_FUNC(char, make_string)(&str, json); \
-        if (error != NO_ERROR) {goto execution_failed;} \
-        \
-        return error; \
-        \
-        execution_failed:\
-        char_gar_free(&str);\
-        return error;\
-    }                                                                           \
-    \
-    error_t HSM_FUNC(name, to_json_helper)(const HSM(name)* map, char_gar_t* json) { \
-        error_t error; \
-        int first_item = 0;\
-        \
-        error = char_gar_push(json, '{'); \
-        if (error != NO_ERROR) {goto execution_failed;}                         \
-        \
-        for (size_t i = 0; i < map->capacity + map->max_offset; i++) { \
-            if (map->meta_data[i].offset >= map->max_offset) {continue;} \
-            \
-            if (!first_item) { \
-                error = char_gar_push_string(json, ", "); \
-                if (error != NO_ERROR) {goto execution_failed;}                 \
-            } else { \
-                first_item = 1;\
-            } \
-            \
-            error = key_to_json(json, map->keys[i]);\
-            if (error != NO_ERROR) {goto execution_failed;}                 \
-            error = char_gar_push(json, ':'); \
-            if (error != NO_ERROR) {goto execution_failed;}                 \
-            error = value_to_json(json, map->values[i]);\
-            if (error != NO_ERROR) {goto execution_failed;}                 \
-        } \
-        \
-        error = char_gar_push(json, '}'); \
-        if (error != NO_ERROR) {goto execution_failed;}                         \
-        \
-        return error; \
-        \
-        execution_failed:\
-        GAR_FUNC(char, free)(json);\
-        return error; \
     }
 
 #endif
