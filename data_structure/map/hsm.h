@@ -325,8 +325,9 @@ typedef struct HSM_STRUCT(meta_data) {
     size_t HSM_PRIVATE(name, compute_offset)(size_t capacity) {                 \
         size_t max_offset = 0;                                                  \
                                                                                 \
-        for (size_t i = 0; capacity > 0; capacity >>= 1, i++) {                 \
-            max_offset = i * (capacity % 2) + max_offset / 2;                   \
+        /* Approximate log2 */                                                  \
+        for (size_t i = 0; capacity > 0; capacity /= 2, i++) {                  \
+            max_offset = (capacity % 2) ? i : max_offset;                       \
         }                                                                       \
                                                                                 \
         return max_offset + (max_offset == 0 && capacity != 0);                 \

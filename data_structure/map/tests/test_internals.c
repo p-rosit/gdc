@@ -266,7 +266,7 @@ UNIT_TEST(add_kvp_after_insert) {
     char *k, *expected_k;
     int v, expected_v;
 
-    CALL_TEST(make_map, &map, 30);
+    CALL_TEST(make_map, &map, 50);
     ASSERT_TRUE(size <= map.max_offset, "Expected max offset to be at least %lu, got %lu.", size, map.max_offset);
 
     k = expected_k = (char*) key;
