@@ -11,9 +11,9 @@ void parse_skip_whitespace(char** str) {
 }
 
 EXPECT_TOKEN(parse_start_array, '[')
-EXPECT_TOKEN(parse_stop_array, ']')
+EXPECT_TOKEN(parse_end_array, ']')
 EXPECT_TOKEN(parse_start_map, '{')
-EXPECT_TOKEN(parse_stop_map, '}')
+EXPECT_TOKEN(parse_end_map, '}')
 EXPECT_TOKEN(parse_next_entry, ',')
 EXPECT_TOKEN(parse_key_value_divider, ':')
 

@@ -4,56 +4,135 @@
 #include "../error.h"
 #include "../macro.h"
 
-#define PARSE_ARRAY_H(name, type) error_t JOIN_TOKENS(name, _from_json)(type*)
-#define PARSE_MAP_H(name, type) error_t JOIN_TOKENS(name, _from_json)(type*)
+#define PARSE_DATA(name, type) \
+    error_t JOIN_TOKENS(name, _from_json)(type*, char** json)
 
-#define PARSE_ARRAY(name, type, new, push, parse_value) \
-    error_t JOIN_TOKENS(name, _from_json)(type* array) { \
-        /* TODO */\
+#define PARSE_ARRAY(name, array_type, type, new_array, push_value, free_array, parse_value) \
+    error_t JOIN_TOKENS(name, _from_json)(array_type* array, char** str) { \
+        error_t error, stop_error; \
+        type value;\
+        char* json = *str;\
+        \
+        new_array(array);\
+        \
+        parse_skip_whitespace(&json); \
+        error = parse_start_array(&json); \
+        if (error != NO_ERROR) {goto execution_failed;} \
+        \
+        parse_skip_whitespace(&json); \
+        stop_error = parse_end_array(&json);\
+        \
+        while (stop_error != NO_ERROR) {\
+            parse_skip_whitespace(&json);\
+            error = parse_value(&value, &json); \
+            if (error != NO_ERROR) {goto execution_failed;} \
+            \
+            error = push_value(array, value); \
+            if (error != NO_ERROR) {goto execution_failed;}\
+            \
+            parse_skip_whitespace(&json); \
+            \
+            error = parse_next_entry(&json);\
+            if (error == NO_ERROR) {continue;}\
+            \
+            stop_error = parse_end_array(&json); \
+            if (stop_error == NO_ERROR) { \
+                break;\
+            } else { \
+                goto execution_failed;\
+            } \
+        } \
+        \
+        *str = json;\
+        \
+        return error; \
+        \
+        execution_failed:\
+        free_array(array);\
+        return error; \
     }
 
-#define PARSE_MAP(name, type, new, insert, parse_value) \
-    error_t JOIN_TOKENS(name, _from_json)(type* map) { \
-        /* TODO */\
+#define PARSE_MAP(name, map_type, key_type, value_type, new_map, push_kvp, free_map, parse_key, parse_value) \
+    error_t JOIN_TOKENS(name, _from_json)(map_type* map, char** str) { \
+        error_t error, stop_error; /* TODO */\
+        type value;\
+        char* json = *str;\
+        \
+        new(array);\
+        \
+        parse_skip_whitespace(&json); \
+        error = parse_start_array(&json); \
+        if (error != NO_ERROR) {goto execution_failed;} \
+        \
+        parse_skip_whitespace(&json); \
+        stop_error = parse_end_array(&json);\
+        \
+        while (stop_error != NO_ERROR) {\
+            parse_skip_whitespace(&json);\
+            error = parse_value(&value, &json); \
+            if (error != NO_ERROR) {goto execution_failed;} \
+            \
+            error = push(array, value); \
+            if (error != NO_ERROR) {goto execution_failed;}\
+            \
+            parse_skip_whitespace(&json); \
+            \
+            error = parse_next_entry(&json);\
+            if (error == NO_ERROR) {continue;}\
+            \
+            stop_error = parse_end_array(&json); \
+            if (stop_error == NO_ERROR) { \
+                break;\
+            } else { \
+                goto execution_failed;\
+            } \
+        } \
+        \
+        *str = json;\
+        \
+        return error; \
+        \
+        execution_failed:\
+        free_array(array);\
+        return error; \
     }
 
-#define DESERIALIZE(name) error_t JOIN_TOKENS(parse_, name)
-#define PROT_DESERIALIZE(name, type) DESERIALIZE(name)(type*, char**)
+#define DESERIALIZE(name, type) error_t JOIN_TOKENS(parse_, name)(type* value, char** json)
 
 void    parse_skip_whitespace(char** json);
 error_t parse_start_array(char** json);
-error_t parse_stop_array(char** json);
+error_t parse_end_array(char** json);
 error_t parse_start_map(char** json);
-error_t parse_stop_map(char** json);
+error_t parse_end_map(char** json);
 error_t parse_next_entry(char** json);
 error_t parse_key_value_divider(char** json);
 
-PROT_DESERIALIZE(short, short);
-PROT_DESERIALIZE(int, int);
-PROT_DESERIALIZE(long, long);
-PROT_DESERIALIZE(long_long, long long);
-PROT_DESERIALIZE(ushort, unsigned short);
-PROT_DESERIALIZE(uint, unsigned int);
-PROT_DESERIALIZE(ulong, unsigned long);
-PROT_DESERIALIZE(ulong_long, unsigned long long);
+DESERIALIZE(short, short);
+DESERIALIZE(int, int);
+DESERIALIZE(long, long);
+DESERIALIZE(long_long, long long);
+DESERIALIZE(ushort, unsigned short);
+DESERIALIZE(uint, unsigned int);
+DESERIALIZE(ulong, unsigned long);
+DESERIALIZE(ulong_long, unsigned long long);
 
-PROT_DESERIALIZE(i8, int8_t);
-PROT_DESERIALIZE(i16, int16_t);
-PROT_DESERIALIZE(i32, int32_t);
-PROT_DESERIALIZE(i64, int64_t);
-PROT_DESERIALIZE(u8, uint8_t);
-PROT_DESERIALIZE(u16, uint16_t);
-PROT_DESERIALIZE(u32, uint32_t);
-PROT_DESERIALIZE(u64, uint64_t);
+DESERIALIZE(i8, int8_t);
+DESERIALIZE(i16, int16_t);
+DESERIALIZE(i32, int32_t);
+DESERIALIZE(i64, int64_t);
+DESERIALIZE(u8, uint8_t);
+DESERIALIZE(u16, uint16_t);
+DESERIALIZE(u32, uint32_t);
+DESERIALIZE(u64, uint64_t);
 
-PROT_DESERIALIZE(f32, float);
-PROT_DESERIALIZE(f64, double);
-PROT_DESERIALIZE(f128, long double);
+DESERIALIZE(f32, float);
+DESERIALIZE(f64, double);
+DESERIALIZE(f128, long double);
 
-PROT_DESERIALIZE(char, char);
-PROT_DESERIALIZE(uchar, unsigned char);
-PROT_DESERIALIZE(schar, signed char);
-PROT_DESERIALIZE(string, char*);
+DESERIALIZE(char, char);
+DESERIALIZE(uchar, unsigned char);
+DESERIALIZE(schar, signed char);
+DESERIALIZE(string, char*);
 
 #define EXPECT_TOKEN(name, token) \
     error_t name(char** json) {                                                 \
@@ -65,7 +144,7 @@ PROT_DESERIALIZE(string, char*);
     }
 
 #define PARSE_UNSIGNED_NUM(name, type, upper_limit) \
-    DESERIALIZE(name)(type* value, char** json) {                               \
+    DESERIALIZE(name, type) {                                                   \
         type result = 0;                                                        \
         type digit_value;                                                       \
         char c, *str = *json;                                                   \
@@ -94,7 +173,7 @@ PROT_DESERIALIZE(string, char*);
     }
 
 #define PARSE_SIGNED_NUM(name, type, lower_limit, upper_limit) \
-    DESERIALIZE(name)(type* value, char** json) {                               \
+    DESERIALIZE(name, type) {                                                   \
         int overflow, underflow;                                                \
         type result = 0;                                                        \
         type digit_value;                                                       \
