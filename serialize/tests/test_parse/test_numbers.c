@@ -4,12 +4,6 @@
 #include "../utils.c"
 
 
-#define SERIALIZE_NUMBER(str, num, is_signed) \
-    do {                                                                        \
-        if (is_signed) {sprintf(str, "%lld", num);}                             \
-        else {sprintf(str, "%llu", num);}                                       \
-    } while (0)
-
 #define BASE_TEST(name, type, upper_limit, is_signed) \
     UNIT_TEST(JOIN_TOKENS(name, _test_n_numbers)) {                             \
         error_t error;                                                          \

@@ -194,32 +194,46 @@ JSON_PUSH_TOKEN(json_end_map,       '}')
 JSON_PUSH_DIVIDER(json_next_entry,  ',')
 JSON_PUSH_DIVIDER(json_map_divider, ':')
 
-#define APPROX_LOG10(name, type) \
-    size_t JOIN_TOKENS(name, _approx_log10)(type num) {                         \
-        size_t log = 0;                                                         \
+#define SERIALIZE_NUMBER(name, type) \
+    error_t JOIN_TOKENS(serialize_, name)(json_str_t* json, type value) {       \
+        error_t error;                                                          \
+        size_t initial_size = json->size, size = 0;                             \
+        char *str, c;                                                           \
+        int sign = 1 - 2 * (value < 0);                                         \
                                                                                 \
-        num = (num < 0) ? 1 - num : num;                                        \
-        for (size_t i = 0; num > 0; num /= 2, i++) {                            \
-            log = (num % 2) ? i : log;                                          \
+        while (value != 0) {                                                    \
+            error = json_push(json, '0' + sign * (value % 10));                 \
+            if (error != NO_ERROR) {return error;}                              \
+            value /= 10;                                                        \
         }                                                                       \
                                                                                 \
-        /* return approx_log2(num) * log10(2) */                                \
-        return log * 0.301;                                                     \
-    }
-
-#define SERIALIZE_NUMBER(name, type, print_option) \
-    APPROX_LOG10(name, type)                                                    \
+        if (sign < 0) {                                                         \
+            error = json_push(json, '-');                                       \
+            if (error != NO_ERROR) {return error;}                              \
+        }                                                                       \
                                                                                 \
-    error_t JOIN_TOKENS(serialize_, name)(json_str_t* json, type value) {       \
-        char num[JOIN_TOKENS(name, _approx_log10)(value) + 5];                  \
-        sprintf(num, print_option, value);                                      \
-        return json_push_str(json, num);                                        \
+        size = json->size - initial_size;                                       \
+        str = json->characters + initial_size;                                  \
+        for (int i = 0; i < size / 2; i++) {                                    \
+            /* Reverse in-place */                                              \
+            c = str[size - i - 1];                                              \
+            str[size - i - 1] = str[i];                                         \
+            str[i] = c;                                                         \
+        }                                                                       \
+                                                                                \
+        return error;                                                           \
     }
 
-SERIALIZE_NUMBER(short, short, "%d")
-SERIALIZE_NUMBER(int, int, "%d")
+SERIALIZE_NUMBER(short, short)
+SERIALIZE_NUMBER(int, int)
+SERIALIZE_NUMBER(long, long)
+SERIALIZE_NUMBER(long_long, long long)
+SERIALIZE_NUMBER(ushort, unsigned short)
+SERIALIZE_NUMBER(uint, unsigned int)
+SERIALIZE_NUMBER(ulong, unsigned long)
+SERIALIZE_NUMBER(ulong_long, unsigned long long)
 
-error_t char_ptr2string(json_str_t* json, char* value) {
+error_t serialize_string(json_str_t* json, char* value) {
     error_t error;
 
     error = json_push(json, '"');
@@ -229,8 +243,18 @@ error_t char_ptr2string(json_str_t* json, char* value) {
     if (error != NO_ERROR) {return error;}
 
     error = json_push(json, '"');
-    if (error != NO_ERROR) {return error;}
-
-    return NO_ERROR;
+    return error;
 }
 
+error_t serialize_char(json_str_t* json, char value) {
+    error_t error;
+
+    error = json_push(json, '\'');
+    if (error != NO_ERROR) {return error;}
+
+    error = json_push(json, value);
+    if (error != NO_ERROR) {return error;}
+
+    error = json_push(json, '\'');
+    return error;
+}

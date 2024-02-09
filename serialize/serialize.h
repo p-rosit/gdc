@@ -32,7 +32,15 @@ error_t json_map_divider(json_str_t*);
 
 SERIALIZE(short, short);
 SERIALIZE(int, int);
+SERIALIZE(long, long);
+SERIALIZE(long_long, long long);
 
+SERIALIZE(ushort, unsigned short);
+SERIALIZE(uint, unsigned int);
+SERIALIZE(ulong, unsigned long);
+SERIALIZE(ulong_long, unsigned long long);
+
+SERIALIZE(char, char);
 SERIALIZE(string, char*);
 
 #endif
