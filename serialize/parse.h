@@ -7,7 +7,7 @@
 #define PARSE_DATA_H(name, type) \
     error_t JOIN_TOKENS(name, _from_json)(type*, char** json);
 
-#define PARSE_ARRAY(name, array_type, type, new_array, push_value, free_array, parse_value) \
+#define PARSE_ARRAY(name, array_type, type, new_array, push_value, free_array, free_value, parse_value) \
     error_t JOIN_TOKENS(name, _from_json)(array_type* array, char** str) {      \
         error_t error, stop_error;                                              \
         type value;                                                             \
@@ -28,7 +28,7 @@
             if (error != NO_ERROR) {goto execution_failed;}                     \
                                                                                 \
             error = push_value(array, value);                                   \
-            if (error != NO_ERROR) {goto execution_failed;}                     \
+            if (error != NO_ERROR) {goto parsing_failed;}                     \
                                                                                 \
             parse_skip_whitespace(&json);                                       \
                                                                                 \
@@ -41,6 +41,10 @@
             } else {                                                            \
                 goto execution_failed;                                          \
             }                                                                   \
+            \
+            parsing_failed:\
+            free_value(value); \
+            goto execution_failed; \
         }                                                                       \
                                                                                 \
         *str = json;                                                            \
@@ -51,7 +55,7 @@
         return error;                                                           \
     }
 
-#define PARSE_MAP(name, map_type, key_type, value_type, new_map, push_kvp, free_map, parse_key, parse_value) \
+#define PARSE_MAP(name, map_type, key_type, value_type, new_map, push_kvp, free_map, free_key, free_value, parse_key, parse_value) \
     error_t JOIN_TOKENS(name, _from_json)(map_type* map, char** str) {          \
         error_t error, stop_error;                                              \
         key_type key; \
@@ -78,19 +82,19 @@
             \
             parse_skip_whitespace(&json);                                       \
             error = parse_next_entry(&json); \
-            if (error != NO_ERROR) {goto execution_failed;}                     \
+            if (error != NO_ERROR) {goto parse_value_failed;}                     \
             \
             parse_skip_whitespace(&json);                                       \
             error = parse_value(&value, &json); \
-            if (error != NO_ERROR) {goto execution_failed;}                     \
+            if (error != NO_ERROR) {goto parse_value_failed;}                     \
             \
             parse_skip_whitespace(&json);                                       \
             error = parse_end_array(&json); \
-            if (error != NO_ERROR) {goto execution_failed;}                     \
+            if (error != NO_ERROR) {goto parse_failed;}                     \
             \
                                                                                 \
             error = push_kvp(map, key, value);                                    \
-            if (error != NO_ERROR) {goto execution_failed;}                     \
+            if (error != NO_ERROR) {goto parse_failed;}                     \
                                                                                 \
             parse_skip_whitespace(&json);                                       \
                                                                                 \
@@ -103,6 +107,12 @@
             } else {                                                            \
                 goto execution_failed;                                          \
             }                                                                   \
+            \
+            parse_failed: \
+            free_value(value); \
+            parse_value_failed: \
+            free_key(key); \
+            goto execution_failed;\
         }                                                                       \
                                                                                 \
         *str = json;                                                            \
