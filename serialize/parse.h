@@ -44,8 +44,7 @@
         }                                                                       \
                                                                                 \
         *str = json;                                                            \
-                                                                                \
-        return error;                                                           \
+        return NO_ERROR;                                                        \
                                                                                 \
         execution_failed:                                                       \
         free_array(array);                                                      \
@@ -89,8 +88,7 @@
         }                                                                       \
                                                                                 \
         *str = json;                                                            \
-                                                                                \
-        return error;                                                           \
+        return NO_ERROR;                                                        \
                                                                                 \
         execution_failed:                                                       \
         free_array(array);                                                      \

@@ -100,6 +100,8 @@ JSON_PUSH_DIVIDER(json_map_divider, ':')
         char *str, c;                                                           \
         int sign = 1 - 2 * (value < 0);                                         \
                                                                                 \
+        if (value == 0) {return json_push(json, '0');}                          \
+                                                                                \
         while (value != 0) {                                                    \
             error = json_push(json, '0' + sign * (value % 10));                 \
             if (error != NO_ERROR) {return error;}                              \

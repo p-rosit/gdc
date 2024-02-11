@@ -75,7 +75,7 @@ SERIALIZE(string, char*);
         error_t error;                                                          \
                                                                                 \
         error = json_start_array(json);                                         \
-        if (error != NO_ERROR) {goto execution_failed; }                        \
+        if (error != NO_ERROR) {goto execution_failed;}                         \
                                                                                 \
         index = 0;                                                              \
         for_each(*array, type value) {                                          \
@@ -91,7 +91,7 @@ SERIALIZE(string, char*);
         }                                                                       \
                                                                                 \
         error = json_end_array(json);                                           \
-        if (error != NO_ERROR) {goto execution_failed; }                        \
+        if (error != NO_ERROR) {goto execution_failed;}                         \
                                                                                 \
         return error;                                                           \
                                                                                 \
