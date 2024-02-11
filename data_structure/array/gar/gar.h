@@ -1,7 +1,7 @@
 #ifndef GAR_H
 #define GAR_H
-#include "../../error.h"
-#include "../gdc.h"
+#include "../../../error.h"
+#include "../../gdc.h"
 
 /**
  * GAR: Growable ARray
