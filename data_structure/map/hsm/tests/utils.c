@@ -3,6 +3,8 @@
 
 #include "../../../../cut/cut.h"
 #include "../hsm.h"
+#include "../hsm_serialize.h"
+#include "../hsm_parse.h"
 
 #define result_ok(error, ...) \
     ASSERT_EQUAL(error, NO_ERROR, __VA_ARGS__)
@@ -35,10 +37,14 @@ void s2i_copy_item(const char* str_src, const int int_src, char** str_dst, int *
 hsm_make_basic_h(s2i, char*, int)
 hsm_make_free_h(s2i, char*, int)
 hsm_make_deepcopy_h(s2i, char*, int)
+hsm_make_serialize_h(s2i, char*, int)
+hsm_make_parse_h(s2i, char*, int)
 
 hsm_make_basic(s2i, char*, int, str_hash)
 hsm_make_free(s2i, char*, int, s2i_free)
 hsm_make_deepcopy(s2i, char*, int, s2i_copy_item)
+hsm_make_serialize(s2i, char*, int, serialize_string, serialize_int)
+hsm_make_parse(s2i, char*, int, parse_string, parse_int)
 
 
 SUB_TEST(make_map, s2i_hsm_t* map, size_t capacity) {
@@ -108,6 +114,20 @@ SUB_TEST(check_map, s2i_hsm_t* map, size_t size, char* keys, int* values) {
         ASSERT_EQUAL(map->meta_data[target].hash, md.hash, "Hash is %lu instead of %lu.", map->meta_data[index].hash, md.hash);
         ASSERT_EQUAL(*map->keys[target], key, "Key is \"%c\" instead of \"%c\".", map->keys[index], key);
         ASSERT_EQUAL(map->values[target], value, "Value is %d instead of %d.", map->values[index], value);
+    }
+
+    TEST_END;
+}
+
+SUB_TEST(map_eq, s2i_hsm_t* map, size_t size, char** keys, int* values) {
+    error_t error;
+    int value;
+
+    ASSERT_EQUAL(map->size, size, "Size is %lu instead of %lu.", map->size, size);
+
+    for (size_t i = 0; i < size; i++) {
+        result_ok(s2i_hsm_get(map, keys[i], &value), "Map does not contain kvp {\"%s\": %d}.", keys[i], values[i]);
+        ASSERT_EQUAL(value, values[i], "\"%s\" is mapped to %d instead of %d.", keys[i], value, values[i]);
     }
 
     TEST_END;

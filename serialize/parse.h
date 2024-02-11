@@ -54,10 +54,11 @@
 #define PARSE_MAP(name, map_type, key_type, value_type, new_map, push_kvp, free_map, parse_key, parse_value) \
     error_t JOIN_TOKENS(name, _from_json)(map_type* map, char** str) {          \
         error_t error, stop_error;                                              \
-        type value;                                                             \
+        key_type key; \
+        value_type value;                                                       \
         char* json = *str;                                                      \
                                                                                 \
-        new(array);                                                             \
+        new_map(map);                                                           \
                                                                                 \
         parse_skip_whitespace(&json);                                           \
         error = parse_start_array(&json);                                       \
@@ -68,10 +69,27 @@
                                                                                 \
         while (stop_error != NO_ERROR) {                                        \
             parse_skip_whitespace(&json);                                       \
-            error = parse_value(&value, &json);                                 \
+            error = parse_start_array(&json);                                   \
+            if (error != NO_ERROR) {goto execution_failed;}                      \
+            \
+            parse_skip_whitespace(&json);                                       \
+            error = parse_key(&key, &json);                                 \
             if (error != NO_ERROR) {goto execution_failed;}                     \
+            \
+            parse_skip_whitespace(&json);                                       \
+            error = parse_next_entry(&json); \
+            if (error != NO_ERROR) {goto execution_failed;}                     \
+            \
+            parse_skip_whitespace(&json);                                       \
+            error = parse_value(&value, &json); \
+            if (error != NO_ERROR) {goto execution_failed;}                     \
+            \
+            parse_skip_whitespace(&json);                                       \
+            error = parse_end_array(&json); \
+            if (error != NO_ERROR) {goto execution_failed;}                     \
+            \
                                                                                 \
-            error = push(array, value);                                         \
+            error = push_kvp(map, key, value);                                    \
             if (error != NO_ERROR) {goto execution_failed;}                     \
                                                                                 \
             parse_skip_whitespace(&json);                                       \
@@ -91,7 +109,7 @@
         return NO_ERROR;                                                        \
                                                                                 \
         execution_failed:                                                       \
-        free_array(array);                                                      \
+        free_map(map);                                                      \
         return error;                                                           \
     }
 

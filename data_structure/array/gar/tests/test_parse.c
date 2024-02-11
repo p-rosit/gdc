@@ -55,9 +55,7 @@ UNIT_TEST(only_whitespace) {
     temp = json;
     ASSERT_EQUAL(int_gar_from_json(&arr, &temp), PARSE_ERROR, "Invalid json was parsed.");
     ASSERT_EQUAL(temp, json, "Pointer moved %lu steps.", temp - json);
-    CALL_TEST(array_eq, &arr, 0, NULL);
     
-    int_gar_free(&arr);
     TEST_END;
 }
 
@@ -68,9 +66,7 @@ UNIT_TEST(missing_start) {
     temp = json;
     ASSERT_EQUAL(int_gar_from_json(&arr, &temp), PARSE_ERROR, "Invalid json was parsed.");
     ASSERT_EQUAL(temp, json, "Pointer moved %lu steps.", temp - json);
-    CALL_TEST(array_eq, &arr, 0, NULL);
 
-    int_gar_free(&arr);
     TEST_END;
 }
 
@@ -81,9 +77,7 @@ UNIT_TEST(missing_end) {
     temp = json;
     ASSERT_EQUAL(int_gar_from_json(&arr, &temp), PARSE_ERROR, "Invalid json was parsed.");
     ASSERT_EQUAL(temp, json, "Pointer moved %lu steps.", temp - json);
-    CALL_TEST(array_eq, &arr, 0, NULL);
 
-    int_gar_free(&arr);
     TEST_END;
 }
 
@@ -94,9 +88,7 @@ UNIT_TEST(missing_value) {
     temp = json;
     ASSERT_EQUAL(int_gar_from_json(&arr, &temp), PARSE_ERROR, "Invalid json was parsed.");
     ASSERT_EQUAL(temp, json, "Pointer moved %lu steps.", temp - json);
-    CALL_TEST(array_eq, &arr, 0, NULL);
 
-    int_gar_free(&arr);
     TEST_END;
 }
 

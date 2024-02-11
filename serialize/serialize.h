@@ -101,9 +101,9 @@ SERIALIZE(string, char*);
     }
 
 #define SERIALIZE_MAP(name, map_type, key_type, value_type, for_each, key_to_json, value_to_json) \
-    SERIALIZE_BASE(name, array_type)                                            \
+    SERIALIZE_BASE(name, map_type)                                              \
                                                                                 \
-    error_t JOIN_TOKENS(name, _to_json_recursive)(const map_type* map, char** json) { \
+    error_t JOIN_TOKENS(name, _to_json_recursive)(const map_type* map, json_str_t* json) { \
         size_t index;                                                           \
         error_t error;                                                          \
                                                                                 \
