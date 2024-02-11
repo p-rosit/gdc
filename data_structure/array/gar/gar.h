@@ -52,7 +52,7 @@
         type* values;                                                           \
     } GAR(name);                                                                \
                                                                                 \
-    void    GAR_FUNC(name, new)(GAR(name)*);                                    \
+    GAR(name) GAR_FUNC(name, new)(void);                                        \
     error_t GAR_FUNC(name, copy)(const GAR(name)*, GAR(name)*);                 \
     void    GAR_FUNC(name, free)(GAR(name)*);                                   \
     error_t GAR_FUNC(name, set_capacity)(GAR(name)*, size_t);                   \
@@ -106,10 +106,12 @@
     GARP_SORT(name, type)                                                       \
 
 #define GARP_NEW(name, type) \
-    void GAR_FUNC(name, new)(GAR(name)* array) {                                \
-        array->capacity = 0;                                                    \
-        array->size = 0;                                                        \
-        array->values = NULL;                                                   \
+    GAR(name) GAR_FUNC(name, new)() {                                           \
+        return (GAR(name)) {                                                    \
+            .capacity = 0,                                                      \
+            .size = 0,                                                          \
+            .values = NULL,                                                     \
+        };                                                                      \
     }
 
 #define GARP_COPY(name, type) \
@@ -323,7 +325,7 @@
     error_t GAR_FUNC(name, filter)(GAR(name)* src, int (*filter)(type), GAR(name)* dst) { \
         error_t error;                                                          \
                                                                                 \
-        GAR_FUNC(name, new)(dst);                                               \
+        *dst = GAR_FUNC(name, new)();                                           \
         error = GAR_FUNC(name, set_capacity)(dst, src->size);                   \
         if (error != NO_ERROR) {                                                \
             return error;                                                       \
@@ -389,7 +391,7 @@
     error_t GAR_FUNC(name, deepcopy)(const GAR(name)* src, GAR(name)* dst) {    \
         error_t error;                                                          \
                                                                                 \
-        GAR_FUNC(name, new)(dst);                                               \
+        *dst = GAR_FUNC(name, new)();                                           \
         error = GAR_FUNC(name, set_capacity)(dst, src->size);                   \
         if (error != NO_ERROR) {                                                \
             return error;                                                       \

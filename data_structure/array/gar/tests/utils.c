@@ -18,7 +18,7 @@ char* str_duplicate(const char* src) {
 }
 
 SUB_TEST(make_array, int_gar_t* arr, size_t cap, size_t size) {
-    int_gar_new(arr);
+    *arr = int_gar_new();
     ASSERT_EQUAL(int_gar_set_capacity(arr, cap), NO_ERROR, "Could not set capacity to %lu.", cap);
 
     for (size_t i = 0; i < size; i++) {

@@ -53,7 +53,7 @@ UNIT_TEST(deepcopy_str) {
     size_t cap = 10;
     string_gar_t arr, copy;
 
-    string_gar_new(&arr);
+    arr = string_gar_new();
     result_ok(string_gar_set_capacity(&arr, cap), "Could not set capacity.");
 
     result_ok(string_gar_push(&arr, str_duplicate("A string")), "Could not push value.");
@@ -79,7 +79,7 @@ UNIT_TEST(free_values) {
     size_t cap = 10;
     string_gar_t arr;
 
-    string_gar_new(&arr);
+    arr = string_gar_new();
     result_ok(string_gar_set_capacity(&arr, cap), "Could not set capacity.");
 
     result_ok(string_gar_push(&arr, str_duplicate("A string")), "Could not push value.");

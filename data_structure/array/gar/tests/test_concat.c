@@ -28,8 +28,8 @@ UNIT_TEST(concat) {
 UNIT_TEST(concat_empty) {
     int_gar_t a, b;
 
-    int_gar_new(&a);
-    int_gar_new(&b);
+    a = int_gar_new();
+    b = int_gar_new();
 
     result_ok(int_gar_concat(&a, &b), "Could not concatenate arrays.");
     ASSERT_EQUAL(b.size, 0, "Size is %lu, array was not consumed.", b.size);
@@ -44,7 +44,7 @@ UNIT_TEST(concat_empty) {
 UNIT_TEST(concat_on_empty) {
     int_gar_t a, b;
 
-    int_gar_new(&a);
+    a = int_gar_new();
     CALL_TEST(make_array, &b, 30, 3);
 
     result_ok(int_gar_concat(&a, &b), "Could not concatenate arrays.");
@@ -63,7 +63,7 @@ UNIT_TEST(concat_with_empty) {
     int_gar_t a, b;
 
     CALL_TEST(make_array, &a, 30, 5);
-    int_gar_new(&b);
+    b = int_gar_new();
 
     result_ok(int_gar_concat(&a, &b), "Could not concatenate arrays.");
     ASSERT_EQUAL(b.size, 0, "Size is %lu, array was not consumed.", b.size);
