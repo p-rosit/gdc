@@ -68,9 +68,7 @@ UNIT_TEST(deepcopy_str) {
         ASSERT_TRUE(strcmp(arr.values[i], copy.values[i]) == 0, "Copy contains \"%s\" instead of \"%s\".", copy.values[i], arr.values[i]);
     }
 
-    string_gar_free_values(&arr);
     string_gar_free(&arr);
-    string_gar_free_values(&copy);
     string_gar_free(&copy);
     TEST_END;
 }
@@ -86,7 +84,10 @@ UNIT_TEST(free_values) {
     result_ok(string_gar_push(&arr, str_duplicate("B string")), "Could not push value.");
     result_ok(string_gar_push(&arr, str_duplicate("C string")), "Could not push value.");
 
-    string_gar_free_values(&arr);
+    for (size_t i = 0; i < arr.size; i++) {
+        free(arr.values[i]);
+    }
+    string_gar_clear(&arr);
 
     ASSERT_EQUAL(arr.capacity, cap, "Capacity is %lu instead of %lu.", arr.capacity, cap);
     ASSERT_EQUAL(arr.size, 0, "Size is %lu instead of 0.", arr.size);

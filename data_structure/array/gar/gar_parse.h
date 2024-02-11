@@ -6,8 +6,16 @@
 #define gar_make_parse_h(name, type) \
     PARSE_DATA_H(JOIN_TOKENS(name, _gar), GAR(name))
 
-#define gar_make_parse(name, type, free_array, free_value, json_to_value) \
-    PARSE_ARRAY(JOIN_TOKENS(name, _gar), GAR(name), type, GAR_FUNC(name, new), GAR_FUNC(name, push), free_array, free_value, json_to_value)
+#define gar_make_parse(name, type, json_to_value) \
+    PARSE_ARRAY(                                                                \
+        JOIN_TOKENS(name, _gar),                                                \
+        GAR(name), type,                                                        \
+        GAR_FUNC(name, new),                                                    \
+        GAR_FUNC(name, push),                                                   \
+        GAR_FUNC(name, free),                                                   \
+        GAR_PRIVATE(name, free_value),                                          \
+        json_to_value                                                           \
+    )
  
 gar_make_parse_h(char, char)
 gar_make_parse_h(string, char*)

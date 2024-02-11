@@ -53,8 +53,10 @@
     } GAR(name);                                                                \
                                                                                 \
     GAR(name) GAR_FUNC(name, new)(void);                                        \
-    error_t GAR_FUNC(name, copy)(const GAR(name)*, GAR(name)*);                 \
+    void    GAR_PRIVATE(name, free_value)(type value);                          \
     void    GAR_FUNC(name, free)(GAR(name)*);                                   \
+    void    GAR_FUNC(name, clear)(GAR(name)*);                                  \
+    error_t GAR_FUNC(name, copy)(const GAR(name)*, GAR(name)*);                 \
     error_t GAR_FUNC(name, set_capacity)(GAR(name)*, size_t);                   \
     error_t GAR_FUNC(name, fit_capacity)(GAR(name)*);                           \
                                                                                 \
@@ -78,13 +80,11 @@
 #define gar_make_deepcopy_h(name, type) \
     error_t GAR_FUNC(name, deepcopy)(const GAR(name)*, GAR(name)*);             \
 
-#define gar_make_free_h(name, type) \
-    void        GAR_FUNC(name, free_values)(GAR(name)*);                        \
-
-#define gar_make_basic(name, type) \
+#define gar_make_basic(name, type, free_value) \
     GARP_NEW(name, type)                                                        \
+    GARP_CLEAR(name, type)                                                      \
+    GARP_FREE(name, type, free_value)                                           \
     GARP_COPY(name, type)                                                       \
-    GARP_FREE(name, type)                                                       \
     GARP_SET_CAPACITY(name, type)                                               \
     GARP_FIT_CAPACITY(name, type)                                               \
                                                                                 \
@@ -114,6 +114,25 @@
         };                                                                      \
     }
 
+#define GARP_CLEAR(name, type) \
+    void GAR_FUNC(name, clear)(GAR(name)* array) {                              \
+        array->size = 0;                                                        \
+    }
+
+#define GARP_FREE(name, type, free_func) \
+    void GAR_PRIVATE(name, free_value)(type value) {                            \
+        free_func(value);                                                       \
+    }                                                                           \
+                                                                                \
+    void GAR_FUNC(name, free)(GAR(name)* array) {                               \
+        for (size_t i = 0; i < array->size; i++) {                              \
+            GAR_PRIVATE(name, free_value)(array->values[i]);                    \
+        }                                                                       \
+                                                                                \
+        free(array->values);                                                    \
+        *array = GAR_FUNC(name, new)();                                         \
+    }
+
 #define GARP_COPY(name, type) \
     error_t GAR_FUNC(name, copy)(const GAR(name)* src, GAR(name)* dst) {        \
         error_t error = NO_ERROR;                                               \
@@ -130,14 +149,6 @@
                                                                                 \
         memcpy(dst->values, src->values, src->size * sizeof(type));             \
         return error;                                                           \
-    }
-
-#define GARP_FREE(name, type) \
-    void GAR_FUNC(name, free)(GAR(name)* array) {                               \
-        array->capacity = 0;                                                    \
-        array->size = 0;                                                        \
-        free(array->values);                                                    \
-        array->values = NULL;                                                   \
     }
 
 #define GARP_SET_CAPACITY(name, type) \
@@ -405,21 +416,12 @@
         return NO_ERROR;                                                        \
     }
 
-#define gar_make_free(name, type, free_func) \
-    void GAR_FUNC(name, free_values)(GAR(name)* array) {                        \
-        for (size_t i = 0; i < array->size; i++) {                              \
-            free_func(array->values[i]);                                        \
-        }                                                                       \
-        array->size = 0;                                                        \
-    }
-
 gar_make_basic_h(char, char)
 gar_make_basic_h(uchar, unsigned char)
 gar_make_basic_h(schar, signed char)
 
 gar_make_basic_h(string, char*)
 gar_make_deepcopy_h(string, char*)
-gar_make_free_h(string, char*)
 
 gar_make_basic_h(short, short)
 gar_make_basic_h(int, int)
