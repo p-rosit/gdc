@@ -13,10 +13,6 @@ size_t str_hash(const char* str) {
     return *str;
 }
 
-void s2i_free(char* key, int value) {
-    free(key);
-}
-
 char* str_duplicate(const char* src) {
     size_t len = strlen(src);
     char* dst = malloc(len + 1);
@@ -35,16 +31,14 @@ void s2i_copy_item(const char* str_src, const int int_src, char** str_dst, int *
 
 
 hsm_make_basic_h(s2i, char*, int)
-hsm_make_free_h(s2i, char*, int)
 hsm_make_deepcopy_h(s2i, char*, int)
 hsm_make_serialize_h(s2i, char*, int)
 hsm_make_parse_h(s2i, char*, int)
 
-hsm_make_basic(s2i, char*, int, str_hash)
-hsm_make_free(s2i, char*, int, s2i_free)
+hsm_make_basic(s2i, char*, int, str_hash, free, )
 hsm_make_deepcopy(s2i, char*, int, s2i_copy_item)
 hsm_make_serialize(s2i, char*, int, serialize_string, serialize_int)
-hsm_make_parse(s2i, char*, int, s2i_hsm_free_all, free, , parse_string, parse_int)
+hsm_make_parse(s2i, char*, int, parse_string, parse_int)
 
 
 SUB_TEST(make_map, s2i_hsm_t* map, size_t capacity) {
