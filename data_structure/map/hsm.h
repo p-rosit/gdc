@@ -2,7 +2,6 @@
 #define HSM_H
 #include "error.h"
 #include "../gdc.h"
-#include "../array/gar.h"
 #include "../../serialize/serialize.h"
 
 /**
