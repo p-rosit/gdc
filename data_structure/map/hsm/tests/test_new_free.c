@@ -6,7 +6,7 @@ UNIT_TEST(new_map) {
     size_t cap = 5;
     s2i_hsm_t map;
 
-    s2i_hsm_new(&map);
+    map = s2i_hsm_new();
     ASSERT_EQUAL(map.capacity, 0, "Capacity is %lu instead of 0.", map.capacity);
     ASSERT_EQUAL(map.size, 0, "Size is %lu instead of 0.", map.size);
     ASSERT_EQUAL(map.max_offset, 0, "Max offset is %lu instead of 0.", map.max_offset);
@@ -26,7 +26,7 @@ UNIT_TEST(new_map) {
 UNIT_TEST(free_empty) {
     s2i_hsm_t map;
 
-    s2i_hsm_new(&map);
+    map = s2i_hsm_new();
     s2i_hsm_free(&map);
     ASSERT_EQUAL(map.capacity, 0, "Capacity is %lu instead of 0.", map.capacity);
     ASSERT_EQUAL(map.size, 0, "Size is %lu instead of 0.", map.size);
@@ -43,7 +43,7 @@ UNIT_TEST(free_kvp) {
     char k3[] = "key3";
     char *keys[3] = {k1, k2, k3};
 
-    s2i_hsm_new(&map);
+    map = s2i_hsm_new();
     s2i_hsm_ensure_capacity(&map, 10);
 
     for (size_t i = 0; i < size; i++) {

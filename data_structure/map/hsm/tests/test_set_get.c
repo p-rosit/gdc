@@ -55,7 +55,7 @@ UNIT_TEST(set_to_empty) {
     int v = 4;
     HSM_STRUCT(meta_data) md;
 
-    s2i_hsm_new(&map);
+    map = s2i_hsm_new();
 
     result_ok(s2i_hsm_set(&map, k, v), "Could not insert pair {\"%s\": %d}.", key, v);
     ASSERT_EQUAL(map.size, 1, "Size is %lu instead of 1.", map.size);

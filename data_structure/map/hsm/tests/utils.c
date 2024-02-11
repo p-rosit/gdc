@@ -48,7 +48,7 @@ hsm_make_parse(s2i, char*, int, s2i_hsm_free_all, free, , parse_string, parse_in
 
 
 SUB_TEST(make_map, s2i_hsm_t* map, size_t capacity) {
-    s2i_hsm_new(map);
+    *map = s2i_hsm_new();
     result_ok(s2i_hsm_ensure_capacity(map, capacity), "Could not allocate map with capacity %lu.", capacity);
     ASSERT_EQUAL(map->capacity, capacity, "Capacity is %lu instead of %lu.", map->capacity, capacity);
     ASSERT_EQUAL(map->size, 0, "Size is %lu instead of %lu.", map->size, 0);

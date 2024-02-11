@@ -259,7 +259,7 @@ UNIT_TEST(insert_to_empty) {
     char* k = (char*) key;
     int v = 11;
 
-    s2i_hsm_new(&map);
+    map = s2i_hsm_new();
 
     result_ok(s2i_hsm_insert(&map, k, v), "Could not insert into empty map.");
 
@@ -273,7 +273,7 @@ UNIT_TEST(delete_from_empty) {
     char* k = (char*) key;
     int v;
 
-    s2i_hsm_new(&map);
+    map = s2i_hsm_new();
 
     error = s2i_hsm_delete(&map, k, &v);
     ASSERT_EQUAL(error, NOT_PRESENT, "Got nonsense value %d.", v);

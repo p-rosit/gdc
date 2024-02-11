@@ -6,7 +6,7 @@
 UNIT_TEST(copy_empty) {
     s2i_hsm_t src, dst;
     
-    s2i_hsm_new(&src);
+    src = s2i_hsm_new();
     result_ok(s2i_hsm_copy(&src, &dst), "Could not copy map.");
 
     ASSERT_EQUAL(dst.capacity, src.capacity, "Capacity is %lu instead of %lu.", dst.capacity, src.capacity);
@@ -31,7 +31,7 @@ UNIT_TEST(copy_map) {
     int v[size];
     for (i = 0; i < size; i++) v[i] = i;
 
-    s2i_hsm_new(&src);
+    src = s2i_hsm_new();
     for (i = 0; i < size; i++) {
         result_ok(s2i_hsm_insert(&src, &k[i], v[i]), "Could not insert pair: {\"%c\": %d}.", k[i], v[i]);
     }
@@ -57,7 +57,7 @@ UNIT_TEST(copy_map) {
 UNIT_TEST(deepcopy_empty) {
     s2i_hsm_t src, dst;
     
-    s2i_hsm_new(&src);
+    src = s2i_hsm_new();
     result_ok(s2i_hsm_deepcopy(&src, &dst), "Could not copy map.");
 
     ASSERT_EQUAL(dst.capacity, src.capacity, "Capacity is %lu instead of %lu.", dst.capacity, src.capacity);
@@ -82,7 +82,7 @@ UNIT_TEST(deepcopy_map) {
     int v[size];
     for (i = 0; i < size; i++) v[i] = i;
 
-    s2i_hsm_new(&src);
+    src = s2i_hsm_new();
     for (i = 0; i < size; i++) {
         temp = str_duplicate(k[i]);
         result_ok(s2i_hsm_insert(&src, temp, v[i]), "Could not insert pair: {\"%c\": %d}.", k[i], v[i]);

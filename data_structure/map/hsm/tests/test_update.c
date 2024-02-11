@@ -40,8 +40,8 @@ UNIT_TEST(update_empty) {
     size_t a_cap, b_cap;
     s2i_hsm_t a, b;
 
-    s2i_hsm_new(&a);
-    s2i_hsm_new(&b);
+    a = s2i_hsm_new();
+    b = s2i_hsm_new();
 
     a_cap = a.capacity;
     b_cap = b.capacity;
@@ -63,7 +63,7 @@ UNIT_TEST(update_on_empty) {
     char k2[] = {'g', 'h'};
     size2 = sizeof(k2) / sizeof(*k2);
 
-    s2i_hsm_new(&a);
+    a = s2i_hsm_new();
     CALL_TEST(make_map, &b, 5);
     
     for (i = 0; i < size2; i++) {
@@ -93,7 +93,7 @@ UNIT_TEST(update_with_empty) {
     size1 = sizeof(k1) / sizeof(*k1);
 
     CALL_TEST(make_map, &a, 10);
-    s2i_hsm_new(&b);
+    b = s2i_hsm_new();
     
     for (i = 0; i < size1; i++) {
         result_ok(s2i_hsm_insert(&a, &k1[i], i), "Could not insert kvp {\"%c\": %d}.", k1[i], i);

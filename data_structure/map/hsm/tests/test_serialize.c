@@ -10,7 +10,7 @@ UNIT_TEST(serialize_single) {
     char* json;
     char* result = "[[\"B\", 2]]";
 
-    s2i_hsm_new(&map);
+    map = s2i_hsm_new();
     for (size_t i = 0; i < sizeof(values) / sizeof(*values); i++) {
         s2i_hsm_insert(&map, keys[i], values[i]);
     }
@@ -31,7 +31,7 @@ UNIT_TEST(serialize_map) {
     /* TODO: remove hardcoding of string? */
     char* result = "[[\"B\", 2], [\":)\", -3], [\"C\", 0]]";
 
-    s2i_hsm_new(&map);
+    map = s2i_hsm_new();
     for (size_t i = 0; i < sizeof(values) / sizeof(*values); i++) {
         s2i_hsm_insert(&map, keys[i], values[i]);
     }
@@ -49,7 +49,7 @@ UNIT_TEST(serialize_empty) {
     char* json;
     char* result = "[]";
 
-    s2i_hsm_new(&map);
+    map = s2i_hsm_new();
 
     result_ok(s2i_hsm_to_json(&map, &json), "Could not serialize map.");
     ASSERT_TRUE(strcmp(json, result) == 0, "Json is \"%s\" instead of \"%s\".", json, result);

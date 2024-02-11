@@ -7,7 +7,7 @@ UNIT_TEST(ensure_from_empty) {
     size_t cap = 10;
     s2i_hsm_t map;
 
-    s2i_hsm_new(&map);
+    map = s2i_hsm_new();
     result_ok(s2i_hsm_ensure_capacity(&map, cap), "Could not make capacity %lu.", cap);
     ASSERT_EQUAL(map.capacity, cap, "Capacity is %lu instead of %lu.", map.capacity, cap);
     ASSERT_EQUAL(map.size, 0, "Size is %lu instead of %lu.", map.size, 0);

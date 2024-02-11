@@ -81,7 +81,7 @@ typedef struct HSM_STRUCT(meta_data) {
         value_type* values;                                                     \
     } HSM(name);                                                                \
                                                                                 \
-    void    HSM_FUNC(name, new)(HSM(name)*);                                    \
+    HSM(name) HSM_FUNC(name, new)(void);                                        \
     error_t HSM_FUNC(name, copy)(const HSM(name)*, HSM(name)*);                 \
     void    HSM_FUNC(name, free)(HSM(name)*);                                   \
     error_t HSM_FUNC(name, ensure_capacity)(HSM(name)*, size_t);                \
@@ -126,19 +126,21 @@ typedef struct HSM_STRUCT(meta_data) {
     HSMP_FREE_ITEMS(name, key_type, value_type, free_item_func)
 
 #define HSMP_NEW(name, key_type, value_type, hash_func) \
-    void HSM_FUNC(name, new)(HSM(name)* map) {                                  \
-        map->capacity = 0;                                                      \
-        map->size = 0;                                                          \
-        map->max_offset = 0;                                                    \
-        map->meta_data = NULL;                                                  \
-        map->keys = NULL;                                                       \
-        map->values = NULL;                                                     \
+    HSM(name) HSM_FUNC(name, new)() {                                           \
+        return (HSM(name)) {                                                    \
+            .capacity = 0,                                                      \
+            .size = 0,                                                          \
+            .max_offset = 0,                                                    \
+            .meta_data = NULL,                                                  \
+            .keys = NULL,                                                       \
+            .values = NULL                                                      \
+        };                                                                      \
     }
 
 #define HSMP_COPY(name, key_type, value_type, hash_func) \
     error_t HSM_FUNC(name, copy)(const HSM(name)* src, HSM(name)* dst) {        \
         error_t error;                                                          \
-        HSM_FUNC(name, new)(dst);                                               \
+        *dst = HSM_FUNC(name, new)();                                           \
         error = HSM_PRIVATE(name, set_capacity)(dst, src->capacity);            \
                                                                                 \
         if (error != NO_ERROR) {                                                \
@@ -167,6 +169,7 @@ typedef struct HSM_STRUCT(meta_data) {
         map->meta_data = NULL;                                                  \
         map->keys = NULL;                                                       \
         map->values = NULL;                                                     \
+        *map = HSM_FUNC(name, new)();                                           \
     }
 
 #define HSMP_ENSURE_CAPACITY(name, key_type, value_type, hash_func) \
@@ -522,7 +525,7 @@ typedef struct HSM_STRUCT(meta_data) {
     error_t HSM_FUNC(name, deepcopy)(const HSM(name)* src, HSM(name)* dst) {    \
         error_t error;                                                          \
                                                                                 \
-        HSM_FUNC(name, new)(dst);                                               \
+        *dst = HSM_FUNC(name, new)();                                           \
         error = HSM_PRIVATE(name, set_capacity)(dst, src->capacity);            \
         if (error != NO_ERROR) {                                                \
             return error;                                                       \
