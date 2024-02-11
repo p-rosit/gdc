@@ -11,7 +11,7 @@
         temp = str;                                                             \
         result_ok(parse_string(&value, &temp), "Could not parse string: \"%s\".", str);\
         ASSERT_TRUE(strcmp(value, res) == 0, "Result is \"%*s\" instead of \"%s\".", sizeof(str) - 3, value, res);\
-        ASSERT_EQUAL(*temp, '\0', "Pointer has not moved past input, pointing at \"%c\".", *temp); \
+        ASSERT_EQUAL(*temp, '\0', "Pointer has not moved past input, pointing %ld steps past the input.", temp - str); \
                                                                                 \
         free(value);                                                            \
         TEST_END;                                                               \
@@ -24,9 +24,24 @@
                                                                                 \
         temp = str;                                                             \
         ASSERT_EQUAL(parse_string(&value, &temp), PARSE_ERROR, "Accidentally parsed string: \"%s\".", str);\
+        ASSERT_EQUAL(str, temp, "Pointer moved %ld steps.", temp - str);        \
                                                                                 \
         TEST_END;                                                               \
     }
+
+UNIT_TEST(test_char) {
+    char value, *temp;
+    char str[] = "\'c\'";
+    char res = 'c';
+
+    temp = str;
+    result_ok(parse_char(&value, &temp), "Could not parse character %s.", str);
+
+    ASSERT_EQUAL(value, res, "Parsed \'%c\' instead of \'%c\'.", value, res);
+    ASSERT_EQUAL(*temp, '\0', "Pointer has not moved past input, pointing %ld steps past the string.", temp - str);
+
+    TEST_END;
+}
 
 TEST_STRING_PARSE(parse_value,
     "\"Here is a string\"",
@@ -60,6 +75,7 @@ TEST_INVALID_STRING(invalid_escape, "\"Here: \\y\"")
 TEST_INVALID_STRING(non_hex, "\"Not hex: \\u3y1a\"")
 
 LIST_TESTS(
+    test_char,
     parse_value,
     parse_escaped,
     not_escaped,

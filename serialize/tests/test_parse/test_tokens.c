@@ -3,24 +3,25 @@
 #include "../utils.c"
 
 #define CORRECT_TOKEN(name, func, json, next_char) \
-    UNIT_TEST(name) { \
-        char str[] = json; \
-        char* temp = str; \
-        \
-        result_ok(func(&temp), "Token not recognized.");\
-        ASSERT_EQUAL(*temp, next_char, "Pointer not advanced.");\
-        \
-        TEST_END;\
+    UNIT_TEST(name) {                                                           \
+        char str[] = json;                                                      \
+        char* temp = str;                                                       \
+                                                                                \
+        result_ok(func(&temp), "Token not recognized.");                        \
+        ASSERT_EQUAL(*temp, next_char, "Pointer not advanced.");                \
+                                                                                \
+        TEST_END;                                                               \
     }
 
 #define INCORRECT_TOKEN(name, func, json) \
-    UNIT_TEST(name) { \
-        char str[] = json;\
-        char* temp = str;\
-        \
-        ASSERT_EQUAL(func(&temp), PARSE_ERROR, "Incorrect token parsed."); \
-        \
-        TEST_END; \
+    UNIT_TEST(name) {                                                           \
+        char str[] = json;                                                      \
+        char* temp = str;                                                       \
+                                                                                \
+        ASSERT_EQUAL(func(&temp), PARSE_ERROR, "Incorrect token parsed.");      \
+        ASSERT_EQUAL(temp, str, "Pointer moved %ld steps.", temp - str);        \
+                                                                                \
+        TEST_END;                                                               \
     }
 
 

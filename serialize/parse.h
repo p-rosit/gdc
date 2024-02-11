@@ -4,97 +4,97 @@
 #include "../error.h"
 #include "../macro.h"
 
-#define PARSE_DATA(name, type) \
-    error_t JOIN_TOKENS(name, _from_json)(type*, char** json)
+#define PARSE_DATA_H(name, type) \
+    error_t JOIN_TOKENS(name, _from_json)(type*, char** json);
 
 #define PARSE_ARRAY(name, array_type, type, new_array, push_value, free_array, parse_value) \
-    error_t JOIN_TOKENS(name, _from_json)(array_type* array, char** str) { \
-        error_t error, stop_error; \
-        type value;\
-        char* json = *str;\
-        \
-        new_array(array);\
-        \
-        parse_skip_whitespace(&json); \
-        error = parse_start_array(&json); \
-        if (error != NO_ERROR) {goto execution_failed;} \
-        \
-        parse_skip_whitespace(&json); \
-        stop_error = parse_end_array(&json);\
-        \
-        while (stop_error != NO_ERROR) {\
-            parse_skip_whitespace(&json);\
-            error = parse_value(&value, &json); \
-            if (error != NO_ERROR) {goto execution_failed;} \
-            \
-            error = push_value(array, value); \
-            if (error != NO_ERROR) {goto execution_failed;}\
-            \
-            parse_skip_whitespace(&json); \
-            \
-            error = parse_next_entry(&json);\
-            if (error == NO_ERROR) {continue;}\
-            \
-            stop_error = parse_end_array(&json); \
-            if (stop_error == NO_ERROR) { \
-                break;\
-            } else { \
-                goto execution_failed;\
-            } \
-        } \
-        \
-        *str = json;\
-        \
-        return error; \
-        \
-        execution_failed:\
-        free_array(array);\
-        return error; \
+    error_t JOIN_TOKENS(name, _from_json)(array_type* array, char** str) {      \
+        error_t error, stop_error;                                              \
+        type value;                                                             \
+        char* json = *str;                                                      \
+                                                                                \
+        new_array(array);                                                       \
+                                                                                \
+        parse_skip_whitespace(&json);                                           \
+        error = parse_start_array(&json);                                       \
+        if (error != NO_ERROR) {goto execution_failed;}                         \
+                                                                                \
+        parse_skip_whitespace(&json);                                           \
+        stop_error = parse_end_array(&json);                                    \
+                                                                                \
+        while (stop_error != NO_ERROR) {                                        \
+            parse_skip_whitespace(&json);                                       \
+            error = parse_value(&value, &json);                                 \
+            if (error != NO_ERROR) {goto execution_failed;}                     \
+                                                                                \
+            error = push_value(array, value);                                   \
+            if (error != NO_ERROR) {goto execution_failed;}                     \
+                                                                                \
+            parse_skip_whitespace(&json);                                       \
+                                                                                \
+            error = parse_next_entry(&json);                                    \
+            if (error == NO_ERROR) {continue;}                                  \
+                                                                                \
+            stop_error = parse_end_array(&json);                                \
+            if (stop_error == NO_ERROR) {                                       \
+                break;                                                          \
+            } else {                                                            \
+                goto execution_failed;                                          \
+            }                                                                   \
+        }                                                                       \
+                                                                                \
+        *str = json;                                                            \
+                                                                                \
+        return error;                                                           \
+                                                                                \
+        execution_failed:                                                       \
+        free_array(array);                                                      \
+        return error;                                                           \
     }
 
 #define PARSE_MAP(name, map_type, key_type, value_type, new_map, push_kvp, free_map, parse_key, parse_value) \
-    error_t JOIN_TOKENS(name, _from_json)(map_type* map, char** str) { \
-        error_t error, stop_error; /* TODO */\
-        type value;\
-        char* json = *str;\
-        \
-        new(array);\
-        \
-        parse_skip_whitespace(&json); \
-        error = parse_start_array(&json); \
-        if (error != NO_ERROR) {goto execution_failed;} \
-        \
-        parse_skip_whitespace(&json); \
-        stop_error = parse_end_array(&json);\
-        \
-        while (stop_error != NO_ERROR) {\
-            parse_skip_whitespace(&json);\
-            error = parse_value(&value, &json); \
-            if (error != NO_ERROR) {goto execution_failed;} \
-            \
-            error = push(array, value); \
-            if (error != NO_ERROR) {goto execution_failed;}\
-            \
-            parse_skip_whitespace(&json); \
-            \
-            error = parse_next_entry(&json);\
-            if (error == NO_ERROR) {continue;}\
-            \
-            stop_error = parse_end_array(&json); \
-            if (stop_error == NO_ERROR) { \
-                break;\
-            } else { \
-                goto execution_failed;\
-            } \
-        } \
-        \
-        *str = json;\
-        \
-        return error; \
-        \
-        execution_failed:\
-        free_array(array);\
-        return error; \
+    error_t JOIN_TOKENS(name, _from_json)(map_type* map, char** str) {          \
+        error_t error, stop_error;                                              \
+        type value;                                                             \
+        char* json = *str;                                                      \
+                                                                                \
+        new(array);                                                             \
+                                                                                \
+        parse_skip_whitespace(&json);                                           \
+        error = parse_start_array(&json);                                       \
+        if (error != NO_ERROR) {goto execution_failed;}                         \
+                                                                                \
+        parse_skip_whitespace(&json);                                           \
+        stop_error = parse_end_array(&json);                                    \
+                                                                                \
+        while (stop_error != NO_ERROR) {                                        \
+            parse_skip_whitespace(&json);                                       \
+            error = parse_value(&value, &json);                                 \
+            if (error != NO_ERROR) {goto execution_failed;}                     \
+                                                                                \
+            error = push(array, value);                                         \
+            if (error != NO_ERROR) {goto execution_failed;}                     \
+                                                                                \
+            parse_skip_whitespace(&json);                                       \
+                                                                                \
+            error = parse_next_entry(&json);                                    \
+            if (error == NO_ERROR) {continue;}                                  \
+                                                                                \
+            stop_error = parse_end_array(&json);                                \
+            if (stop_error == NO_ERROR) {                                       \
+                break;                                                          \
+            } else {                                                            \
+                goto execution_failed;                                          \
+            }                                                                   \
+        }                                                                       \
+                                                                                \
+        *str = json;                                                            \
+                                                                                \
+        return error;                                                           \
+                                                                                \
+        execution_failed:                                                       \
+        free_array(array);                                                      \
+        return error;                                                           \
     }
 
 #define DESERIALIZE(name, type) error_t JOIN_TOKENS(parse_, name)(type* value, char** json)

@@ -142,3 +142,18 @@ error_t parse_string(char** value, char** json) {
     return NO_ERROR;
 }
 
+error_t parse_char(char* value, char** json) {
+    char* str = *json;
+
+    parse_skip_whitespace(&str);
+    if ('\'' != *str++) {return PARSE_ERROR;}
+
+    *value = *str++;
+
+    if ('\'' != *str++) {return PARSE_ERROR;}
+    
+    *json = str;
+
+    return NO_ERROR;
+}
+

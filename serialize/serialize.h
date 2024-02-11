@@ -43,4 +43,106 @@ SERIALIZE(ulong_long, unsigned long long);
 SERIALIZE(char, char);
 SERIALIZE(string, char*);
 
+#define SERIALIZE_DATA_H(name, type) \
+    error_t JOIN_TOKENS(name, _to_json)(const type* data, char** json); \
+    error_t JOIN_TOKENS(name, _to_json_recursive)(const type* data, json_str_t* json);
+
+#define SERIALIZE_BASE(name, array_type) \
+    error_t JOIN_TOKENS(name, _to_json)(const array_type* array, char** str) {  \
+        error_t error;                                                          \
+        json_str_t json;                                                        \
+                                                                                \
+        json = json_new();                                                      \
+        error = JOIN_TOKENS(name, _to_json_recursive)(array, &json);            \
+        if (error != NO_ERROR) {goto execution_failed;}                         \
+                                                                                \
+        error = json_to_str(&json, str);                                        \
+        if (error != NO_ERROR) {goto execution_failed;}                         \
+                                                                                \
+        return error;                                                           \
+                                                                                \
+        execution_failed:                                                       \
+        *str = NULL;                                                            \
+        json_free(&json);                                                       \
+        return error;                                                           \
+    }
+
+#define SERIALIZE_ARRAY(name, array_type, type, for_each, value_to_json) \
+    SERIALIZE_BASE(name, array_type)                                            \
+                                                                                \
+    error_t JOIN_TOKENS(name, _to_json_recursive)(const array_type* array, json_str_t* json) { \
+        size_t index;                                                           \
+        error_t error;                                                          \
+                                                                                \
+        error = json_start_array(json);                                         \
+        if (error != NO_ERROR) {goto execution_failed; }                        \
+                                                                                \
+        index = 0;                                                              \
+        for_each(*array, type value) {                                          \
+            if (index > 0) {                                                    \
+                error = json_next_entry(json);                                  \
+                if (error != NO_ERROR) {goto execution_failed;}                 \
+            }                                                                   \
+                                                                                \
+            error = value_to_json(json, value);                                 \
+            if (error != NO_ERROR) {goto execution_failed;}                     \
+                                                                                \
+            index++;                                                            \
+        }                                                                       \
+                                                                                \
+        error = json_end_array(json);                                           \
+        if (error != NO_ERROR) {goto execution_failed; }                        \
+                                                                                \
+        return error;                                                           \
+                                                                                \
+        execution_failed:                                                       \
+        json_free(json);                                                        \
+        return error;                                                           \
+    }
+
+#define SERIALIZE_MAP(name, map_type, key_type, value_type, for_each, key_to_json, value_to_json) \
+    SERIALIZE_BASE(name, array_type)                                            \
+                                                                                \
+    error_t JOIN_TOKENS(name, _to_json_recursive)(const map_type* map, char** json) { \
+        size_t index;                                                           \
+        error_t error;                                                          \
+                                                                                \
+        error = json_start_array(json);                                         \
+        if (error != NO_ERROR) {goto execution_failed;}                         \
+                                                                                \
+        index = 0;                                                              \
+        for_each(*map, key_type key, value_type value) {                        \
+            if (index > 0) {                                                    \
+                error = json_next_entry(json);                                  \
+                if (error != NO_ERROR) {goto execution_failed;}                 \
+            }                                                                   \
+                                                                                \
+            error = json_start_array(json);                                     \
+            if (error != NO_ERROR) {goto execution_failed;}                     \
+                                                                                \
+            error = key_to_json(json, key);                                     \
+            if (error != NO_ERROR) {goto execution_failed;}                     \
+                                                                                \
+            error = json_next_entry(json);                                      \
+            if (error != NO_ERROR) {goto execution_failed;}                     \
+                                                                                \
+            error = value_to_json(json, value);                                 \
+            if (error != NO_ERROR) {goto execution_failed;}                     \
+                                                                                \
+            error = json_end_array(json);                                       \
+            if (error != NO_ERROR) {goto execution_failed;}                     \
+                                                                                \
+            index++;                                                            \
+        }                                                                       \
+                                                                                \
+        error = json_end_array(json);                                           \
+        if (error != NO_ERROR) {goto execution_failed; }                        \
+                                                                                \
+        return error;                                                           \
+                                                                                \
+        execution_failed:                                                       \
+        json_free(json);                                                        \
+        return error;                                                           \
+    }
+
 #endif

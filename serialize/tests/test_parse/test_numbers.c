@@ -34,6 +34,7 @@
         temp = num;                                                             \
         error = JOIN_TOKENS(parse_, name)(&v, &temp);                           \
         ASSERT_EQUAL(error, PARSE_ERROR, "Incorrectly parsed \"%s\".", num);    \
+        ASSERT_EQUAL(num, temp, "Pointer moved %ld steps.", temp - num);        \
                                                                                 \
         TEST_END;                                                               \
     }                                                                           \
@@ -54,6 +55,7 @@
             temp = num;                                                         \
             error = JOIN_TOKENS(parse_, name)(&v, &temp);                       \
             ASSERT_EQUAL(error, PARSE_ERROR, "Incorrectly parsed %s.", num);    \
+            ASSERT_EQUAL(num, temp, "Pointer moved %ld steps.", temp - num);    \
         }                                                                       \
                                                                                 \
         TEST_END;                                                               \
@@ -77,6 +79,7 @@
             temp = num;                                                         \
             error = JOIN_TOKENS(parse_, name)(&v, &temp);                       \
             ASSERT_EQUAL(error, PARSE_ERROR, "Incorrectly parsed %s.", num);    \
+            ASSERT_EQUAL(num, temp, "Pointer moved %ld steps.", temp - num);    \
         }                                                                       \
                                                                                 \
         TEST_END;                                                               \
