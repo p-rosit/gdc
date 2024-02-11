@@ -1,6 +1,6 @@
 #include "../../../../cut/cut.h"
-#include "../gar/gar.h"
-#include "../gar/gar_serialize.h"
+#include "../gar.h"
+#include "../gar_serialize.h"
 #include "utils.c"
 
 UNIT_TEST(serialize_single) {

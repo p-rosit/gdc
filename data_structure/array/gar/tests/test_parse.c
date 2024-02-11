@@ -1,6 +1,6 @@
 #include "../../../../cut/cut.h"
-#include "../gar/gar.h"
-#include "../gar/gar_parse.h"
+#include "../gar.h"
+#include "../gar_parse.h"
 #include "utils.c"
 
 

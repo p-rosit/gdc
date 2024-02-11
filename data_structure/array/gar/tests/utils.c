@@ -1,5 +1,5 @@
 #include "../../../../cut/cut.h"
-#include "../gar/gar.h"
+#include "../gar.h"
 
 
 #define result_ok(error, ...) \
