@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../../cut/cut.h"
+#include "../../../../cut/cut.h"
 #include "../hsm.h"
 
 #define result_ok(error, ...) \

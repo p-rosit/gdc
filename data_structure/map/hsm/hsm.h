@@ -1,8 +1,8 @@
 #ifndef HSM_H
 #define HSM_H
 #include "error.h"
-#include "../gdc.h"
-#include "../../serialize/serialize.h"
+#include "../../gdc.h"
+#include "../../../serialize/serialize.h"
 
 /**
  *  HSM: HaSh Map
