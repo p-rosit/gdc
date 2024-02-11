@@ -4,7 +4,6 @@
 #include "utils.c"
 
 UNIT_TEST(serialize_single) {
-    TEST_BROKEN;
     int_gar_t arr;
     char* json;
     char* result = "[0]";
@@ -20,7 +19,6 @@ UNIT_TEST(serialize_single) {
 }
 
 UNIT_TEST(serialize_array) {
-    TEST_BROKEN;
     int_gar_t arr;
     char* json;
     char* result = "[0, 1, 2, 3, 4]";

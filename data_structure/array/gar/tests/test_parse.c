@@ -5,7 +5,6 @@
 
 
 UNIT_TEST(deserialize_single) {
-    TEST_BROKEN;
     int_gar_t arr;
     int values[] = {3};
     char *temp, json[] = "  [\n 3  \t  ]";
@@ -20,7 +19,6 @@ UNIT_TEST(deserialize_single) {
 }
 
 UNIT_TEST(deserialize_array) {
-    TEST_BROKEN;
     size_t size;
     int_gar_t arr;
     int values[] = {3, 4, -5, 2, -3};
