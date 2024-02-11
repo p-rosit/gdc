@@ -99,7 +99,8 @@ typedef struct HSM_STRUCT(meta_data) {
     error_t HSM_FUNC(name, deepcopy)(const HSM(name)*, HSM(name)*);             \
 
 #define hsm_make_free_h(name, key_type, value_type) \
-    error_t HSM_FUNC(name, free_items)(HSM(name)*);                             \
+    void HSM_FUNC(name, free_all)(HSM(name)*);                               \
+    void HSM_FUNC(name, free_items)(HSM(name)*);                             \
 
 #define hsm_make_basic(name, key_type, value_type, hash_func) \
     HSMP_HELPER_FUNCTIONS(name, key_type, value_type)                           \
@@ -543,7 +544,12 @@ typedef struct HSM_STRUCT(meta_data) {
     }
 
 #define HSMP_FREE_ITEMS(name, key_type, value_type, free_item_func) \
-    error_t HSM_FUNC(name, free_items(HSM(name)* map)) {                        \
+    void HSM_FUNC(name, free_all)(HSM(name)* map) {                          \
+        HSM_FUNC(name, free_items)(map);                                        \
+        HSM_FUNC(name, free)(map);                                              \
+    }                                                                           \
+                                                                                \
+    void HSM_FUNC(name, free_items(HSM(name)* map)) {                        \
         for (size_t i = 0; i < map->capacity + map->max_offset; i++) {          \
             if (map->meta_data[i].offset < map->max_offset) {                   \
                 free_item_func(map->keys[i], map->values[i]);                   \
@@ -551,7 +557,6 @@ typedef struct HSM_STRUCT(meta_data) {
             map->meta_data[i].offset = map->max_offset;                         \
         }                                                                       \
         map->size = 0;                                                          \
-        return NO_ERROR;                                                        \
     }
 
 #endif

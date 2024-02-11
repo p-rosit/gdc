@@ -44,7 +44,7 @@ hsm_make_basic(s2i, char*, int, str_hash)
 hsm_make_free(s2i, char*, int, s2i_free)
 hsm_make_deepcopy(s2i, char*, int, s2i_copy_item)
 hsm_make_serialize(s2i, char*, int, serialize_string, serialize_int)
-hsm_make_parse(s2i, char*, int, parse_string, parse_int)
+hsm_make_parse(s2i, char*, int, s2i_hsm_free_all, free, , parse_string, parse_int)
 
 
 SUB_TEST(make_map, s2i_hsm_t* map, size_t capacity) {
