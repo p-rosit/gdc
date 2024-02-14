@@ -17,6 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <ctype.h>
+#include <string.h>
 
 #define GARP_IDX    GDC_JOIN(garp_index_, __LINE__)
 #define GARP_ITER   GDC_JOIN(garp_iter_, __LINE__)
